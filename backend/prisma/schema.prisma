@@ -110,7 +110,6 @@ model Shipment {
   actualDeliveryDate    DateTime?
   deliverySignature     String?
   deliveryPhoto         String?
-  recipientName         String?
 
   customsStatus         CustomsStatus?
   customsDocuments      String[]

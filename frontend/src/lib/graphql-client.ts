@@ -1,39 +1,63 @@
-import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client"
-import { onError } from "@apollo/client/link/error"
+import { GraphQLClient } from 'graphql-request'
 
-const httpLink = new HttpLink({
-  uri: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/graphql",
-  credentials: "include",
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/graphql"
+
+export const graphqlClient = new GraphQLClient(API_URL, {
+  headers: {
+    'Content-Type': 'application/json',
+  },
 })
 
-const errorLink = onError(({ graphQLErrors, networkError, response }) => {
-  if (graphQLErrors) {
-    graphQLErrors.forEach(({ message, extensions }) => {
-      console.error(`[GraphQL error]: ${message}`)
-    })
-  }
-  if (networkError) {
-    console.error(`[Network error]: ${networkError}`)
-  }
-})
-
-const authLink = (operation: any) => {
-  const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null
-
-  if (token) {
-    operation.setContext({
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    })
-  }
-
-  return operation
+export const setAuthToken = (token: string) => {
+  graphqlClient.setHeader('Authorization', `Bearer ${token}`)
 }
 
-export const client = new ApolloClient({
-  ssrMode: typeof window === "undefined",
-  link: errorLink.concat(httpLink),
-  cache: new InMemoryCache(),
-  connectToDevTools: process.env.NODE_ENV === "development",
-})
+export const removeAuthToken = () => {
+  graphqlClient.setHeader('Authorization', '')
+}
+
+// Auth mutations
+export const LOGIN_MUTATION = `
+  mutation Login($input: LoginInput!) {
+    login(input: $input) {
+      token
+      user {
+        id
+        email
+        firstName
+        lastName
+        role
+      }
+    }
+  }
+`
+
+export const REGISTER_MUTATION = `
+  mutation Register($input: RegisterInput!) {
+    register(input: $input) {
+      token
+      user {
+        id
+        email
+        firstName
+        lastName
+        role
+      }
+    }
+  }
+`
+
+// Auth queries
+export const ME_QUERY = `
+  query Me {
+    me {
+      id
+      email
+      firstName
+      lastName
+      role
+      phone
+      profileImage
+    }
+  }
+`
