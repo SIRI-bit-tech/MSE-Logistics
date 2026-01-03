@@ -1,6 +1,6 @@
 import { Injectable, HttpStatus } from "@nestjs/common"
-import type { PrismaService } from "../prisma/prisma.service"
-import type { StripeService } from "./stripe.service"
+import { PrismaService } from "../prisma/prisma.service"
+import { StripeService } from "./stripe.service"
 import { PaymentStatus } from "../../graphql/schema/enums"
 import { SafeException } from "../../common/exceptions/safe-error.exception"
 

@@ -13,7 +13,12 @@ export const setAuthToken = (token: string) => {
 }
 
 export const removeAuthToken = () => {
-  graphqlClient.setHeader('Authorization', '')
+  // Get current headers and remove Authorization header
+  const currentHeaders = graphqlClient.requestConfig.headers || {}
+  const { Authorization, ...headersWithoutAuth } = currentHeaders as Record<string, string>
+  
+  // Set headers without Authorization
+  graphqlClient.setHeaders(headersWithoutAuth)
 }
 
 // Auth mutations

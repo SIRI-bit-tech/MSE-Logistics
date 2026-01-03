@@ -1,9 +1,11 @@
 import { Resolver, Query, Mutation } from "@nestjs/graphql"
 import { UseGuards } from "@nestjs/common"
-import type { ShipmentService } from "./shipment.service"
+import { ShipmentService } from "./shipment.service"
 import { AuthGuard } from "../../common/guards/auth.guard"
 import { RolesGuard } from "../../common/guards/roles.guard"
 import { Roles } from "../../common/decorators/roles.decorator"
+import { ShipmentStatus } from "@prisma/client"
+import { Shipment } from "../../graphql/schema/shipment.schema"
 
 @Resolver("Shipment")
 export class ShipmentResolver {
@@ -15,29 +17,29 @@ export class ShipmentResolver {
     return `$${cost}`
   }
 
-  @Query()
+  @Query(() => [Shipment])
   @UseGuards(AuthGuard)
   async myShipments(user: any, skip: number, take: number) {
     return this.shipmentService.getUserShipments(user.id, skip, take)
   }
 
-  @Query()
+  @Query(() => [Shipment])
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("ADMIN", "SUPER_ADMIN")
   async allShipments(skip: number, take: number) {
     return []
   }
 
-  @Mutation()
+  @Mutation(() => Shipment)
   @UseGuards(AuthGuard)
   async createShipment(user: any, input: any) {
     return this.shipmentService.createShipment(user.id, input)
   }
 
-  @Mutation()
+  @Mutation(() => Shipment)
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("ADMIN", "SUPER_ADMIN")
-  async updateShipmentStatus(id: string, status: string, data: any) {
+  async updateShipmentStatus(id: string, status: ShipmentStatus, data: any) {
     return this.shipmentService.updateShipmentStatus(id, status, data)
   }
 }

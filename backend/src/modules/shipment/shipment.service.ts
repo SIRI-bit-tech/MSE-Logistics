@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common"
-import type { PrismaService } from "../prisma/prisma.service"
-import type { GeoService } from "../geo/geo.service"
+import { PrismaService } from "../prisma/prisma.service"
+import { GeoService } from "../geo/geo.service"
+import { ShipmentStatus } from "@prisma/client"
 import * as crypto from "crypto"
 
 @Injectable()
@@ -71,7 +72,7 @@ export class ShipmentService {
         serviceType: data.serviceType,
         shippingCost,
         totalCost: shippingCost,
-        status: "PENDING",
+        status: ShipmentStatus.PENDING,
       },
     })
   }
@@ -105,7 +106,7 @@ export class ShipmentService {
     })
   }
 
-  async updateShipmentStatus(id: string, status: string, data?: any) {
+  async updateShipmentStatus(id: string, status: ShipmentStatus, data?: any) {
     const shipment = await this.prisma.shipment.update({
       where: { id },
       data: { status },

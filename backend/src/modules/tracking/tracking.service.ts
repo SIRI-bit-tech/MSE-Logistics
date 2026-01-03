@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common"
-import type { PrismaService } from "../prisma/prisma.service"
+import { PrismaService } from "../prisma/prisma.service"
+import { ShipmentStatus } from "@prisma/client"
 
 @Injectable()
 export class TrackingService {
@@ -12,7 +13,7 @@ export class TrackingService {
     })
   }
 
-  async addTrackingEvent(shipmentId: string, status: string, data: any) {
+  async addTrackingEvent(shipmentId: string, status: ShipmentStatus, data: any) {
     return await this.prisma.trackingEvent.create({
       data: {
         shipmentId,

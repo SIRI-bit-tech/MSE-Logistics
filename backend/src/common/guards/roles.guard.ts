@@ -1,5 +1,5 @@
 import { Injectable, type CanActivate, type ExecutionContext, HttpStatus } from "@nestjs/common"
-import type { Reflector } from "@nestjs/core"
+import { Reflector } from "@nestjs/core"
 import { GqlExecutionContext } from "@nestjs/graphql"
 import { SafeException } from "../exceptions/safe-error.exception"
 

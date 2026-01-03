@@ -9,7 +9,9 @@ export interface SafeErrorOptions {
 }
 
 export class SafeException extends HttpException {
-  constructor(private readonly options: SafeErrorOptions) {
+  private readonly safeOptions: SafeErrorOptions
+
+  constructor(options: SafeErrorOptions) {
     // Only send userMessage to client, never internal details
     super(
       {
@@ -19,17 +21,18 @@ export class SafeException extends HttpException {
       },
       options.statusCode,
     )
+    this.safeOptions = options
   }
 
   getInternalMessage(): string {
-    return this.options.internalMessage
+    return this.safeOptions.internalMessage
   }
 
   getContext(): Record<string, any> | undefined {
-    return this.options.context
+    return this.safeOptions.context
   }
 
   getErrorCode(): string {
-    return this.options.errorCode
+    return this.safeOptions.errorCode
   }
 }

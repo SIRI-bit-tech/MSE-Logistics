@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import type { MapboxService } from "./mapbox.service"
+import { MapboxService } from "./mapbox.service"
 
 @Injectable()
 export class RouteOptimizerService {

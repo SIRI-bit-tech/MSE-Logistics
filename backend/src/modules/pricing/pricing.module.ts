@@ -3,7 +3,7 @@ import { PricingService } from "./pricing.service"
 import { ZoneService } from "./zone.service"
 
 @Module({
-  providers: [PricingService, ZoneService],
-  exports: [PricingService, ZoneService],
+  providers: [ZoneService, PricingService],
+  exports: [PricingService],
 })
 export class PricingModule {}

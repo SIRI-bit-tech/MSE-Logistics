@@ -1,6 +1,6 @@
 import { Injectable, type CanActivate, type ExecutionContext, HttpStatus } from "@nestjs/common"
 import { GqlExecutionContext } from "@nestjs/graphql"
-import type { AuthService } from "../../modules/auth/auth.service"
+import { AuthService } from "../../modules/auth/auth.service"
 import { SafeException } from "../exceptions/safe-error.exception"
 
 @Injectable()

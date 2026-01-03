@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
-import { TransportMode, ServiceType } from "../../graphql/schema/enums"
-import type { ZoneService } from "./zone.service"
+import { TransportMode, ServiceType } from "@prisma/client"
+import { ZoneService } from "./zone.service"
 
 @Injectable()
 export class PricingService {
@@ -49,8 +49,7 @@ export class PricingService {
     const multipliers: Record<ServiceType, number> = {
       [ServiceType.STANDARD]: 1.0,
       [ServiceType.EXPRESS]: 1.5,
-      [ServiceType.OVERNIGHT]: 3.0,
-      [ServiceType.FREIGHT]: 0.8,
+      [ServiceType.ECONOMY]: 0.7,
     }
     return multipliers[type]
   }

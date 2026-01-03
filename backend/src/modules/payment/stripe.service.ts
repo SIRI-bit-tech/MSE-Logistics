@@ -27,8 +27,14 @@ export class StripeService {
   async refundPayment(paymentIntentId: string) {
     const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId)
 
+    // Get the latest charge from the payment intent
+    const chargeId = paymentIntent.latest_charge as string
+    if (!chargeId) {
+      throw new Error("No charge found for this payment intent")
+    }
+
     return this.stripe.refunds.create({
-      charge: paymentIntent.charges.data[0].id,
+      charge: chargeId,
     })
   }
 }

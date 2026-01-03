@@ -124,6 +124,7 @@ model Shipment {
   documents             ShipmentDocument[]
   issues                ShipmentIssue[]
   refundRequest         RefundRequest?
+  payment               Payment?
   notifications         Notification[]
   subscriptions         TrackingSubscription[]
 
@@ -219,7 +220,7 @@ model PaymentMethod {
   expiryYear            Int?
   
   isDefault             Boolean  @default(false)
-  status                PaymentStatus @default(ACTIVE)
+  status                PaymentMethodStatus @default(ACTIVE)
   
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
@@ -323,6 +324,22 @@ model TrackingSubscription {
   @@index([userId])
 }
 
+model Payment {
+  id                    String   @id @default(cuid())
+  shipmentId            String   @unique
+  shipment              Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  
+  amount                Float
+  currency              String   @default("USD")
+  status                PaymentStatus
+  stripePaymentIntentId String?  @unique
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([status])
+}
+
 // Enums
 enum UserRole {
   CUSTOMER
@@ -406,7 +423,17 @@ enum PaymentType {
   WALLET
 }
 
+enum PaymentMethodStatus {
+  ACTIVE
+  EXPIRED
+  SUSPENDED
+}
+
 enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
   ACTIVE
   EXPIRED
   SUSPENDED
