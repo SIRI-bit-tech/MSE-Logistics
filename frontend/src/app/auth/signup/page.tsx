@@ -135,7 +135,7 @@ export default function SignupPage() {
 
         {/* Footer */}
         <div className="text-base opacity-75">
-          <span>© 2024 Mediterranean Shipping Express. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} Mediterranean Shipping Express. All rights reserved.</span>
         </div>
       </div>
 

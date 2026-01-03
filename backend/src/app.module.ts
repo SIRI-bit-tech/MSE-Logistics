@@ -3,7 +3,6 @@ import { ConfigModule } from "@nestjs/config"
 import { GraphQLModule } from "@nestjs/graphql"
 import { ApolloDriver, type ApolloDriverConfig } from "@nestjs/apollo"
 import { ScheduleModule } from "@nestjs/schedule"
-import depthLimit from "graphql-depth-limit"
 import { join } from "path"
 import { PrismaModule } from "./modules/prisma/prisma.module"
 import { AuthModule } from "./modules/auth/auth.module"
@@ -24,6 +23,11 @@ import { TrackingUpdateJob } from "./jobs/tracking-update.job"
 import { NotificationJob } from "./jobs/notification.job"
 import { AnalyticsJob } from "./jobs/analytics.job"
 import { GraphqlErrorFilter } from "./common/filters/graphql-error.filter"
+import { AuthGuard } from "./common/guards/auth.guard"
+import { RolesGuard } from "./common/guards/roles.guard"
+
+// Import depth limit function
+const depthLimit = require('graphql-depth-limit')
 
 @Module({
   imports: [
@@ -38,8 +42,8 @@ import { GraphqlErrorFilter } from "./common/filters/graphql-error.filter"
       sortSchema: true,
       installSubscriptionHandlers: true,
       validationRules: [depthLimit(5)],
-      context: ({ req, res }) => ({ req, res }),
-      formatError: (error) => {
+      context: ({ req, res }: { req: any; res: any }) => ({ req, res }),
+      formatError: (error: any) => {
         // Only expose safe error information to clients
         const originalError = error.originalError as any
         return {
@@ -70,6 +74,8 @@ import { GraphqlErrorFilter } from "./common/filters/graphql-error.filter"
     NotificationJob,
     AnalyticsJob,
     GraphqlErrorFilter,
+    AuthGuard,
+    RolesGuard,
   ],
 })
 export class AppModule {}

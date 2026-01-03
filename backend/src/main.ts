@@ -17,8 +17,8 @@ async function bootstrap() {
       transformOptions: {
         enableImplicitConversion: true,
       },
-      errorFactory: (errors) => {
-        const messages = errors.map((error) => Object.values(error.constraints || {}).join(", ")).join("; ")
+      exceptionFactory: (errors: any[]) => {
+        const messages = errors.map((error: any) => Object.values(error.constraints || {}).join(", ")).join("; ")
 
         return {
           statusCode: HttpStatus.BAD_REQUEST,

@@ -33,8 +33,7 @@ export enum TransportMode {
 export enum ServiceType {
   STANDARD = "STANDARD",
   EXPRESS = "EXPRESS",
-  OVERNIGHT = "OVERNIGHT",
-  FREIGHT = "FREIGHT",
+  ECONOMY = "ECONOMY",
 }
 
 export enum PaymentStatus {

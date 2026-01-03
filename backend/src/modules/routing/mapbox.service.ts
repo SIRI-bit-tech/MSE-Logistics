@@ -1,25 +1,40 @@
 import { Injectable, HttpStatus } from "@nestjs/common"
-import type { MapboxConfig } from "../../config/mapbox.config"
 import { SafeException } from "../../common/exceptions/safe-error.exception"
 import { Logger } from "@nestjs/common"
+
+interface MapboxRouteResponse {
+  routes?: Array<{
+    distance?: number
+    duration?: number
+  }>
+}
 
 @Injectable()
 export class MapboxService {
   private readonly baseUrl = "https://api.mapbox.com"
   private readonly logger = new Logger(MapboxService.name)
-
-  constructor(private readonly config: MapboxConfig) {}
+  private readonly accessToken = process.env.MAPBOX_ACCESS_TOKEN
 
   async getRoute(startLng: number, startLat: number, endLng: number, endLat: number) {
+    if (!this.accessToken) {
+      throw new SafeException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        userMessage: "Routing service is not properly configured.",
+        internalMessage: "Mapbox access token is not configured",
+        errorCode: "MAPBOX_CONFIG_ERROR",
+        context: {},
+      })
+    }
+
     const url = `${this.baseUrl}/directions/v5/mapbox/driving/${startLng},${startLat};${endLng},${endLat}`
     const params = new URLSearchParams({
-      access_token: this.config.accessToken,
+      access_token: this.accessToken,
       geometries: "geojson",
     })
 
     try {
       const response = await fetch(`${url}?${params}`)
-      const data = await response.json()
+      const data = await response.json() as MapboxRouteResponse
       return data.routes?.[0]
     } catch (error) {
       this.logger.error({

@@ -1,0 +1,141 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Address {
+  city: String!
+  country: String!
+  createdAt: DateTime!
+  id: ID!
+  label: String
+  latitude: Float!
+  longitude: Float!
+  state: String!
+  street: String!
+  updatedAt: DateTime!
+  zipCode: String!
+}
+
+type AuthResponse {
+  token: String!
+  user: UserType!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  createShipment: Shipment!
+  login(input: LoginInput!): AuthResponse!
+  register(input: RegisterInput!): AuthResponse!
+  updateShipmentStatus: Shipment!
+}
+
+type Query {
+  allShipments: [Shipment!]!
+  me: UserType
+  myProfile: UserType!
+  myShipments: [Shipment!]!
+  priceCalculator: String!
+}
+
+input RegisterInput {
+  businessEmail: String!
+  companyName: String
+  country: String
+  fullName: String!
+  password: String!
+  phoneNumber: String
+}
+
+enum ServiceType {
+  ECONOMY
+  EXPRESS
+  STANDARD
+}
+
+type Shipment {
+  actualDelivery: DateTime
+  contents: String
+  createdAt: DateTime!
+  customer: User!
+  dimensions: String!
+  driver: User
+  estimatedDelivery: DateTime!
+  id: ID!
+  price: Float!
+  recipientAddress: Address!
+  recipientEmail: String!
+  recipientName: String!
+  recipientPhone: String!
+  senderAddress: Address!
+  senderEmail: String!
+  senderName: String!
+  serviceType: ServiceType!
+  status: ShipmentStatus!
+  trackingNumber: String!
+  transportMode: TransportMode!
+  updatedAt: DateTime!
+  weight: Float!
+}
+
+enum ShipmentStatus {
+  ARRIVED_AT_FACILITY
+  CANCELLED
+  CUSTOMS_CLEARED
+  DELIVERED
+  DELIVERY_ATTEMPTED
+  IN_CUSTOMS
+  IN_TRANSIT
+  ON_HOLD
+  OUT_FOR_DELIVERY
+  PENDING
+  PICKED_UP
+  PROCESSING
+  RETURNED
+}
+
+enum TransportMode {
+  AIR
+  LAND
+  MULTIMODAL
+  WATER
+}
+
+type User {
+  avatar: String
+  createdAt: DateTime!
+  email: String!
+  firstName: String!
+  id: ID!
+  isActive: Boolean!
+  lastName: String!
+  phoneNumber: String!
+  role: UserRole!
+  updatedAt: DateTime!
+}
+
+enum UserRole {
+  ADMIN
+  CUSTOMER
+  DRIVER
+  SUPER_ADMIN
+}
+
+type UserType {
+  createdAt: DateTime!
+  email: String!
+  firstName: String!
+  id: ID!
+  lastName: String!
+  phone: String
+  profileImage: String
+  role: String!
+}

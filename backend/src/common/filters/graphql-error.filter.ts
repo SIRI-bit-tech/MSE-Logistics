@@ -20,7 +20,7 @@ export class GraphqlErrorFilter implements GqlExceptionFilter {
 
       // Return safe message to client
       return new GraphQLError(exception.message, {
-        originalError: {
+        extensions: {
           statusCode: (exception as any).status,
           message: exception.message,
           errorCode: exception.getErrorCode(),
@@ -37,7 +37,7 @@ export class GraphqlErrorFilter implements GqlExceptionFilter {
     })
 
     return new GraphQLError("An unexpected error occurred. Please try again later.", {
-      originalError: {
+      extensions: {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: "An unexpected error occurred. Please try again later.",
         errorCode: "INTERNAL_SERVER_ERROR",

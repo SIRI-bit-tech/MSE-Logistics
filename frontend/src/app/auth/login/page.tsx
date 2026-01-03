@@ -95,7 +95,7 @@ export default function LoginPage() {
               <span className="text-msc-yellow">●</span>
               <span>Terms of Service</span>
             </div>
-            <span>© 2023 MSE</span>
+            <span>© {new Date().getFullYear()} MSE</span>
           </div>
         </div>
       </div>
@@ -158,8 +158,8 @@ export default function LoginPage() {
             <div className="flex items-center justify-between">
               <Checkbox
                 name="rememberMe"
-                checked={formData.rememberMe}
-                onChange={handleChange}
+                isSelected={formData.rememberMe}
+                onValueChange={(val) => setFormData(prev => ({ ...prev, rememberMe: val }))}
                 classNames={{
                   wrapper: "before:border-gray-300"
                 }}

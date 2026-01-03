@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { Cron } from "@nestjs/schedule"
-import type { PrismaService } from "../modules/prisma/prisma.service"
-import type { TrackingGateway } from "../gateway/tracking.gateway"
+import { PrismaService } from "../modules/prisma/prisma.service"
+import { TrackingGateway } from "../gateway/tracking.gateway"
 import { ShipmentStatus } from "../graphql/schema/enums"
 
 @Injectable()
@@ -23,19 +23,22 @@ export class TrackingUpdateJob {
       // Simulate tracking update or fetch from actual tracking source
       const lastEvent = await this.prisma.trackingEvent.findFirst({
         where: { shipmentId: shipment.id },
-        orderBy: { timestamp: "desc" },
+        orderBy: { createdAt: "desc" },
       })
 
-      if (lastEvent && new Date().getTime() - new Date(lastEvent.timestamp).getTime() > 3600000) {
+      if (lastEvent && new Date().getTime() - new Date(lastEvent.createdAt).getTime() > 3600000) {
         // No update in last hour, generate synthetic update
         await this.prisma.trackingEvent.create({
           data: {
             shipmentId: shipment.id,
             status: ShipmentStatus.IN_TRANSIT,
-            message: "Shipment in transit",
-            latitude: (Math.random() - 0.5) * 10 + lastEvent.latitude,
-            longitude: (Math.random() - 0.5) * 10 + lastEvent.longitude,
-            timestamp: new Date(),
+            description: "Shipment in transit",
+            location: "In Transit",
+            city: "Unknown",
+            country: "Unknown",
+            latitude: lastEvent.latitude ? (Math.random() - 0.5) * 10 + lastEvent.latitude : 0,
+            longitude: lastEvent.longitude ? (Math.random() - 0.5) * 10 + lastEvent.longitude : 0,
+            updatedBy: "system",
           },
         })
 

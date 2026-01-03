@@ -1,22 +1,33 @@
 import { Injectable } from "@nestjs/common"
-import type { MapboxConfig } from "../../config/mapbox.config"
+
+interface MapboxGeocodeResponse {
+  features?: Array<{
+    geometry?: {
+      coordinates?: [number, number]
+    }
+    place_name?: string
+  }>
+}
 
 @Injectable()
 export class GeocodingService {
   private readonly baseUrl = "https://api.mapbox.com/geocoding/v5"
-
-  constructor(private readonly config: MapboxConfig) {}
+  private readonly accessToken = process.env.MAPBOX_ACCESS_TOKEN
 
   async geocodeAddress(address: string): Promise<{ lng: number; lat: number }> {
+    if (!this.accessToken) {
+      throw new Error("Mapbox access token is not configured")
+    }
+
     const encodedAddress = encodeURIComponent(address)
     const url = `${this.baseUrl}/mapbox.places/${encodedAddress}.json`
     const params = new URLSearchParams({
-      access_token: this.config.accessToken,
+      access_token: this.accessToken,
     })
 
     try {
       const response = await fetch(`${url}?${params}`)
-      const data = await response.json()
+      const data = await response.json() as MapboxGeocodeResponse
       const [lng, lat] = data.features?.[0]?.geometry?.coordinates || [0, 0]
       return { lng, lat }
     } catch (error) {
@@ -26,14 +37,18 @@ export class GeocodingService {
   }
 
   async reverseGeocode(lng: number, lat: number): Promise<string> {
+    if (!this.accessToken) {
+      throw new Error("Mapbox access token is not configured")
+    }
+
     const url = `${this.baseUrl}/mapbox.places/${lng},${lat}.json`
     const params = new URLSearchParams({
-      access_token: this.config.accessToken,
+      access_token: this.accessToken,
     })
 
     try {
       const response = await fetch(`${url}?${params}`)
-      const data = await response.json()
+      const data = await response.json() as MapboxGeocodeResponse
       return data.features?.[0]?.place_name || "Unknown location"
     } catch (error) {
       console.error("Reverse geocoding error:", error)
