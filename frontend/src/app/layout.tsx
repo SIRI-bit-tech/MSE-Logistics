@@ -1,9 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Providers } from "@/components/providers"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
 import "../../globals.css"
+import LayoutWrapper from "@/components/layout-wrapper"
 
 export const metadata: Metadata = {
   title: "Mediterranean Shipping Express - Global Logistics Platform",
@@ -19,9 +18,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <Providers>
-          <Navbar />
-          <main className="min-h-screen bg-background">{children}</main>
-          <Footer />
+          <LayoutWrapper>{children}</LayoutWrapper>
         </Providers>
       </body>
     </html>

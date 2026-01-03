@@ -1,109 +1,199 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
-import { Card, CardBody, CardHeader, Input, Button, Link, Divider } from "@nextui-org/react"
+import { Input, Button, Checkbox, Link } from "@nextui-org/react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/hooks/use-auth"
+import { Eye, EyeOff, User } from "lucide-react"
 import toast from "react-hot-toast"
 
 export default function LoginPage() {
   const router = useRouter()
-  const { setToken, setUser } = useAuth()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    rememberMe: false
+  })
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }))
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      // Integration with Auth0
-      // This is a placeholder for Auth0 authentication
+      const { graphqlClient, LOGIN_MUTATION, setAuthToken } = await import('@/lib/graphql-client')
+      
+      const response = await graphqlClient.request(LOGIN_MUTATION, {
+        input: {
+          email: formData.email,
+          password: formData.password
+        }
+      })
+
+      const { token } = response.login
+      
+      // Store token in localStorage
+      localStorage.setItem('auth_token', token)
+      setAuthToken(token)
+      
       toast.success("Login successful!")
       router.push("/dashboard")
-    } catch (error) {
-      toast.error("Login failed. Please try again.")
+    } catch (error: any) {
+      console.error('Login error:', error)
+      toast.error(error.response?.errors?.[0]?.message || "Login failed. Please try again.")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#003873] to-[#0066CC] p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="flex flex-col items-start px-6 py-4">
-          <h1 className="text-2xl font-bold text-[#003873]">Sign In</h1>
-          <p className="text-gray-600 mt-2">Access your Mediterranean Shipping Express account</p>
-        </CardHeader>
-        <Divider />
-        <CardBody className="gap-4 p-6">
-          <form onSubmit={handleLogin} className="space-y-4">
-            <Input
-              type="email"
-              label="Email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+    <div className="min-h-screen flex">
+      {/* Left Side - Ocean Background with Ship */}
+      <div 
+        className="hidden lg:flex lg:w-1/2 relative bg-cover bg-center"
+        style={{
+          backgroundImage: `url('/login-image.png')`
+        }}
+      >
+        <div className="absolute inset-0 flex flex-col justify-between p-8 text-white">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-msc-yellow rounded-lg flex items-center justify-center">
+              <span className="text-black font-bold text-xl">⚓</span>
+            </div>
+            <span className="text-xl font-bold">MEDITERRANEAN SHIPPING EXPRESS</span>
+          </div>
 
-            <Input
-              type="password"
-              label="Password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col justify-center">
+            <h1 className="text-5xl font-bold mb-6 leading-tight">
+              Connecting the World,<br />
+              One Container at a<br />
+              Time.
+            </h1>
+            <div className="w-16 h-1 bg-msc-yellow mb-6"></div>
+            <p className="text-xl text-gray-200 mb-8">
+              Global Logistics. Personal Service.
+            </p>
+          </div>
+
+          {/* Footer */}
+          <div className="flex gap-8 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-msc-yellow">●</span>
+              <span>Privacy Policy</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-msc-yellow">●</span>
+              <span>Terms of Service</span>
+            </div>
+            <span>© 2023 MSE</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
+        <div className="w-full max-w-md">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">Login to Your Account</h2>
+            <p className="text-gray-600">Please enter your credentials to access the shipping portal.</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email or Username
+              </label>
+              <Input
+                name="email"
+                type="email"
+                placeholder="Enter your email or username"
+                value={formData.email}
+                onChange={handleChange}
+                endContent={<User className="w-4 h-4 text-gray-400" />}
+                classNames={{
+                  input: "text-gray-700",
+                  inputWrapper: "border border-gray-300 hover:border-gray-400 focus-within:border-msc-yellow"
+                }}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <Input
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
+                endContent={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                }
+                classNames={{
+                  input: "text-gray-700",
+                  inputWrapper: "border border-gray-300 hover:border-gray-400 focus-within:border-msc-yellow"
+                }}
+                required
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Checkbox
+                name="rememberMe"
+                checked={formData.rememberMe}
+                onChange={handleChange}
+                classNames={{
+                  wrapper: "before:border-gray-300"
+                }}
+              >
+                <span className="text-sm text-gray-600">Remember me</span>
+              </Checkbox>
+              <Link href="/auth/forgot-password" className="text-sm text-msc-yellow hover:text-msc-gold">
+                Forgot Password?
+              </Link>
+            </div>
 
             <Button
               type="submit"
-              color="primary"
-              className="w-full bg-[#0066CC]"
+              className="w-full bg-msc-yellow hover:bg-msc-gold text-black font-semibold py-3 text-base"
               disabled={loading}
               isLoading={loading}
             >
-              Sign In
+              LOG IN →
+            </Button>
+
+            <div className="text-center">
+              <span className="text-gray-500">Or</span>
+            </div>
+
+            <Button
+              variant="bordered"
+              className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-3"
+              onClick={() => router.push("/auth/signup")}
+            >
+              Register New Account
             </Button>
           </form>
-
-          <Divider />
-
-          <Button
-            variant="bordered"
-            className="w-full border-[#0066CC] text-[#0066CC]"
-            onClick={() => {
-              // Auth0 Google login
-              toast.info("Redirecting to Auth0...")
-            }}
-          >
-            Sign in with Google
-          </Button>
-
-          <Button
-            variant="bordered"
-            className="w-full border-[#0066CC] text-[#0066CC]"
-            onClick={() => {
-              // Auth0 Facebook login
-              toast.info("Redirecting to Auth0...")
-            }}
-          >
-            Sign in with Facebook
-          </Button>
-
-          <div className="text-center pt-4">
-            <p className="text-gray-600">
-              Don't have an account?{" "}
-              <Link href="/auth/signup" className="text-[#0066CC] font-semibold">
-                Sign up
-              </Link>
-            </p>
-          </div>
-        </CardBody>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }
