@@ -34,7 +34,12 @@ export class DecimalScalar extends GraphQLScalarType {
       description: "Decimal custom scalar type",
       serialize: (value: unknown): string => String(value),
       parseValue: (value: unknown): string => String(value),
-      parseLiteral: (ast: any): string => ast.value
+      parseLiteral: (ast: any): string => {
+        if (ast.kind === Kind.STRING || ast.kind === Kind.FLOAT || ast.kind === Kind.INT) {
+          return String(ast.value)
+        }
+        throw new GraphQLError(`Value is not a valid Decimal: ${ast.value}`)
+      }
     })
   }
 }
@@ -45,9 +50,61 @@ export class JSONScalar extends GraphQLScalarType {
     super({
       name: "JSON",
       description: "JSON custom scalar type",
-      serialize: (value: unknown): Record<string, any> => value as Record<string, any>,
-      parseValue: (value: unknown): Record<string, any> => value as Record<string, any>,
-      parseLiteral: (ast: any): Record<string, any> => ast.value
+      serialize: (value: unknown): any => {
+        try {
+          return JSON.parse(JSON.stringify(value))
+        } catch (error) {
+          throw new GraphQLError(`Value is not serializable as JSON: ${error}`)
+        }
+      },
+      parseValue: (value: unknown): any => {
+        if (typeof value === "string") {
+          try {
+            return JSON.parse(value)
+          } catch (error) {
+            throw new GraphQLError(`Value is not valid JSON: ${error}`)
+          }
+        }
+        if (value === null || typeof value === "object" || Array.isArray(value)) {
+          return value
+        }
+        if (typeof value === "number" || typeof value === "boolean") {
+          return value
+        }
+        throw new GraphQLError(`Value is not valid JSON: ${value}`)
+      },
+      parseLiteral: (ast: any): any => {
+        switch (ast.kind) {
+          case Kind.STRING:
+            try {
+              return JSON.parse(ast.value)
+            } catch (error) {
+              throw new GraphQLError(`Value is not valid JSON: ${error}`)
+            }
+          case Kind.OBJECT:
+            return this.parseObject(ast)
+          case Kind.LIST:
+            return ast.values.map((item: any) => this.parseLiteral(item))
+          case Kind.INT:
+            return parseInt(ast.value, 10)
+          case Kind.FLOAT:
+            return parseFloat(ast.value)
+          case Kind.BOOLEAN:
+            return ast.value
+          case Kind.NULL:
+            return null
+          default:
+            throw new GraphQLError(`Unsupported AST node kind for JSON: ${ast.kind}`)
+        }
+      }
     })
+  }
+
+  private parseObject(ast: any): Record<string, any> {
+    const obj: Record<string, any> = {}
+    for (const field of ast.fields) {
+      obj[field.name.value] = this.parseLiteral(field.value)
+    }
+    return obj
   }
 }

@@ -60,30 +60,41 @@ export default function SignupPage() {
     setLoading(true)
 
     try {
-      const { graphqlClient, REGISTER_MUTATION, setAuthToken } = await import('@/lib/graphql-client')
-      
-      const response = await graphqlClient.request(REGISTER_MUTATION, {
-        input: {
+      // Use Auth0's registration API with custom form data
+      const response = await fetch('/api/auth/register-with-credentials', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           fullName: formData.fullName,
           companyName: formData.companyName,
           businessEmail: formData.businessEmail,
           phoneNumber: formData.phoneNumber,
           country: formData.country,
           password: formData.password
-        }
+        })
       })
 
-      const { token } = response.register
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Registration failed')
+      }
+
+      const { token, user } = await response.json()
       
       // Store token in localStorage
       localStorage.setItem('auth_token', token)
+      
+      // Update GraphQL client
+      const { setAuthToken } = await import('@/lib/graphql-client')
       setAuthToken(token)
       
       toast.success("Account created successfully!")
       router.push("/dashboard")
     } catch (error: any) {
       console.error('Registration error:', error)
-      toast.error(error.response?.errors?.[0]?.message || "Registration failed. Please try again.")
+      toast.error(error.message || "Registration failed. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -144,9 +155,9 @@ export default function SignupPage() {
         <div className="w-full max-w-xl mx-auto">
           <div className="mb-10">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Create an Account</h2>
-            <p className="text-lg text-gray-600">
-              Enter your details to access our premium shipping tools.
-            </p>
+            {/* <p className="text-lg text-gray-600">
+              Secure registration powered by Auth0 with custom forms.
+            </p> */}
           </div>
 
           <form onSubmit={handleSignup} className="space-y-6">
@@ -352,6 +363,10 @@ export default function SignupPage() {
                 Log In
               </Link>
             </div>
+
+            {/* <div className="text-center text-sm text-gray-500 mt-4">
+              <p>🔒 Secured by Auth0 with OAuth 2.0</p>
+            </div> */}
           </form>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { ObjectType, Field, ID } from "@nestjs/graphql"
+import { UserRole } from "@prisma/client"
 
 @ObjectType()
 export class UserType {
@@ -15,14 +16,20 @@ export class UserType {
   lastName: string
 
   @Field({ nullable: true })
-  phone?: string
+  phoneNumber?: string
 
   @Field({ nullable: true })
-  profileImage?: string
+  avatar?: string
+
+  @Field(() => UserRole)
+  role: UserRole
 
   @Field()
-  role: string
+  isActive: boolean
 
   @Field()
   createdAt: Date
+
+  @Field()
+  updatedAt: Date
 }

@@ -13,12 +13,8 @@ export const setAuthToken = (token: string) => {
 }
 
 export const removeAuthToken = () => {
-  // Get current headers and remove Authorization header
-  const currentHeaders = graphqlClient.requestConfig.headers || {}
-  const { Authorization, ...headersWithoutAuth } = currentHeaders as Record<string, string>
-  
-  // Set headers without Authorization
-  graphqlClient.setHeaders(headersWithoutAuth)
+  // Use the public API to remove the Authorization header
+  graphqlClient.setHeader('Authorization', undefined)
 }
 
 // Auth mutations
@@ -40,6 +36,21 @@ export const LOGIN_MUTATION = `
 export const REGISTER_MUTATION = `
   mutation Register($input: RegisterInput!) {
     register(input: $input) {
+      token
+      user {
+        id
+        email
+        firstName
+        lastName
+        role
+      }
+    }
+  }
+`
+
+export const VALIDATE_AUTH0_TOKEN_MUTATION = `
+  mutation ValidateAuth0Token($accessToken: String!) {
+    validateAuth0Token(accessToken: $accessToken) {
       token
       user {
         id

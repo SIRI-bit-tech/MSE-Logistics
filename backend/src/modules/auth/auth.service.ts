@@ -29,34 +29,64 @@ export class AuthService {
 
   async login(input: LoginInput): Promise<AuthResponse> {
     try {
-      // Authenticate with Auth0
-      const auth0Response = await this.authClient.oauth.passwordGrant({
-        username: input.email,
-        password: input.password,
-        scope: 'openid profile email',
+      // Note: This method now expects the frontend to handle Auth0 authentication
+      // and pass the access token. The frontend should use Auth0's Universal Login
+      // with Authorization Code Flow + PKCE for security.
+      
+      // For now, we'll validate the token if provided, or throw an error
+      // indicating that proper Auth0 integration is required
+      throw new SafeException({
+        statusCode: HttpStatus.NOT_IMPLEMENTED,
+        userMessage: "Direct password authentication is deprecated. Please use Auth0 Universal Login.",
+        internalMessage: "ROPG flow has been disabled for security. Implement Authorization Code Flow + PKCE.",
+        errorCode: "DEPRECATED_AUTH_METHOD",
+        context: { 
+          recommendation: "Use Auth0 Universal Login with Authorization Code Flow + PKCE",
+          securityNote: "Resource Owner Password Grant is deprecated and insecure"
+        },
+      })
+    } catch (error) {
+      if (error instanceof SafeException) {
+        throw error
+      }
+      throw new SafeException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        userMessage: "Authentication failed. Please try again.",
+        internalMessage: error instanceof Error ? error.message : "Login failed",
+        errorCode: "LOGIN_FAILED",
+        context: { email: input.email },
+      })
+    }
+  }
+
+  // New method to handle Auth0 token validation (for Authorization Code Flow)
+  async validateAuth0Token(accessToken: string): Promise<AuthResponse> {
+    try {
+      // Validate the access token with Auth0
+      const userInfoResponse = await fetch(`https://${process.env.AUTH0_DOMAIN}/userinfo`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       })
 
-      if (!auth0Response.data.access_token) {
-        throw new UnauthorizedException("Invalid credentials")
+      if (!userInfoResponse.ok) {
+        throw new UnauthorizedException("Invalid access token")
       }
 
-      // Decode the ID token to get user info
-      const idToken = auth0Response.data.id_token
-      if (!idToken) {
-        throw new UnauthorizedException("Invalid credentials")
-      }
-
-      // Decode JWT token (in production, verify signature)
-      const payload = JSON.parse(Buffer.from(idToken.split('.')[1], 'base64').toString())
+      const userInfo = await userInfoResponse.json() as { sub: string; email?: string; name?: string }
       
+      if (!userInfo.sub) {
+        throw new UnauthorizedException("Invalid access token")
+      }
+
       // Find or create user in our database
       let user = await this.prisma.user.findUnique({
-        where: { auth0Id: payload.sub },
+        where: { auth0Id: userInfo.sub },
       })
 
       if (!user) {
         // Create user if doesn't exist
-        user = await this.createUserFromAuth0(payload.sub, payload.email)
+        user = await this.createUserFromAuth0(userInfo.sub, userInfo.email || "")
       }
 
       // Generate our own JWT token
@@ -86,15 +116,92 @@ export class AuthService {
       }
       throw new SafeException({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        userMessage: "Login failed. Please try again.",
-        internalMessage: error instanceof Error ? error.message : "Login failed",
-        errorCode: "LOGIN_FAILED",
-        context: { email: input.email },
+        userMessage: "Token validation failed. Please try again.",
+        internalMessage: error instanceof Error ? error.message : "Token validation failed",
+        errorCode: "TOKEN_VALIDATION_FAILED",
+      })
+    }
+  }
+
+  async syncAuth0User(
+    auth0Id: string, 
+    email: string, 
+    name?: string, 
+    phone?: string, 
+    companyName?: string, 
+    country?: string
+  ): Promise<AuthResponse> {
+    try {
+      // Parse name
+      const nameParts = name ? name.trim().split(" ") : ["", ""]
+      const firstName = nameParts[0] || email.split("@")[0]
+      const lastName = nameParts.slice(1).join(" ") || ""
+
+      // Find or create user in our database
+      let user = await this.prisma.user.findUnique({
+        where: { auth0Id },
+      })
+
+      if (!user) {
+        // Create new user with all the form data
+        user = await this.prisma.user.create({
+          data: {
+            auth0Id,
+            email,
+            firstName,
+            lastName,
+            phone: phone || null,
+            role: "CUSTOMER",
+          },
+        })
+      } else {
+        // Update existing user with new information
+        user = await this.prisma.user.update({
+          where: { auth0Id },
+          data: {
+            email,
+            firstName,
+            lastName,
+            phone: phone || user.phone,
+          },
+        })
+      }
+
+      // Generate our own JWT token
+      const token = this.jwtService.sign({
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+        auth0Id: user.auth0Id,
+      })
+
+      return {
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          phone: user.phone || undefined,
+          profileImage: user.profileImage || undefined,
+          role: user.role,
+          createdAt: user.createdAt,
+        },
+      }
+    } catch (error) {
+      throw new SafeException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        userMessage: "User synchronization failed. Please try again.",
+        internalMessage: error instanceof Error ? error.message : "User sync failed",
+        errorCode: "USER_SYNC_FAILED",
+        context: { auth0Id, email },
       })
     }
   }
 
   async register(input: RegisterInput): Promise<AuthResponse> {
+    let auth0UserId: string | null = null
+    
     try {
       // Create user in Auth0
       const auth0User = await this.auth0Client.users.create({
@@ -119,22 +226,56 @@ export class AuthService {
         })
       }
 
+      auth0UserId = auth0User.data.user_id
+
       // Parse full name
       const nameParts = input.fullName.trim().split(" ")
       const firstName = nameParts[0] || ""
       const lastName = nameParts.slice(1).join(" ") || ""
 
-      // Create user in our database
-      const user = await this.prisma.user.create({
-        data: {
-          email: input.businessEmail,
-          firstName,
-          lastName,
-          phone: input.phoneNumber,
-          role: "CUSTOMER",
-          auth0Id: auth0User.data.user_id,
-        },
-      })
+      // Create user in our database - wrapped in try/catch for rollback
+      let user
+      try {
+        user = await this.prisma.user.create({
+          data: {
+            email: input.businessEmail,
+            firstName,
+            lastName,
+            phone: input.phoneNumber,
+            role: "CUSTOMER",
+            auth0Id: auth0User.data.user_id,
+          },
+        })
+      } catch (dbError) {
+        // Database creation failed - rollback Auth0 user
+        try {
+          await this.auth0Client.users.delete({ id: auth0UserId })
+          console.error(`Auth0 user ${auth0UserId} deleted due to database creation failure:`, dbError)
+        } catch (deleteError) {
+          console.error(`Failed to delete Auth0 user ${auth0UserId} after database failure:`, deleteError)
+          throw new SafeException({
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            userMessage: "Registration failed and cleanup encountered issues. Please contact support.",
+            internalMessage: `Database creation failed and Auth0 user deletion failed. Auth0 ID: ${auth0UserId}`,
+            errorCode: "REGISTRATION_ROLLBACK_FAILED",
+            context: { 
+              email: input.businessEmail, 
+              auth0UserId,
+              dbError: dbError instanceof Error ? dbError.message : "Unknown database error",
+              deleteError: deleteError instanceof Error ? deleteError.message : "Unknown deletion error"
+            },
+          })
+        }
+
+        // Auth0 user successfully deleted, throw original database error
+        throw new SafeException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          userMessage: "Registration failed. Please try again.",
+          internalMessage: `Database user creation failed: ${dbError instanceof Error ? dbError.message : "Unknown error"}`,
+          errorCode: "DATABASE_USER_CREATION_FAILED",
+          context: { email: input.businessEmail },
+        })
+      }
 
       // Generate our own JWT token
       const token = this.jwtService.sign({
@@ -161,6 +302,17 @@ export class AuthService {
       if (error instanceof SafeException) {
         throw error
       }
+      
+      // If we have an Auth0 user ID and this is an unexpected error, try to clean up
+      if (auth0UserId) {
+        try {
+          await this.auth0Client.users.delete({ id: auth0UserId })
+          console.error(`Auth0 user ${auth0UserId} deleted due to unexpected registration error:`, error)
+        } catch (deleteError) {
+          console.error(`Failed to delete Auth0 user ${auth0UserId} after unexpected error:`, deleteError)
+        }
+      }
+
       throw new SafeException({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         userMessage: "Registration failed. Please try again.",

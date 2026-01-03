@@ -158,4 +158,17 @@ export class ShipmentService {
       orderBy: { createdAt: "desc" },
     })
   }
+
+  async getAllShipments(skip: number, take: number) {
+    return await this.prisma.shipment.findMany({
+      where: { deletedAt: null },
+      skip,
+      take,
+      orderBy: { createdAt: "desc" },
+      include: { 
+        trackingEvents: { take: 1, orderBy: { createdAt: "desc" } },
+        user: { select: { id: true, email: true, firstName: true, lastName: true } }
+      },
+    })
+  }
 }

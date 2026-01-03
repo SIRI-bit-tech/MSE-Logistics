@@ -27,22 +27,24 @@ export class TrackingUpdateJob {
       })
 
       if (lastEvent && new Date().getTime() - new Date(lastEvent.createdAt).getTime() > 3600000) {
-        // No update in last hour, generate synthetic update
-        await this.prisma.trackingEvent.create({
-          data: {
-            shipmentId: shipment.id,
-            status: ShipmentStatus.IN_TRANSIT,
-            description: "Shipment in transit",
-            location: "In Transit",
-            city: "Unknown",
-            country: "Unknown",
-            latitude: lastEvent.latitude ? (Math.random() - 0.5) * 10 + lastEvent.latitude : 0,
-            longitude: lastEvent.longitude ? (Math.random() - 0.5) * 10 + lastEvent.longitude : 0,
-            updatedBy: "system",
-          },
-        })
+        // No update in last hour, generate synthetic update only if we have valid location data
+        if (lastEvent.latitude !== null && lastEvent.longitude !== null) {
+          await this.prisma.trackingEvent.create({
+            data: {
+              shipmentId: shipment.id,
+              status: ShipmentStatus.IN_TRANSIT,
+              description: "Shipment in transit",
+              location: "In Transit",
+              city: "Unknown",
+              country: "Unknown",
+              latitude: (Math.random() - 0.5) * 10 + lastEvent.latitude,
+              longitude: (Math.random() - 0.5) * 10 + lastEvent.longitude,
+              updatedBy: "system",
+            },
+          })
 
-        this.trackingGateway.broadcastTrackingUpdate(shipment.id, ShipmentStatus.IN_TRANSIT, "Shipment is in transit")
+          this.trackingGateway.broadcastTrackingUpdate(shipment.id, ShipmentStatus.IN_TRANSIT, "Shipment is in transit")
+        }
       }
     }
   }
