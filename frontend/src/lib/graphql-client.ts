@@ -7,7 +7,6 @@ export {
   removeAuthToken,
   LOGIN_MUTATION,
   REGISTER_MUTATION,
-  VALIDATE_AUTH0_TOKEN_MUTATION,
   ME_QUERY
 } from './graphql-client.client'
 

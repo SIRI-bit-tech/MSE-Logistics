@@ -26,19 +26,15 @@ export async function POST(request: NextRequest) {
     })
     
     // Handle JSON parsing with proper error handling
+    const clonedResponse = response.clone()
     let data
     try {
       data = await response.json()
     } catch (jsonError) {
       console.error('Failed to parse JSON response from GraphQL backend:', jsonError)
       
-      // Try to get the response text for debugging
-      let responseText = 'Unable to read response'
-      try {
-        responseText = await response.text()
-      } catch (textError) {
-        console.error('Failed to read response as text:', textError)
-      }
+      // Use the cloned response to get the raw body for debugging
+      const responseText = await clonedResponse.text()
       
       return NextResponse.json(
         { 
