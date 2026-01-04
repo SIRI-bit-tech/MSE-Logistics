@@ -1,4 +1,4 @@
-import { Injectable, HttpStatus, UnauthorizedException } from "@nestjs/common"
+import { Injectable, HttpStatus, UnauthorizedException, Logger } from "@nestjs/common"
 import { JwtService } from "@nestjs/jwt"
 import { PrismaService } from "../prisma/prisma.service"
 import { ManagementClient, AuthenticationClient } from "auth0"
@@ -8,6 +8,7 @@ import { UserRole } from "../../graphql/schema/enums"
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name)
   private auth0Client: ManagementClient
   private authClient: AuthenticationClient
 
@@ -127,6 +128,77 @@ export class AuthService {
   }
 
   /**
+   * Synchronizes Auth0 user during initial authentication with token validation
+   * This method validates the Auth0 access token to ensure the caller owns the identity
+   * 
+   * @param accessToken - Auth0 access token to validate ownership
+   * @param auth0Id - Auth0 user identifier
+   * @param email - User email address
+   * @param firstName - User first name
+   * @param lastName - User last name
+   * @param phone - Optional phone number
+   * 
+   * @throws UnauthorizedException when token is invalid or doesn't match the provided auth0Id
+   * 
+   * @security This method validates token ownership before creating/syncing user data.
+   *           All new users are created with CUSTOMER role by default.
+   */
+  async syncAuth0UserOnAuthWithToken(
+    accessToken: string,
+    auth0Id: string, 
+    email: string, 
+    firstName: string,
+    lastName: string,
+    phone?: string
+  ): Promise<AuthResponse> {
+    try {
+      // Validate the access token with Auth0 and get user info
+      const userInfoResponse = await fetch(`https://${process.env.AUTH0_DOMAIN}/userinfo`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+
+      if (!userInfoResponse.ok) {
+        throw new UnauthorizedException("Invalid access token")
+      }
+
+      const userInfo = await userInfoResponse.json() as { sub: string; email?: string; name?: string }
+      
+      if (!userInfo.sub) {
+        throw new UnauthorizedException("Invalid access token")
+      }
+
+      // Validate that the token belongs to the user being synced
+      if (userInfo.sub !== auth0Id) {
+        throw new UnauthorizedException("Access token does not match the provided Auth0 ID")
+      }
+
+      // Now safely sync the user data since we've validated token ownership
+      return this.syncAuth0User(
+        auth0Id, 
+        email, 
+        firstName, 
+        lastName, 
+        phone, 
+        undefined, // No authenticated user context needed since we validated the token
+        true // Allow unauthenticated access since we validated the token
+      )
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error
+      }
+      throw new SafeException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        userMessage: "User synchronization failed. Please try again.",
+        internalMessage: error instanceof Error ? error.message : "Token validation and sync failed",
+        errorCode: "SYNC_WITH_TOKEN_FAILED",
+        context: { auth0Id, email },
+      })
+    }
+  }
+
+  /**
    * Synchronizes Auth0 user data with the local database
    * 
    * @param auth0Id - Auth0 user identifier
@@ -134,12 +206,14 @@ export class AuthService {
    * @param firstName - User first name
    * @param lastName - User last name
    * @param phone - Optional phone number
-   * @param role - Optional user role (CUSTOMER or DRIVER)
    * @param authenticatedUser - Current authenticated user context (for validation)
    * @param allowUnauthenticated - Whether to allow unauthenticated access (for initial login/registration)
    * 
    * @throws UnauthorizedException when authentication is required but not provided
    * @throws UnauthorizedException when authenticated user tries to sync different user's data
+   * 
+   * @security All new users are created with CUSTOMER role by default.
+   *           Role elevation requires separate admin approval process.
    */
   async syncAuth0User(
     auth0Id: string, 
@@ -147,7 +221,6 @@ export class AuthService {
     firstName: string,
     lastName: string,
     phone?: string, 
-    role?: UserRole,
     authenticatedUser?: { id: string; email: string; role: string; auth0Id: string },
     allowUnauthenticated: boolean = false
   ): Promise<AuthResponse> {
@@ -168,7 +241,8 @@ export class AuthService {
       })
 
       if (!user) {
-        // Create new user with all the form data
+        // Create new user - ALWAYS defaults to CUSTOMER role for security
+        // Role elevation requires admin approval through separate process
         user = await this.prisma.user.create({
           data: {
             auth0Id,
@@ -176,11 +250,13 @@ export class AuthService {
             firstName,
             lastName,
             phone: phone || null,
-            role: role || UserRole.CUSTOMER,
+            role: UserRole.CUSTOMER, // Security: Always CUSTOMER, no user-controlled role assignment
           },
         })
+        
+        this.logger.log(`New user created with CUSTOMER role: ${email} (${auth0Id})`)
       } else {
-        // Update existing user with new information
+        // Update existing user with new information (preserves existing role)
         user = await this.prisma.user.update({
           where: { auth0Id },
           data: {
@@ -188,7 +264,7 @@ export class AuthService {
             firstName,
             lastName,
             phone: phone || user.phone,
-            role: role || user.role,
+            // Note: Role is NOT updated here - requires admin action for role changes
           },
         })
       }
@@ -217,6 +293,9 @@ export class AuthService {
         },
       }
     } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error
+      }
       throw new SafeException({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         userMessage: "User synchronization failed. Please try again.",

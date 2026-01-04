@@ -100,21 +100,6 @@ export const REGISTER_MUTATION = `
   }
 `
 
-export const VALIDATE_AUTH0_TOKEN_MUTATION = `
-  mutation ValidateAuth0Token($accessToken: String!) {
-    validateAuth0Token(accessToken: $accessToken) {
-      token
-      user {
-        id
-        email
-        firstName
-        lastName
-        role
-      }
-    }
-  }
-`
-
 // Auth queries
 export const ME_QUERY = `
   query Me {

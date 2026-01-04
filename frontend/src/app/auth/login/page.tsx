@@ -3,8 +3,9 @@
 import { useState } from "react"
 import { Input, Button, Checkbox, Link } from "@nextui-org/react"
 import { useRouter } from "next/navigation"
-import { Eye, EyeOff, User } from "lucide-react"
+import { Eye, EyeOff, User as UserIcon } from "lucide-react"
 import toast from "react-hot-toast"
+import type { User } from "../../../../global"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -46,7 +47,7 @@ export default function LoginPage() {
         throw new Error(error.message || 'Login failed')
       }
 
-      const authData = await authResponse.json()
+      const authData = await authResponse.json() as { user: User; token: string }
       
       // Token is now stored in httpOnly cookie by the backend
       // No need to store in localStorage anymore
@@ -136,7 +137,7 @@ export default function LoginPage() {
                 placeholder="Enter your email or username"
                 value={formData.email}
                 onChange={handleChange}
-                endContent={<User className="w-4 h-4 text-gray-400" />}
+                endContent={<UserIcon className="w-4 h-4 text-gray-400" />}
                 classNames={{
                   input: "text-gray-700",
                   inputWrapper: "border border-gray-300 hover:border-gray-400 focus-within:border-msc-yellow"

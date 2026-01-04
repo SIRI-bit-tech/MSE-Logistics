@@ -82,6 +82,34 @@ export class SyncAuth0UserInput {
   role?: UserRole
 }
 
+@InputType()
+export class SyncAuth0UserOnAuthInput {
+  @Field()
+  @IsString()
+  accessToken: string
+
+  @Field()
+  @IsString()
+  auth0Id: string
+
+  @Field()
+  @IsEmail()
+  email: string
+
+  @Field()
+  @IsString()
+  firstName: string
+
+  @Field()
+  @IsString()
+  lastName: string
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  phone?: string
+}
+
 @ObjectType()
 export class AuthResponse {
   @Field()
