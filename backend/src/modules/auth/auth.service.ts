@@ -4,6 +4,7 @@ import { PrismaService } from "../prisma/prisma.service"
 import { ManagementClient, AuthenticationClient } from "auth0"
 import { SafeException } from "../../common/exceptions/safe-error.exception"
 import { LoginInput, RegisterInput, AuthResponse } from "./auth.types"
+import { UserRole } from "../../graphql/schema/enums"
 
 @Injectable()
 export class AuthService {
@@ -125,17 +126,38 @@ export class AuthService {
     }
   }
 
+  /**
+   * Synchronizes Auth0 user data with the local database
+   * 
+   * @param auth0Id - Auth0 user identifier
+   * @param email - User email address
+   * @param firstName - User first name
+   * @param lastName - User last name
+   * @param phone - Optional phone number
+   * @param role - Optional user role (CUSTOMER or DRIVER)
+   * @param authenticatedUser - Current authenticated user context (for validation)
+   * @param allowUnauthenticated - Whether to allow unauthenticated access (for initial login/registration)
+   * 
+   * @throws UnauthorizedException when authentication is required but not provided
+   * @throws UnauthorizedException when authenticated user tries to sync different user's data
+   */
   async syncAuth0User(
     auth0Id: string, 
     email: string, 
     firstName: string,
     lastName: string,
     phone?: string, 
-    role?: string,
-    authenticatedUser?: { id: string; email: string; role: string; auth0Id: string }
+    role?: UserRole,
+    authenticatedUser?: { id: string; email: string; role: string; auth0Id: string },
+    allowUnauthenticated: boolean = false
   ): Promise<AuthResponse> {
     try {
-      // Validate caller identity - ensure the authenticated user can only sync their own data
+      // Validate authentication requirements
+      if (!allowUnauthenticated && !authenticatedUser) {
+        throw new UnauthorizedException('Authentication required for user synchronization')
+      }
+
+      // If authenticated user is provided, validate caller identity
       if (authenticatedUser && authenticatedUser.auth0Id !== auth0Id) {
         throw new UnauthorizedException('You can only sync your own user data')
       }
@@ -154,7 +176,7 @@ export class AuthService {
             firstName,
             lastName,
             phone: phone || null,
-            role: role === 'DRIVER' ? 'DRIVER' : 'CUSTOMER',
+            role: role || UserRole.CUSTOMER,
           },
         })
       } else {
@@ -166,7 +188,7 @@ export class AuthService {
             firstName,
             lastName,
             phone: phone || user.phone,
-            role: role === 'DRIVER' ? 'DRIVER' : 'CUSTOMER',
+            role: role || user.role,
           },
         })
       }

@@ -77,11 +77,7 @@ export class JSONScalar extends GraphQLScalarType {
         const parseLiteralValue = (node: any): any => {
           switch (node.kind) {
             case Kind.STRING:
-              try {
-                return JSON.parse(node.value)
-              } catch (error) {
-                throw new GraphQLError(`Value is not valid JSON: ${error}`)
-              }
+              return node.value
             case Kind.OBJECT:
               return parseObjectValue(node)
             case Kind.LIST:

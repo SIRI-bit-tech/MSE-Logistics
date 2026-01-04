@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         query: `
-          mutation SyncAuth0User($auth0Id: String!, $email: String!, $firstName: String!, $lastName: String!) {
-            syncAuth0User(
+          mutation SyncAuth0UserOnAuth($auth0Id: String!, $email: String!, $firstName: String!, $lastName: String!) {
+            syncAuth0UserOnAuth(
               auth0Id: $auth0Id, 
               email: $email, 
               firstName: $firstName,
@@ -92,9 +92,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    return NextResponse.json(backendData.data.syncAuth0User, {
+    const isProduction = process.env.NODE_ENV === 'production'
+    const secureFlag = isProduction ? 'Secure; ' : ''
+
+    return NextResponse.json(backendData.data.syncAuth0UserOnAuth, {
       headers: {
-        'Set-Cookie': `auth_token=${backendData.data.syncAuth0User.token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${7 * 24 * 60 * 60}` // 7 days
+        'Set-Cookie': `auth_token=${backendData.data.syncAuth0UserOnAuth.token}; HttpOnly; ${secureFlag}SameSite=Strict; Path=/; Max-Age=${7 * 24 * 60 * 60}` // 7 days
       }
     })
   } catch (error) {

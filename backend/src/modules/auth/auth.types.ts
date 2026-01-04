@@ -1,6 +1,7 @@
 import { ObjectType, Field, InputType } from "@nestjs/graphql"
-import { IsEmail, IsString, MinLength, IsOptional } from "class-validator"
+import { IsEmail, IsString, MinLength, IsOptional, IsEnum } from "class-validator"
 import { UserType } from "../user/user.type"
+import { UserRole } from "../../graphql/schema/enums"
 
 @InputType()
 export class LoginInput {
@@ -75,10 +76,10 @@ export class SyncAuth0UserInput {
   @IsString()
   phone?: string
 
-  @Field({ nullable: true })
+  @Field(() => UserRole, { nullable: true })
   @IsOptional()
-  @IsString()
-  role?: string
+  @IsEnum(UserRole)
+  role?: UserRole
 }
 
 @ObjectType()
