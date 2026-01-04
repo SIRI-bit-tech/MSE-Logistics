@@ -1,9 +1,15 @@
-import { getAccessToken } from '@auth0/nextjs-auth0'
+import { getSession } from '@auth0/nextjs-auth0'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const { accessToken } = await getAccessToken()
+    const session = await getSession()
+    
+    if (!session) {
+      return NextResponse.json({ error: 'No session available' }, { status: 401 })
+    }
+
+    const accessToken = session.accessToken
     
     if (!accessToken) {
       return NextResponse.json({ error: 'No access token available' }, { status: 401 })

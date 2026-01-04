@@ -6,29 +6,63 @@ import { Input, Button, Checkbox, Select, SelectItem } from "@nextui-org/react"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
 import Link from "next/link"
-import { User, Building2, Mail, Phone, Globe, Lock, Eye, EyeOff } from "lucide-react"
+import { User, Mail, Phone, Globe, Lock, Eye, EyeOff, UserCheck } from "lucide-react"
 
 const countries = [
-  { key: "us", label: "United States" },
-  { key: "uk", label: "United Kingdom" },
-  { key: "ca", label: "Canada" },
-  { key: "au", label: "Australia" },
-  { key: "de", label: "Germany" },
-  { key: "fr", label: "France" },
-  { key: "it", label: "Italy" },
-  { key: "es", label: "Spain" },
-  { key: "nl", label: "Netherlands" },
-  { key: "be", label: "Belgium" },
+  { key: "US", label: "United States", flag: "🇺🇸" },
+  { key: "GB", label: "United Kingdom", flag: "🇬🇧" },
+  { key: "CA", label: "Canada", flag: "🇨🇦" },
+  { key: "AU", label: "Australia", flag: "🇦🇺" },
+  { key: "DE", label: "Germany", flag: "🇩🇪" },
+  { key: "FR", label: "France", flag: "🇫🇷" },
+  { key: "IT", label: "Italy", flag: "🇮🇹" },
+  { key: "ES", label: "Spain", flag: "🇪🇸" },
+  { key: "NL", label: "Netherlands", flag: "🇳🇱" },
+  { key: "BE", label: "Belgium", flag: "🇧🇪" },
+  { key: "CH", label: "Switzerland", flag: "🇨🇭" },
+  { key: "AT", label: "Austria", flag: "🇦🇹" },
+  { key: "SE", label: "Sweden", flag: "🇸🇪" },
+  { key: "NO", label: "Norway", flag: "🇳🇴" },
+  { key: "DK", label: "Denmark", flag: "🇩🇰" },
+  { key: "FI", label: "Finland", flag: "🇫🇮" },
+  { key: "PL", label: "Poland", flag: "🇵🇱" },
+  { key: "CZ", label: "Czech Republic", flag: "🇨🇿" },
+  { key: "HU", label: "Hungary", flag: "🇭🇺" },
+  { key: "GR", label: "Greece", flag: "🇬🇷" },
+  { key: "PT", label: "Portugal", flag: "🇵🇹" },
+  { key: "IE", label: "Ireland", flag: "🇮🇪" },
+  { key: "JP", label: "Japan", flag: "🇯🇵" },
+  { key: "KR", label: "South Korea", flag: "🇰🇷" },
+  { key: "CN", label: "China", flag: "🇨🇳" },
+  { key: "IN", label: "India", flag: "🇮🇳" },
+  { key: "SG", label: "Singapore", flag: "🇸🇬" },
+  { key: "HK", label: "Hong Kong", flag: "🇭🇰" },
+  { key: "AE", label: "United Arab Emirates", flag: "🇦🇪" },
+  { key: "SA", label: "Saudi Arabia", flag: "🇸🇦" },
+  { key: "EG", label: "Egypt", flag: "🇪🇬" },
+  { key: "ZA", label: "South Africa", flag: "🇿🇦" },
+  { key: "BR", label: "Brazil", flag: "🇧🇷" },
+  { key: "MX", label: "Mexico", flag: "🇲🇽" },
+  { key: "AR", label: "Argentina", flag: "🇦🇷" },
+  { key: "CL", label: "Chile", flag: "🇨🇱" },
+  { key: "CO", label: "Colombia", flag: "🇨🇴" },
+  { key: "PE", label: "Peru", flag: "🇵🇪" },
+]
+
+const roles = [
+  { key: "CUSTOMER", label: "Customer", description: "I want to ship packages" },
+  { key: "DRIVER", label: "Driver", description: "I want to deliver packages" },
 ]
 
 export default function SignupPage() {
   const router = useRouter()
   const [formData, setFormData] = useState({
-    fullName: "",
-    companyName: "",
+    firstName: "",
+    lastName: "",
     businessEmail: "",
     phoneNumber: "",
     country: "",
+    role: "",
     password: "",
     confirmPassword: "",
     agreeTerms: false,
@@ -57,6 +91,11 @@ export default function SignupPage() {
       return
     }
 
+    if (!formData.role) {
+      toast.error("Please select your role")
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -67,11 +106,12 @@ export default function SignupPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fullName: formData.fullName,
-          companyName: formData.companyName,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
           businessEmail: formData.businessEmail,
           phoneNumber: formData.phoneNumber,
           country: formData.country,
+          role: formData.role,
           password: formData.password
         })
       })
@@ -81,17 +121,19 @@ export default function SignupPage() {
         throw new Error(error.message || 'Registration failed')
       }
 
-      const { token, user } = await response.json()
+      const { user } = await response.json()
       
-      // Store token in localStorage
-      localStorage.setItem('auth_token', token)
-      
-      // Update GraphQL client
-      const { setAuthToken } = await import('@/lib/graphql-client')
-      setAuthToken(token)
+      // Token is now stored in httpOnly cookie by the backend
+      // No need to store in localStorage anymore
       
       toast.success("Account created successfully!")
-      router.push("/dashboard")
+      
+      // Redirect based on role
+      if (user.role === 'DRIVER') {
+        router.push("/dashboard") // Driver dashboard at (driver)/dashboard
+      } else {
+        router.push("/shipments") // Customer main page at (customer)/shipments
+      }
     } catch (error: any) {
       console.error('Registration error:', error)
       toast.error(error.message || "Registration failed. Please try again.")
@@ -155,22 +197,19 @@ export default function SignupPage() {
         <div className="w-full max-w-xl mx-auto">
           <div className="mb-10">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Create an Account</h2>
-            {/* <p className="text-lg text-gray-600">
-              Secure registration powered by Auth0 with custom forms.
-            </p> */}
           </div>
 
           <form onSubmit={handleSignup} className="space-y-6">
-            {/* Full Name and Company Name */}
+            {/* First Name and Last Name */}
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <label className="block text-base font-semibold text-gray-800 mb-3">
-                  Full Name
+                  First Name
                 </label>
                 <Input
-                  placeholder="John Doe"
-                  value={formData.fullName}
-                  onChange={(e) => handleChange("fullName", e.target.value)}
+                  placeholder="John"
+                  value={formData.firstName}
+                  onChange={(e) => handleChange("firstName", e.target.value)}
                   startContent={<User className="w-4 h-4 text-gray-400" />}
                   size="lg"
                   classNames={{
@@ -182,18 +221,19 @@ export default function SignupPage() {
               </div>
               <div>
                 <label className="block text-base font-semibold text-gray-800 mb-3">
-                  Company Name
+                  Last Name
                 </label>
                 <Input
-                  placeholder="Shipping Co."
-                  value={formData.companyName}
-                  onChange={(e) => handleChange("companyName", e.target.value)}
-                  startContent={<Building2 className="w-4 h-4 text-gray-400" />}
+                  placeholder="Doe"
+                  value={formData.lastName}
+                  onChange={(e) => handleChange("lastName", e.target.value)}
+                  startContent={<User className="w-4 h-4 text-gray-400" />}
                   size="lg"
                   classNames={{
                     input: "text-gray-900 text-base",
                     inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white"
                   }}
+                  required
                 />
               </div>
             </div>
@@ -237,31 +277,67 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Country/Region */}
-            <div>
-              <label className="block text-base font-semibold text-gray-800 mb-3">
-                Country/Region
-              </label>
-              <Select
-                placeholder="Select Country"
-                selectedKeys={formData.country ? [formData.country] : []}
-                onSelectionChange={(keys) => {
-                  const selectedKey = Array.from(keys)[0] as string
-                  handleChange("country", selectedKey)
-                }}
-                startContent={<Globe className="w-4 h-4 text-gray-400" />}
-                size="lg"
-                classNames={{
-                  trigger: "h-12 border-2 border-gray-200 hover:border-gray-300 data-[focus=true]:border-msc-yellow bg-white",
-                  value: "text-gray-900 text-base"
-                }}
-              >
-                {countries.map((country) => (
-                  <SelectItem key={country.key} value={country.key}>
-                    {country.label}
-                  </SelectItem>
-                ))}
-              </Select>
+            {/* Country/Region and Role */}
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="block text-base font-semibold text-gray-800 mb-3">
+                  Country/Region
+                </label>
+                <Select
+                  placeholder="Select Country"
+                  selectedKeys={formData.country ? [formData.country] : []}
+                  onSelectionChange={(keys) => {
+                    const selectedKey = Array.from(keys)[0] as string
+                    handleChange("country", selectedKey)
+                  }}
+                  startContent={<Globe className="w-4 h-4 text-gray-400" />}
+                  size="lg"
+                  classNames={{
+                    trigger: "h-12 border-2 border-gray-200 hover:border-gray-300 data-[focus=true]:border-msc-yellow bg-white",
+                    value: "text-gray-900 text-base"
+                  }}
+                >
+                  {countries.map((country) => (
+                    <SelectItem 
+                      key={country.key} 
+                      value={country.key}
+                      startContent={<span className="text-lg">{country.flag}</span>}
+                    >
+                      {country.label}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+              <div>
+                <label className="block text-base font-semibold text-gray-800 mb-3">
+                  I am a
+                </label>
+                <Select
+                  placeholder="Select Role"
+                  selectedKeys={formData.role ? [formData.role] : []}
+                  onSelectionChange={(keys) => {
+                    const selectedKey = Array.from(keys)[0] as string
+                    handleChange("role", selectedKey)
+                  }}
+                  startContent={<UserCheck className="w-4 h-4 text-gray-400" />}
+                  size="lg"
+                  classNames={{
+                    trigger: "h-12 border-2 border-gray-200 hover:border-gray-300 data-[focus=true]:border-msc-yellow bg-white",
+                    value: "text-gray-900 text-base"
+                  }}
+                  required
+                >
+                  {roles.map((role) => (
+                    <SelectItem 
+                      key={role.key} 
+                      value={role.key}
+                      description={role.description}
+                    >
+                      {role.label}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
             </div>
 
             {/* Password and Confirm Password */}
@@ -363,10 +439,6 @@ export default function SignupPage() {
                 Log In
               </Link>
             </div>
-
-            {/* <div className="text-center text-sm text-gray-500 mt-4">
-              <p>🔒 Secured by Auth0 with OAuth 2.0</p>
-            </div> */}
           </form>
         </div>
       </div>

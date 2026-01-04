@@ -74,37 +74,41 @@ export class JSONScalar extends GraphQLScalarType {
         throw new GraphQLError(`Value is not valid JSON: ${value}`)
       },
       parseLiteral: (ast: any): any => {
-        switch (ast.kind) {
-          case Kind.STRING:
-            try {
-              return JSON.parse(ast.value)
-            } catch (error) {
-              throw new GraphQLError(`Value is not valid JSON: ${error}`)
-            }
-          case Kind.OBJECT:
-            return this.parseObject(ast)
-          case Kind.LIST:
-            return ast.values.map((item: any) => this.parseLiteral(item))
-          case Kind.INT:
-            return parseInt(ast.value, 10)
-          case Kind.FLOAT:
-            return parseFloat(ast.value)
-          case Kind.BOOLEAN:
-            return ast.value
-          case Kind.NULL:
-            return null
-          default:
-            throw new GraphQLError(`Unsupported AST node kind for JSON: ${ast.kind}`)
+        const parseLiteralValue = (node: any): any => {
+          switch (node.kind) {
+            case Kind.STRING:
+              try {
+                return JSON.parse(node.value)
+              } catch (error) {
+                throw new GraphQLError(`Value is not valid JSON: ${error}`)
+              }
+            case Kind.OBJECT:
+              return parseObjectValue(node)
+            case Kind.LIST:
+              return node.values.map((item: any) => parseLiteralValue(item))
+            case Kind.INT:
+              return parseInt(node.value, 10)
+            case Kind.FLOAT:
+              return parseFloat(node.value)
+            case Kind.BOOLEAN:
+              return node.value
+            case Kind.NULL:
+              return null
+            default:
+              throw new GraphQLError(`Unsupported AST node kind for JSON: ${node.kind}`)
+          }
         }
+
+        const parseObjectValue = (objectNode: any): Record<string, any> => {
+          const obj: Record<string, any> = {}
+          for (const field of objectNode.fields) {
+            obj[field.name.value] = parseLiteralValue(field.value)
+          }
+          return obj
+        }
+
+        return parseLiteralValue(ast)
       }
     })
-  }
-
-  private parseObject(ast: any): Record<string, any> {
-    const obj: Record<string, any> = {}
-    for (const field of ast.fields) {
-      obj[field.name.value] = this.parseLiteral(field.value)
-    }
-    return obj
   }
 }

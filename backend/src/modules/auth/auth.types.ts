@@ -45,6 +45,42 @@ export class RegisterInput {
   password: string
 }
 
+@InputType()
+export class ValidateAuth0TokenInput {
+  @Field()
+  @IsString()
+  accessToken: string
+}
+
+@InputType()
+export class SyncAuth0UserInput {
+  @Field()
+  @IsString()
+  auth0Id: string
+
+  @Field()
+  @IsEmail()
+  email: string
+
+  @Field()
+  @IsString()
+  firstName: string
+
+  @Field()
+  @IsString()
+  lastName: string
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  phone?: string
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  role?: string
+}
+
 @ObjectType()
 export class AuthResponse {
   @Field()

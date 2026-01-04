@@ -49,15 +49,20 @@ export async function POST(request: NextRequest) {
     const userInfo = await userInfoResponse.json()
 
     // Sync user with our backend database
-    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
+    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         query: `
-          mutation SyncAuth0User($auth0Id: String!, $email: String!, $name: String) {
-            syncAuth0User(auth0Id: $auth0Id, email: $email, name: $name) {
+          mutation SyncAuth0User($auth0Id: String!, $email: String!, $firstName: String!, $lastName: String!) {
+            syncAuth0User(
+              auth0Id: $auth0Id, 
+              email: $email, 
+              firstName: $firstName,
+              lastName: $lastName
+            ) {
               token
               user {
                 id
@@ -72,7 +77,8 @@ export async function POST(request: NextRequest) {
         variables: {
           auth0Id: userInfo.sub,
           email: userInfo.email,
-          name: userInfo.name
+          firstName: userInfo.name?.split(' ')[0] || userInfo.email?.split('@')[0] || 'User',
+          lastName: userInfo.name?.split(' ').slice(1).join(' ') || ''
         }
       })
     })
@@ -86,7 +92,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    return NextResponse.json(backendData.data.syncAuth0User)
+    return NextResponse.json(backendData.data.syncAuth0User, {
+      headers: {
+        'Set-Cookie': `auth_token=${backendData.data.syncAuth0User.token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${7 * 24 * 60 * 60}` // 7 days
+      }
+    })
   } catch (error) {
     console.error('Login error:', error)
     return NextResponse.json(

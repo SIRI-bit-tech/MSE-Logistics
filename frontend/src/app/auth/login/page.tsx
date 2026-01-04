@@ -46,14 +46,10 @@ export default function LoginPage() {
         throw new Error(error.message || 'Login failed')
       }
 
-      const { token, user } = await authResponse.json()
+      await authResponse.json()
       
-      // Store token in localStorage
-      localStorage.setItem('auth_token', token)
-      
-      // Update GraphQL client
-      const { setAuthToken } = await import('@/lib/graphql-client')
-      setAuthToken(token)
+      // Token is now stored in httpOnly cookie by the backend
+      // No need to store in localStorage anymore
       
       toast.success("Login successful!")
       router.push("/dashboard")
