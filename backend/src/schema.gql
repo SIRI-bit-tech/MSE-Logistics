@@ -18,7 +18,7 @@ type Address {
 
 type AuthResponse {
   token: String!
-  user: UserType!
+  user: User!
 }
 
 """
@@ -26,22 +26,54 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input CreateShipmentInput {
+  contents: String
+  dimensions: String!
+  recipientEmail: String!
+  recipientName: String!
+  recipientPhone: String!
+  recipientAddress: CreateAddressInput!
+  senderEmail: String!
+  senderName: String!
+  senderAddress: CreateAddressInput!
+  serviceType: ServiceType!
+  transportMode: TransportMode!
+  weight: Float!
+}
+
+input CreateAddressInput {
+  city: String!
+  country: String!
+  latitude: Float!
+  longitude: Float!
+  state: String!
+  street: String!
+  zipCode: String!
+  label: String
+}
+
 input LoginInput {
   email: String!
   password: String!
 }
 
+input UpdateShipmentStatusInput {
+  id: ID!
+  status: ShipmentStatus!
+  data: String
+}
+
 type Mutation {
-  createShipment: Shipment!
+  createShipment(input: CreateShipmentInput!): Shipment!
   login(input: LoginInput!): AuthResponse!
   register(input: RegisterInput!): AuthResponse!
-  updateShipmentStatus: Shipment!
+  updateShipmentStatus(input: UpdateShipmentStatusInput!): Shipment!
 }
 
 type Query {
   allShipments: [Shipment!]!
-  me: UserType
-  myProfile: UserType!
+  me: User
+  myProfile: User!
   myShipments: [Shipment!]!
   priceCalculator: String!
 }
@@ -127,15 +159,4 @@ enum UserRole {
   CUSTOMER
   DRIVER
   SUPER_ADMIN
-}
-
-type UserType {
-  createdAt: DateTime!
-  email: String!
-  firstName: String!
-  id: ID!
-  lastName: String!
-  phone: String
-  profileImage: String
-  role: String!
 }

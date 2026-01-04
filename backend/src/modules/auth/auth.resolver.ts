@@ -25,4 +25,21 @@ export class AuthResolver {
   async register(@Args('input') input: RegisterInput) {
     return this.authService.register(input);
   }
+
+  @Mutation(() => AuthResponse)
+  async validateAuth0Token(@Args('accessToken') accessToken: string) {
+    return this.authService.validateAuth0Token(accessToken);
+  }
+
+  @Mutation(() => AuthResponse)
+  async syncAuth0User(
+    @Args('auth0Id') auth0Id: string,
+    @Args('email') email: string,
+    @Args('name', { nullable: true }) name?: string,
+    @Args('phone', { nullable: true }) phone?: string,
+    @Args('companyName', { nullable: true }) companyName?: string,
+    @Args('country', { nullable: true }) country?: string
+  ) {
+    return this.authService.syncAuth0User(auth0Id, email, name, phone, companyName, country);
+  }
 }

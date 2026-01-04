@@ -29,26 +29,37 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const { graphqlClient, LOGIN_MUTATION, setAuthToken } = await import('@/lib/graphql-client')
-      
-      const response = await graphqlClient.request(LOGIN_MUTATION, {
-        input: {
+      // Use Auth0's authentication API directly (secure)
+      const authResponse = await fetch('/api/auth/login-with-credentials', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           email: formData.email,
           password: formData.password
-        }
+        })
       })
 
-      const { token } = response.login
+      if (!authResponse.ok) {
+        const error = await authResponse.json()
+        throw new Error(error.message || 'Login failed')
+      }
+
+      const { token, user } = await authResponse.json()
       
       // Store token in localStorage
       localStorage.setItem('auth_token', token)
+      
+      // Update GraphQL client
+      const { setAuthToken } = await import('@/lib/graphql-client')
       setAuthToken(token)
       
       toast.success("Login successful!")
       router.push("/dashboard")
     } catch (error: any) {
       console.error('Login error:', error)
-      toast.error(error.response?.errors?.[0]?.message || "Login failed. Please try again.")
+      toast.error(error.message || "Login failed. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -105,7 +116,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-800 mb-2">Login to Your Account</h2>
-            <p className="text-gray-600">Please enter your credentials to access the shipping portal.</p>
+            <p className="text-gray-600">Secure authentication powered by Auth0 with custom forms.</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
@@ -191,6 +202,10 @@ export default function LoginPage() {
             >
               Register New Account
             </Button>
+
+            {/* <div className="text-center text-sm text-gray-500 mt-4">
+              <p>🔒 Secured by Auth0 with OAuth 2.0</p>
+            </div> */}
           </form>
         </div>
       </div>

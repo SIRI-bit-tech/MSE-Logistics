@@ -34,6 +34,18 @@ export class MapboxService {
 
     try {
       const response = await fetch(`${url}?${params}`)
+      
+      if (!response.ok) {
+        let errorBody: string
+        try {
+          const jsonError = await response.json()
+          errorBody = JSON.stringify(jsonError)
+        } catch {
+          errorBody = await response.text()
+        }
+        throw new Error(`Mapbox API error: ${response.status} - ${errorBody}`)
+      }
+      
       const data = await response.json() as MapboxRouteResponse
       return data.routes?.[0]
     } catch (error) {
