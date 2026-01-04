@@ -6,7 +6,7 @@ import { Input, Button, Checkbox, Select, SelectItem } from "@nextui-org/react"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
 import Link from "next/link"
-import { User, Mail, Phone, Globe, Lock, Eye, EyeOff, UserCheck } from "lucide-react"
+import { User, Mail, Phone, Globe, Lock, Eye, EyeOff } from "lucide-react"
 
 const countries = [
   { key: "US", label: "United States", flag: "🇺🇸" },
@@ -49,11 +49,6 @@ const countries = [
   { key: "PE", label: "Peru", flag: "🇵🇪" },
 ]
 
-const roles = [
-  { key: "CUSTOMER", label: "Customer", description: "I want to ship packages" },
-  { key: "DRIVER", label: "Driver", description: "I want to deliver packages" },
-]
-
 export default function SignupPage() {
   const router = useRouter()
   const [formData, setFormData] = useState({
@@ -62,7 +57,6 @@ export default function SignupPage() {
     businessEmail: "",
     phoneNumber: "",
     country: "",
-    role: "",
     password: "",
     confirmPassword: "",
     agreeTerms: false,
@@ -91,11 +85,6 @@ export default function SignupPage() {
       return
     }
 
-    if (!formData.role) {
-      toast.error("Please select your role")
-      return
-    }
-
     setLoading(true)
 
     try {
@@ -111,7 +100,6 @@ export default function SignupPage() {
           businessEmail: formData.businessEmail,
           phoneNumber: formData.phoneNumber,
           country: formData.country,
-          role: formData.role,
           password: formData.password
         })
       })
@@ -121,19 +109,15 @@ export default function SignupPage() {
         throw new Error(error.message || 'Registration failed')
       }
 
-      const { user } = await response.json()
+      await response.json()
       
       // Token is now stored in httpOnly cookie by the backend
       // No need to store in localStorage anymore
       
       toast.success("Account created successfully!")
       
-      // Redirect based on role
-      if (user.role === 'DRIVER') {
-        router.push("/dashboard") // Driver dashboard at (driver)/dashboard
-      } else {
-        router.push("/shipments") // Customer main page at (customer)/shipments
-      }
+      // All new registrations default to CUSTOMER role
+      router.push("/shipments") // Customer main page
     } catch (error: any) {
       console.error('Registration error:', error)
       toast.error(error.message || "Registration failed. Please try again.")
@@ -277,67 +261,35 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Country/Region and Role */}
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3">
-                  Country/Region
-                </label>
-                <Select
-                  placeholder="Select Country"
-                  selectedKeys={formData.country ? [formData.country] : []}
-                  onSelectionChange={(keys) => {
-                    const selectedKey = Array.from(keys)[0] as string
-                    handleChange("country", selectedKey)
-                  }}
-                  startContent={<Globe className="w-4 h-4 text-gray-400" />}
-                  size="lg"
-                  classNames={{
-                    trigger: "h-12 border-2 border-gray-200 hover:border-gray-300 data-[focus=true]:border-msc-yellow bg-white",
-                    value: "text-gray-900 text-base"
-                  }}
-                >
-                  {countries.map((country) => (
-                    <SelectItem 
-                      key={country.key} 
-                      value={country.key}
-                      startContent={<span className="text-lg">{country.flag}</span>}
-                    >
-                      {country.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-              </div>
-              <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3">
-                  I am a
-                </label>
-                <Select
-                  placeholder="Select Role"
-                  selectedKeys={formData.role ? [formData.role] : []}
-                  onSelectionChange={(keys) => {
-                    const selectedKey = Array.from(keys)[0] as string
-                    handleChange("role", selectedKey)
-                  }}
-                  startContent={<UserCheck className="w-4 h-4 text-gray-400" />}
-                  size="lg"
-                  classNames={{
-                    trigger: "h-12 border-2 border-gray-200 hover:border-gray-300 data-[focus=true]:border-msc-yellow bg-white",
-                    value: "text-gray-900 text-base"
-                  }}
-                  required
-                >
-                  {roles.map((role) => (
-                    <SelectItem 
-                      key={role.key} 
-                      value={role.key}
-                      description={role.description}
-                    >
-                      {role.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-              </div>
+            {/* Country/Region */}
+            <div>
+              <label className="block text-base font-semibold text-gray-800 mb-3">
+                Country/Region
+              </label>
+              <Select
+                placeholder="Select Country"
+                selectedKeys={formData.country ? [formData.country] : []}
+                onSelectionChange={(keys) => {
+                  const selectedKey = Array.from(keys)[0] as string
+                  handleChange("country", selectedKey)
+                }}
+                startContent={<Globe className="w-4 h-4 text-gray-400" />}
+                size="lg"
+                classNames={{
+                  trigger: "h-12 border-2 border-gray-200 hover:border-gray-300 data-[focus=true]:border-msc-yellow bg-white",
+                  value: "text-gray-900 text-base"
+                }}
+              >
+                {countries.map((country) => (
+                  <SelectItem 
+                    key={country.key} 
+                    value={country.key}
+                    startContent={<span className="text-lg">{country.flag}</span>}
+                  >
+                    {country.label}
+                  </SelectItem>
+                ))}
+              </Select>
             </div>
 
             {/* Password and Confirm Password */}

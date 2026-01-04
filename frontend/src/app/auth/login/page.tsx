@@ -46,13 +46,23 @@ export default function LoginPage() {
         throw new Error(error.message || 'Login failed')
       }
 
-      await authResponse.json()
+      const authData = await authResponse.json()
       
       // Token is now stored in httpOnly cookie by the backend
       // No need to store in localStorage anymore
       
       toast.success("Login successful!")
-      router.push("/dashboard")
+      
+      // Role-based redirection
+      const userRole = authData.user?.role
+      if (userRole === 'DRIVER') {
+        router.push("/dashboard") // Driver dashboard
+      } else if (userRole === 'CUSTOMER') {
+        router.push("/shipments") // Customer main page
+      } else {
+        // Fallback for missing or unknown roles
+        router.push("/dashboard")
+      }
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error(error.message || "Login failed. Please try again.")

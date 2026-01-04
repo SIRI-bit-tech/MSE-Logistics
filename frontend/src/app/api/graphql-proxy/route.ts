@@ -25,7 +25,30 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({ query, variables }),
     })
     
-    const data = await response.json()
+    // Handle JSON parsing with proper error handling
+    let data
+    try {
+      data = await response.json()
+    } catch (jsonError) {
+      console.error('Failed to parse JSON response from GraphQL backend:', jsonError)
+      
+      // Try to get the response text for debugging
+      let responseText = 'Unable to read response'
+      try {
+        responseText = await response.text()
+      } catch (textError) {
+        console.error('Failed to read response as text:', textError)
+      }
+      
+      return NextResponse.json(
+        { 
+          error: 'Invalid JSON response from GraphQL backend',
+          details: responseText,
+          status: response.status
+        },
+        { status: response.status || 502 }
+      )
+    }
     
     return NextResponse.json(data, { status: response.status })
   } catch (error) {
