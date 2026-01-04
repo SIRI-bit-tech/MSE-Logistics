@@ -17,6 +17,8 @@ export class PricingService {
     serviceType: ServiceType,
     senderZip: string,
     recipientZip: string,
+    senderCountry?: string,
+    recipientCountry?: string,
   ): Promise<number> {
     let price = this.basePrice + weight * this.weightMultiplier + distance * this.distanceMultiplier
 
@@ -29,8 +31,13 @@ export class PricingService {
     price *= serviceMultiplier
 
     // Apply zone surcharge if applicable
-    const zoneSurcharge = await this.zoneService.getZoneSurcharge(senderZip, recipientZip)
-    price *= 1 + zoneSurcharge
+    const zoneSurcharge = await this.zoneService.getZoneSurcharge(
+      senderZip, 
+      recipientZip, 
+      senderCountry, 
+      recipientCountry
+    )
+    price += zoneSurcharge
 
     return Math.round(price * 100) / 100
   }

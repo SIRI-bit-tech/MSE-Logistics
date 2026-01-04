@@ -6,14 +6,12 @@ import { useRouter } from "next/navigation"
 
 export function useAuth() {
   const router = useRouter()
-  const { user, token, isAuthenticated, setUser, setToken, logout } = useAuthStore()
+  const { user, isAuthenticated, setUser, logout } = useAuthStore()
 
   useEffect(() => {
-    const token = localStorage.getItem("auth_token")
-    if (token) {
-      setToken(token)
-      // Fetch user data from API
-    }
+    // Authentication is now handled via httpOnly cookies
+    // No need to read from localStorage
+    // User data will be fetched from server-side session
   }, [])
 
   const loginWithAuth0 = () => {
@@ -21,14 +19,23 @@ export function useAuth() {
     window.location.href = `/api/auth/login?returnTo=${window.location.origin}/dashboard`
   }
 
-  const logoutUser = () => {
-    logout()
-    router.push("/")
+  const logoutUser = async () => {
+    try {
+      // Call server-side logout to clear httpOnly cookie
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      })
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      logout()
+      router.push("/")
+    }
   }
 
   return {
     user,
-    token,
     isAuthenticated,
     setUser,
     loginWithAuth0,

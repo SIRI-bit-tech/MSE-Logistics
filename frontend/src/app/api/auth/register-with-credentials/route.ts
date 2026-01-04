@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
+  let auth0User: any = null
+  let managementToken: string | null = null
+
   try {
-    const { fullName, companyName, businessEmail, phoneNumber, country, password } = await request.json()
+    const { firstName, lastName, businessEmail, phoneNumber, country, role, password } = await request.json()
 
     // Create user in Auth0
-    const managementToken = await getAuth0ManagementToken()
+    managementToken = await getAuth0ManagementToken()
     
     const createUserResponse = await fetch(`https://${process.env.AUTH0_ISSUER_BASE_URL?.replace('https://', '')}/api/v2/users`, {
       method: 'POST',
@@ -16,12 +19,14 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         email: businessEmail,
         password: password,
-        name: fullName,
+        name: `${firstName} ${lastName}`,
         connection: 'Username-Password-Authentication',
         user_metadata: {
-          companyName,
+          firstName,
+          lastName,
           phoneNumber,
           country,
+          role,
         },
       }),
     })
@@ -34,7 +39,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const auth0User = await createUserResponse.json()
+    auth0User = await createUserResponse.json()
 
     // Now authenticate the user to get tokens
     const authResponse = await fetch(`https://${process.env.AUTH0_ISSUER_BASE_URL?.replace('https://', '')}/oauth/token`, {
@@ -60,24 +65,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const authData = await authResponse.json()
-
     // Sync user with our backend database
-    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
+    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         query: `
-          mutation SyncAuth0User($auth0Id: String!, $email: String!, $name: String, $phone: String, $companyName: String, $country: String) {
+          mutation SyncAuth0User($auth0Id: String!, $email: String!, $firstName: String!, $lastName: String!, $phone: String, $role: String!) {
             syncAuth0User(
               auth0Id: $auth0Id, 
               email: $email, 
-              name: $name,
+              firstName: $firstName,
+              lastName: $lastName,
               phone: $phone,
-              companyName: $companyName,
-              country: $country
+              role: $role
             ) {
               token
               user {
@@ -93,26 +96,53 @@ export async function POST(request: NextRequest) {
         variables: {
           auth0Id: auth0User.user_id,
           email: businessEmail,
-          name: fullName,
+          firstName,
+          lastName,
           phone: phoneNumber,
-          companyName,
-          country
+          role
         }
       })
     })
 
+    if (!backendResponse.ok) {
+      // Backend request failed - clean up the Auth0 user
+      if (managementToken) {
+        await deleteAuth0User(auth0User.user_id, managementToken, 'backend request failure')
+      }
+
+      return NextResponse.json(
+        { message: 'Registration failed. Please try again.' },
+        { status: 500 }
+      )
+    }
+
     const backendData = await backendResponse.json()
 
     if (backendData.errors) {
+      // Backend sync failed - clean up the Auth0 user to prevent orphaned accounts
+      if (managementToken) {
+        await deleteAuth0User(auth0User.user_id, managementToken, 'backend sync failure')
+      }
+
       return NextResponse.json(
         { message: backendData.errors[0].message },
         { status: 400 }
       )
     }
 
-    return NextResponse.json(backendData.data.syncAuth0User)
+    return NextResponse.json(backendData.data.syncAuth0User, {
+      headers: {
+        'Set-Cookie': `auth_token=${backendData.data.syncAuth0User.token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${7 * 24 * 60 * 60}` // 7 days
+      }
+    })
   } catch (error) {
     console.error('Registration error:', error)
+    
+    // If we have an Auth0 user that was created, try to clean it up
+    if (auth0User?.user_id && managementToken) {
+      await deleteAuth0User(auth0User.user_id, managementToken, 'unexpected error')
+    }
+    
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }
@@ -120,20 +150,66 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function getAuth0ManagementToken() {
-  const response = await fetch(`https://${process.env.AUTH0_ISSUER_BASE_URL?.replace('https://', '')}/oauth/token`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      client_id: process.env.AUTH0_CLIENT_ID,
-      client_secret: process.env.AUTH0_CLIENT_SECRET,
-      audience: `https://${process.env.AUTH0_ISSUER_BASE_URL?.replace('https://', '')}/api/v2/`,
-      grant_type: 'client_credentials',
-    }),
-  })
+async function deleteAuth0User(userId: string, managementToken: string, reason: string) {
+  try {
+    const deleteResponse = await fetch(`https://${process.env.AUTH0_ISSUER_BASE_URL?.replace('https://', '')}/api/v2/users/${encodeURIComponent(userId)}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${managementToken}`,
+      },
+    })
+    
+    if (deleteResponse.ok) {
+      console.log(`Auth0 user ${userId} deleted due to ${reason}`)
+      return true
+    } else {
+      console.error(`Failed to delete Auth0 user ${userId} after ${reason}:`, await deleteResponse.text())
+      return false
+    }
+  } catch (deleteError) {
+    console.error(`Error deleting Auth0 user ${userId} after ${reason}:`, deleteError)
+    return false
+  }
+}
 
-  const data = await response.json()
-  return data.access_token
+async function getAuth0ManagementToken() {
+  try {
+    const response = await fetch(`https://${process.env.AUTH0_ISSUER_BASE_URL?.replace('https://', '')}/oauth/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        client_id: process.env.AUTH0_CLIENT_ID,
+        client_secret: process.env.AUTH0_CLIENT_SECRET,
+        audience: `https://${process.env.AUTH0_ISSUER_BASE_URL?.replace('https://', '')}/api/v2/`,
+        grant_type: 'client_credentials',
+      }),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Auth0 management token request failed: ${response.status} ${response.statusText}`
+      try {
+        const errorData = await response.json()
+        errorMessage += ` - ${errorData.error_description || errorData.error || 'Unknown error'}`
+      } catch {
+        // If we can't parse the error response, use the status text
+      }
+      console.error('Auth0 Management Token Error:', errorMessage)
+      throw new Error(errorMessage)
+    }
+
+    const data = await response.json()
+    
+    if (!data.access_token) {
+      const errorMessage = 'Auth0 management token response missing access_token'
+      console.error('Auth0 Management Token Error:', errorMessage, data)
+      throw new Error(errorMessage)
+    }
+
+    return data.access_token
+  } catch (error) {
+    console.error('Failed to get Auth0 management token:', error)
+    throw error instanceof Error ? error : new Error('Failed to get Auth0 management token')
+  }
 }

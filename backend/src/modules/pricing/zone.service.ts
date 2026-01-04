@@ -37,10 +37,27 @@ export class ZoneService {
     [8, 125],  // International - Asia/Oceania
   ])
 
-  async getZoneSurcharge(senderZip: string, recipientZip: string): Promise<number> {
+  /**
+   * Calculate zone-based surcharge for shipping between two postal codes.
+   * 
+   * @param senderZip - Sender's postal code
+   * @param recipientZip - Recipient's postal code  
+   * @param senderCountry - Optional sender country hint (e.g., 'US', 'DE', 'CA', 'GB')
+   * @param recipientCountry - Optional recipient country hint
+   * @returns Promise<number> - Surcharge amount in USD
+   * 
+   * Note: Country hints help resolve ambiguous postal codes (e.g., German "01067" vs US "01067").
+   * Without country hints, 5-digit codes starting with 0 are assumed to be German.
+   */
+  async getZoneSurcharge(
+    senderZip: string, 
+    recipientZip: string,
+    senderCountry?: string,
+    recipientCountry?: string
+  ): Promise<number> {
     try {
-      const senderZone = this.parsePostalCode(senderZip)
-      const recipientZone = this.parsePostalCode(recipientZip)
+      const senderZone = this.parsePostalCode(senderZip, senderCountry)
+      const recipientZone = this.parsePostalCode(recipientZip, recipientCountry)
       
       const zoneDistance = this.calculateZoneDistance(senderZone, recipientZone)
       const surcharge = this.getZoneSurchargeRate(zoneDistance)
@@ -61,8 +78,84 @@ export class ZoneService {
     }
   }
 
-  private parsePostalCode(postalCode: string): ZoneInfo {
+  private parsePostalCode(postalCode: string, country?: string): ZoneInfo {
     const cleanCode = postalCode.trim().toUpperCase()
+    
+    // If country is explicitly provided, use country-specific parsing
+    if (country) {
+      const countryCode = country.toUpperCase()
+      
+      switch (countryCode) {
+        case 'DE':
+        case 'GERMANY':
+          // German postal codes (5 digits, 01000-99999)
+          if (/^\d{5}$/.test(cleanCode) && cleanCode >= '01000' && cleanCode <= '99999') {
+            return {
+              zone: this.zoneMap.get('DE') || 8,
+              region: 'DE',
+              country: 'Germany'
+            }
+          }
+          break
+          
+        case 'US':
+        case 'USA':
+        case 'UNITED STATES':
+          // US ZIP codes (5 or 9 digits)
+          if (/^\d{5}(-\d{4})?$/.test(cleanCode)) {
+            const firstDigit = cleanCode.charAt(0)
+            const zone = this.zoneMap.get(firstDigit) || 3
+            return {
+              zone,
+              region: 'US',
+              country: 'United States'
+            }
+          }
+          break
+          
+        case 'CA':
+        case 'CANADA':
+          // Canadian postal codes (A1A 1A1 format)
+          if (/^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/.test(cleanCode)) {
+            return {
+              zone: this.zoneMap.get('CA') || 6,
+              region: 'CA',
+              country: 'Canada'
+            }
+          }
+          break
+          
+        case 'GB':
+        case 'UK':
+        case 'UNITED KINGDOM':
+          // UK postal codes
+          if (/^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/i.test(cleanCode)) {
+            return {
+              zone: this.zoneMap.get('GB') || 7,
+              region: 'GB',
+              country: 'United Kingdom'
+            }
+          }
+          break
+      }
+    }
+    
+    // Fallback to pattern-based detection (with improved ambiguity handling)
+    // Note: 5-digit codes are ambiguous between US ZIP and German postal codes
+    // We check German first for codes starting with 0 (common in German postcodes)
+    
+    // German postal codes (5 digits) - check first for codes starting with 0
+    if (/^\d{5}$/.test(cleanCode) && cleanCode >= '01000' && cleanCode <= '99999') {
+      // Prefer German interpretation for codes starting with 0 (01000-09999)
+      // as US ZIP codes rarely start with 0 in practice
+      if (cleanCode.startsWith('0')) {
+        return {
+          zone: this.zoneMap.get('DE') || 8,
+          region: 'DE',
+          country: 'Germany'
+        }
+      }
+    }
     
     // US ZIP codes (5 or 9 digits)
     if (/^\d{5}(-\d{4})?$/.test(cleanCode)) {
@@ -93,7 +186,7 @@ export class ZoneService {
       }
     }
     
-    // German postal codes (5 digits)
+    // German postal codes (5 digits) - fallback for remaining German codes
     if (/^\d{5}$/.test(cleanCode) && cleanCode >= '01000' && cleanCode <= '99999') {
       return {
         zone: this.zoneMap.get('DE') || 8,
@@ -141,8 +234,8 @@ export class ZoneService {
   }
 
   // Utility method to get zone info for debugging
-  getZoneInfo(postalCode: string): ZoneInfo {
-    return this.parsePostalCode(postalCode)
+  getZoneInfo(postalCode: string, country?: string): ZoneInfo {
+    return this.parsePostalCode(postalCode, country)
   }
 
   // Get all available zones for reference

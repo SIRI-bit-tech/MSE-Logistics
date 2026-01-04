@@ -4,7 +4,7 @@ import { AuthService } from "./auth.service"
 import { UserType } from "../user/user.type"
 import { AuthGuard } from "../../common/guards/auth.guard"
 import type { GraphQLContext } from "../../common/interfaces/graphql.context"
-import { LoginInput, RegisterInput, AuthResponse } from "./auth.types"
+import { LoginInput, RegisterInput, ValidateAuth0TokenInput, SyncAuth0UserInput, AuthResponse } from "./auth.types"
 
 @Resolver(() => UserType)
 export class AuthResolver {
@@ -27,19 +27,24 @@ export class AuthResolver {
   }
 
   @Mutation(() => AuthResponse)
-  async validateAuth0Token(@Args('accessToken') accessToken: string) {
-    return this.authService.validateAuth0Token(accessToken);
+  async validateAuth0Token(@Args('input') input: ValidateAuth0TokenInput) {
+    return this.authService.validateAuth0Token(input.accessToken);
   }
 
   @Mutation(() => AuthResponse)
+  @UseGuards(AuthGuard)
   async syncAuth0User(
-    @Args('auth0Id') auth0Id: string,
-    @Args('email') email: string,
-    @Args('name', { nullable: true }) name?: string,
-    @Args('phone', { nullable: true }) phone?: string,
-    @Args('companyName', { nullable: true }) companyName?: string,
-    @Args('country', { nullable: true }) country?: string
+    @Args('input') input: SyncAuth0UserInput,
+    @Context() context: GraphQLContext
   ) {
-    return this.authService.syncAuth0User(auth0Id, email, name, phone, companyName, country);
+    return this.authService.syncAuth0User(
+      input.auth0Id, 
+      input.email, 
+      input.firstName, 
+      input.lastName, 
+      input.phone, 
+      input.role, 
+      context.user
+    );
   }
 }

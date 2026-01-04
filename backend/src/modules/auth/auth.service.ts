@@ -104,10 +104,12 @@ export class AuthService {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-          phone: user.phone || undefined,
-          profileImage: user.profileImage || undefined,
+          phoneNumber: user.phone || undefined,
+          avatar: user.profileImage || undefined,
           role: user.role,
+          isActive: user.status === 'ACTIVE',
           createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
         },
       }
     } catch (error) {
@@ -126,16 +128,17 @@ export class AuthService {
   async syncAuth0User(
     auth0Id: string, 
     email: string, 
-    name?: string, 
+    firstName: string,
+    lastName: string,
     phone?: string, 
-    companyName?: string, 
-    country?: string
+    role?: string,
+    authenticatedUser?: { id: string; email: string; role: string; auth0Id: string }
   ): Promise<AuthResponse> {
     try {
-      // Parse name
-      const nameParts = name ? name.trim().split(" ") : ["", ""]
-      const firstName = nameParts[0] || email.split("@")[0]
-      const lastName = nameParts.slice(1).join(" ") || ""
+      // Validate caller identity - ensure the authenticated user can only sync their own data
+      if (authenticatedUser && authenticatedUser.auth0Id !== auth0Id) {
+        throw new UnauthorizedException('You can only sync your own user data')
+      }
 
       // Find or create user in our database
       let user = await this.prisma.user.findUnique({
@@ -151,7 +154,7 @@ export class AuthService {
             firstName,
             lastName,
             phone: phone || null,
-            role: "CUSTOMER",
+            role: role === 'DRIVER' ? 'DRIVER' : 'CUSTOMER',
           },
         })
       } else {
@@ -163,6 +166,7 @@ export class AuthService {
             firstName,
             lastName,
             phone: phone || user.phone,
+            role: role === 'DRIVER' ? 'DRIVER' : 'CUSTOMER',
           },
         })
       }
@@ -182,10 +186,12 @@ export class AuthService {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-          phone: user.phone || undefined,
-          profileImage: user.profileImage || undefined,
+          phoneNumber: user.phone || undefined,
+          avatar: user.profileImage || undefined,
           role: user.role,
+          isActive: user.status === 'ACTIVE',
           createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
         },
       }
     } catch (error) {
@@ -292,10 +298,12 @@ export class AuthService {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-          phone: user.phone || undefined,
-          profileImage: user.profileImage || undefined,
+          phoneNumber: user.phone || undefined,
+          avatar: user.profileImage || undefined,
           role: user.role,
+          isActive: user.status === 'ACTIVE',
           createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
         },
       }
     } catch (error) {
