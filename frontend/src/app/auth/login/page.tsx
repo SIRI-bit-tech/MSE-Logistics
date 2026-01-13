@@ -115,7 +115,8 @@ export default function LoginPage() {
                 endContent={<UserIcon className="w-4 h-4 text-gray-400" />}
                 classNames={{
                   input: "text-gray-700",
-                  inputWrapper: "border border-gray-300 hover:border-gray-400 focus-within:border-msc-yellow"
+                  inputWrapper: "border border-gray-300 hover:border-gray-400 focus-within:border-msc-yellow shadow-none",
+                  base: "shadow-none"
                 }}
                 required
               />
@@ -142,7 +143,8 @@ export default function LoginPage() {
                 }
                 classNames={{
                   input: "text-gray-700",
-                  inputWrapper: "border border-gray-300 hover:border-gray-400 focus-within:border-msc-yellow"
+                  inputWrapper: "border border-gray-300 hover:border-gray-400 focus-within:border-msc-yellow shadow-none",
+                  base: "shadow-none"
                 }}
                 required
               />

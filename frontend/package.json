@@ -18,6 +18,7 @@
     "setup": "node setup.js"
   },
   "dependencies": {
+    "ably": "^2.0.1",
     "@apollo/client": "^3.8.7",
     "@hookform/resolvers": "^3.10.0",
     "@mapbox/mapbox-gl-draw": "^1.4.0",
@@ -79,8 +80,6 @@
     "react-resizable-panels": "^2.1.7",
     "react-select-country-list": "^2.2.3",
     "recharts": "^2.15.4",
-    "socket.io": "^4.7.2",
-    "socket.io-client": "^4.7.2",
     "sonner": "^1.7.4",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",

@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Forward the request to the GraphQL backend
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/graphql`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/graphql`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ query, variables }),

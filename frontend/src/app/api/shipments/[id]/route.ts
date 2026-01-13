@@ -5,9 +5,11 @@ import { prisma } from '@/lib/prisma'
 // GET /api/shipments/[id] - Get specific shipment
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+    
     const session = await auth.api.getSession({
       headers: request.headers,
     })
@@ -18,7 +20,7 @@ export async function GET(
 
     const shipment = await prisma.shipment.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id, // Ensure user can only access their own shipments
       },
       include: {

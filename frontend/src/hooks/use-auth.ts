@@ -17,21 +17,37 @@ export function useAuth() {
     }
 
     if (session?.user) {
-      // Parse name into firstName and lastName
-      const nameParts = session.user.name?.split(' ') || []
-      const firstName = nameParts[0] || ""
-      const lastName = nameParts.slice(1).join(' ') || ""
-      
-      setUser({
-        id: session.user.id,
-        email: session.user.email,
-        firstName,
-        lastName,
-        phone: undefined, // Better Auth doesn't store phone by default
-        profileImage: session.user.image || undefined,
-        role: "CUSTOMER", // Default role, you can extend Better Auth to store roles
-        createdAt: new Date(session.user.createdAt),
-      })
+      // Fetch complete user data including role from database
+      const fetchUserData = async () => {
+        try {
+          const response = await fetch('/api/auth/me')
+          if (response.ok) {
+            const userData = await response.json()
+            setUser(userData.user)
+          } else {
+            // Fallback to session data if API fails
+            const nameParts = session.user.name?.split(' ') || []
+            const firstName = nameParts[0] || ""
+            const lastName = nameParts.slice(1).join(' ') || ""
+            
+            setUser({
+              id: session.user.id,
+              email: session.user.email,
+              firstName,
+              lastName,
+              phone: undefined,
+              profileImage: session.user.image || undefined,
+              role: "CUSTOMER", // Default role
+              createdAt: new Date(session.user.createdAt),
+            })
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error)
+          setLoading(false)
+        }
+      }
+
+      fetchUserData()
     } else {
       setLoading(false)
     }

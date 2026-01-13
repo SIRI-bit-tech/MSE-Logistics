@@ -1,4 +1,4 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/graphql"
+export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
 
 export const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
 

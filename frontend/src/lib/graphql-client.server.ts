@@ -1,10 +1,10 @@
 import { GraphQLClient } from 'graphql-request'
 import { cookies } from 'next/headers'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/graphql"
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
 
 // Base GraphQL client for server-side use
-export const graphqlClient = new GraphQLClient(API_URL, {
+export const graphqlClient = new GraphQLClient(APP_URL, {
   headers: {
     'Content-Type': 'application/json',
   },
@@ -16,7 +16,7 @@ export const getAuthenticatedGraphQLClient = async () => {
   const token = cookieStore.get('auth_token')?.value
   
   if (token) {
-    return new GraphQLClient(API_URL, {
+    return new GraphQLClient(APP_URL, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,

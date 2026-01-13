@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { Button, Card, Input, Select, SelectItem } from "@nextui-org/react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Mail, Lock, Shield, User, Phone } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
@@ -11,7 +11,7 @@ import toast from "react-hot-toast"
 
 export default function AdminRegister() {
   const router = useRouter()
-  const { registerWithCredentials } = useAuth()
+  const { user, isAuthenticated, isLoading } = useAuth()
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -23,6 +23,37 @@ export default function AdminRegister() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
+  // Authentication and authorization check
+  useEffect(() => {
+    if (!isLoading) {
+      if (!isAuthenticated || !user) {
+        toast.error("Authentication required")
+        router.push("/admin/login")
+        return
+      }
+
+      if (user.role !== "SUPER_ADMIN") {
+        toast.error("Access denied. Super Admin privileges required.")
+        router.push("/admin/dashboard")
+        return
+      }
+    }
+  }, [isAuthenticated, user, isLoading, router])
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
+        <div className="text-white">Loading...</div>
+      </div>
+    )
+  }
+
+  // Don't render form if not authenticated or not super admin
+  if (!isAuthenticated || !user || user.role !== "SUPER_ADMIN") {
+    return null
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,14 +72,25 @@ export default function AdminRegister() {
     setLoading(true)
 
     try {
-      const result = await registerWithCredentials(
-        formData.email,
-        formData.password,
-        formData.firstName,
-        formData.lastName
-      )
+      // Create admin account via secure API endpoint
+      const response = await fetch('/api/admin/create-admin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+          role: formData.role,
+        }),
+      })
 
-      if (result.success) {
+      const result = await response.json()
+
+      if (response.ok && result.success) {
         toast.success("Admin account created successfully!")
         router.push("/admin/dashboard")
       } else {
