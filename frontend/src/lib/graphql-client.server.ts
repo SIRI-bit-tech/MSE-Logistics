@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
 
 // Base GraphQL client for server-side use
-export const graphqlClient = new GraphQLClient(APP_URL, {
+export const graphqlClient = new GraphQLClient(`${APP_URL}/graphql`, {
   headers: {
     'Content-Type': 'application/json',
   },
@@ -16,7 +16,7 @@ export const getAuthenticatedGraphQLClient = async () => {
   const token = cookieStore.get('auth_token')?.value
   
   if (token) {
-    return new GraphQLClient(APP_URL, {
+    return new GraphQLClient(`${APP_URL}/graphql`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,

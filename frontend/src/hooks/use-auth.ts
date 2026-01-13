@@ -17,6 +17,24 @@ export function useAuth() {
     }
 
     if (session?.user) {
+      // Helper function to create user data from session fallback
+      const createSessionFallback = () => {
+        const nameParts = session.user.name?.split(' ') || []
+        const firstName = nameParts[0] || ""
+        const lastName = nameParts.slice(1).join(' ') || ""
+        
+        return {
+          id: session.user.id,
+          email: session.user.email,
+          firstName,
+          lastName,
+          phone: undefined,
+          profileImage: session.user.image || undefined,
+          role: "CUSTOMER" as const, // Default role with proper typing
+          createdAt: new Date(session.user.createdAt),
+        }
+      }
+
       // Fetch complete user data including role from database
       const fetchUserData = async () => {
         try {
@@ -24,25 +42,16 @@ export function useAuth() {
           if (response.ok) {
             const userData = await response.json()
             setUser(userData.user)
+            setLoading(false)
           } else {
             // Fallback to session data if API fails
-            const nameParts = session.user.name?.split(' ') || []
-            const firstName = nameParts[0] || ""
-            const lastName = nameParts.slice(1).join(' ') || ""
-            
-            setUser({
-              id: session.user.id,
-              email: session.user.email,
-              firstName,
-              lastName,
-              phone: undefined,
-              profileImage: session.user.image || undefined,
-              role: "CUSTOMER", // Default role
-              createdAt: new Date(session.user.createdAt),
-            })
+            setUser(createSessionFallback())
+            setLoading(false)
           }
         } catch (error) {
           console.error('Error fetching user data:', error)
+          // Use session fallback on error
+          setUser(createSessionFallback())
           setLoading(false)
         }
       }

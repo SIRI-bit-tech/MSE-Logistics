@@ -8,13 +8,13 @@ import toast from "react-hot-toast"
 import Link from "next/link"
 import { User, Mail, Phone, Globe, Lock, Eye, EyeOff } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
-import useCountries from "react-select-country-list"
+import countryList from "react-select-country-list"
 import ReactCountryFlag from "react-country-flag"
 
 export default function SignupPage() {
   const router = useRouter()
   const { registerWithCredentials } = useAuth()
-  const countries = useCountries()
+  const countries = countryList()
   
   const [formData, setFormData] = useState({
     firstName: "",
