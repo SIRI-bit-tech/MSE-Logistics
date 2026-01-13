@@ -1,74 +1,83 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Server as SocketIOServer, Socket } from 'socket.io'
-import { createServer } from 'http'
+import Ably from 'ably'
 
-let io: SocketIOServer | undefined
+let ablyClient: Ably.Realtime | undefined
 
-interface TrackingSubscription {
-  trackingNumber: string
-}
-
-interface ShipmentSubscription {
-  userId: string
-}
-
-// Initialize Socket.IO server
-function initializeSocketServer(): SocketIOServer {
-  if (!io) {
-    const server = createServer()
+// Initialize Ably client connection
+function initializeAblyClient(): Ably.Realtime | null {
+  if (!ablyClient) {
+    const ablyApiKey = process.env.ABLY_API_KEY
     
-    io = new SocketIOServer(server, {
-      cors: {
-        origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-        methods: ["GET", "POST"]
-      },
-      path: '/api/socket.io'
-    })
+    if (!ablyApiKey) {
+      console.warn('No Ably API key configured. Set ABLY_API_KEY environment variable.')
+      return null
+    }
 
-    io.on('connection', (socket: Socket) => {
-      // Handle tracking subscription
-      socket.on('tracking:subscribe', ({ trackingNumber }: TrackingSubscription) => {
-        socket.join(`tracking:${trackingNumber}`)
+    try {
+      ablyClient = new Ably.Realtime({
+        key: ablyApiKey,
+        autoConnect: true,
       })
 
-      // Handle tracking unsubscription
-      socket.on('tracking:unsubscribe', ({ trackingNumber }: TrackingSubscription) => {
-        socket.leave(`tracking:${trackingNumber}`)
+      ablyClient.connection.on('connected', () => {
+        console.log('Connected to Ably realtime service')
       })
 
-      // Handle shipment updates subscription
-      socket.on('shipments:subscribe', ({ userId }: ShipmentSubscription) => {
-        socket.join(`user:${userId}:shipments`)
+      ablyClient.connection.on('disconnected', () => {
+        console.log('Disconnected from Ably realtime service')
       })
 
-      socket.on('disconnect', () => {
-        // Client disconnected
+      ablyClient.connection.on('failed', (error: any) => {
+        console.error('Ably connection failed:', error)
       })
-    })
 
-    const port = process.env.SOCKET_PORT || 3002
-    server.listen(port)
+    } catch (error) {
+      console.error('Failed to initialize Ably client:', error)
+      return null
+    }
   }
-  return io
+  
+  return ablyClient
 }
 
 export async function GET(_request: NextRequest) {
-  initializeSocketServer()
-  return NextResponse.json({ message: 'Socket.IO server initialized' })
+  const ably = initializeAblyClient()
+  
+  if (!ably) {
+    return NextResponse.json({ 
+      error: 'Ably realtime service not configured',
+      message: 'Set ABLY_API_KEY environment variable to enable real-time features'
+    }, { status: 503 })
+  }
+
+  return NextResponse.json({ 
+    message: 'Ably realtime client initialized',
+    connected: ably.connection.state === 'connected' || ably.connection.state === 'connecting'
+  })
 }
 
-// Helper function to emit tracking updates
+// Helper function to emit tracking updates via Ably
 export function emitTrackingUpdate(trackingNumber: string, data: any): void {
-  const socketServer = initializeSocketServer()
-  if (socketServer) {
-    socketServer.to(`tracking:${trackingNumber}`).emit('tracking:updated', data)
+  const ably = initializeAblyClient()
+  if (ably) {
+    const channel = ably.channels.get(`tracking:${trackingNumber}`)
+    channel.publish('tracking:updated', data).catch((error: any) => {
+      console.error('Failed to publish tracking update:', error)
+    })
+  } else {
+    console.warn('Ably client not available. Tracking update not sent:', trackingNumber)
   }
 }
 
-// Helper function to emit shipment updates
+// Helper function to emit shipment updates via Ably
 export function emitShipmentUpdate(userId: string, data: any): void {
-  const socketServer = initializeSocketServer()
-  if (socketServer) {
-    socketServer.to(`user:${userId}:shipments`).emit('shipments:updated', data)
+  const ably = initializeAblyClient()
+  if (ably) {
+    const channel = ably.channels.get(`user:${userId}:shipments`)
+    channel.publish('shipments:updated', data).catch((error: any) => {
+      console.error('Failed to publish shipment update:', error)
+    })
+  } else {
+    console.warn('Ably client not available. Shipment update not sent:', userId)
   }
 }

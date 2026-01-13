@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
+// GET /api/auth/me - Get current user data with role
 export async function GET(request: NextRequest) {
   try {
     const session = await auth.api.getSession({
@@ -8,35 +10,31 @@ export async function GET(request: NextRequest) {
     })
 
     if (!session) {
-      return NextResponse.json({ 
-        user: null, 
-        isAuthenticated: false 
-      }, { status: 200 })
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
-    // Parse name into firstName and lastName
-    const nameParts = session.user.name?.split(' ') || []
-    const firstName = nameParts[0] || ""
-    const lastName = nameParts.slice(1).join(' ') || ""
+    // Fetch complete user data from database
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        profileImage: true,
+        role: true,
+        createdAt: true,
+      }
+    })
 
-    return NextResponse.json({
-      user: {
-        id: session.user.id,
-        email: session.user.email,
-        firstName,
-        lastName,
-        phone: undefined, // Better Auth doesn't store phone by default
-        profileImage: session.user.image || undefined,
-        role: "CUSTOMER", // Default role, extend Better Auth to store roles if needed
-        createdAt: session.user.createdAt,
-      },
-      isAuthenticated: true
-    }, { status: 200 })
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    return NextResponse.json({ user })
   } catch (error) {
-    console.error('Error getting user session:', error)
-    return NextResponse.json({ 
-      user: null, 
-      isAuthenticated: false 
-    }, { status: 200 })
+    console.error('Error fetching user data:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

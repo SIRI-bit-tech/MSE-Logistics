@@ -1,9 +1,9 @@
 import { GraphQLClient } from 'graphql-request'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/graphql"
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
 
 // Base GraphQL client for client-side use (no authentication)
-export const graphqlClient = new GraphQLClient(API_URL, {
+export const graphqlClient = new GraphQLClient(APP_URL, {
   headers: {
     'Content-Type': 'application/json',
   },

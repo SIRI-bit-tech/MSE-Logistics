@@ -22,7 +22,7 @@ interface Shipment {
   recipientAddress: string
   status: string
   createdAt: string
-  estimatedDelivery?: string
+  estimatedDeliveryDate?: string
 }
 
 export default function ActiveShipmentsTable() {
@@ -48,7 +48,7 @@ export default function ActiveShipmentsTable() {
                   recipientAddress
                   status
                   createdAt
-                  estimatedDelivery
+                  estimatedDeliveryDate
                 }
               }
             `
@@ -147,7 +147,7 @@ export default function ActiveShipmentsTable() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    {shipment.estimatedDelivery ? formatDate(shipment.estimatedDelivery) : 'TBD'}
+                    {shipment.estimatedDeliveryDate ? formatDate(shipment.estimatedDeliveryDate) : 'TBD'}
                   </TableCell>
                 </TableRow>
               ))}

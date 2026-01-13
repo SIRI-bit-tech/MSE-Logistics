@@ -146,7 +146,8 @@ export default function SignupPage() {
                   size="lg"
                   classNames={{
                     input: "text-gray-900 text-base",
-                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white"
+                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white shadow-none",
+                    base: "shadow-none"
                   }}
                   required
                 />
@@ -163,7 +164,8 @@ export default function SignupPage() {
                   size="lg"
                   classNames={{
                     input: "text-gray-900 text-base",
-                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white"
+                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white shadow-none",
+                    base: "shadow-none"
                   }}
                   required
                 />
@@ -185,7 +187,8 @@ export default function SignupPage() {
                   size="lg"
                   classNames={{
                     input: "text-gray-900 text-base",
-                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white"
+                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white shadow-none",
+                    base: "shadow-none"
                   }}
                   required
                 />
@@ -203,7 +206,8 @@ export default function SignupPage() {
                   size="lg"
                   classNames={{
                     input: "text-gray-900 text-base",
-                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white"
+                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white shadow-none",
+                    base: "shadow-none"
                   }}
                 />
               </div>
@@ -224,9 +228,10 @@ export default function SignupPage() {
                 startContent={<Globe className="w-4 h-4 text-gray-400" />}
                 size="lg"
                 classNames={{
-                  trigger: "h-12 border-2 border-gray-200 hover:border-gray-300 data-[focus=true]:border-msc-yellow bg-white",
+                  trigger: "h-12 border-2 border-gray-200 hover:border-gray-300 data-[focus=true]:border-msc-yellow bg-white shadow-none",
                   value: "text-gray-900 text-base",
-                  popoverContent: "bg-white"
+                  popoverContent: "bg-white shadow-lg",
+                  base: "shadow-none"
                 }}
                 renderValue={(items) => {
                   return items.map((item) => {
@@ -293,7 +298,8 @@ export default function SignupPage() {
                   size="lg"
                   classNames={{
                     input: "text-gray-900 text-base",
-                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white"
+                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white shadow-none",
+                    base: "shadow-none"
                   }}
                   required
                 />
@@ -320,7 +326,8 @@ export default function SignupPage() {
                   size="lg"
                   classNames={{
                     input: "text-gray-900 text-base",
-                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white"
+                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white shadow-none",
+                    base: "shadow-none"
                   }}
                   required
                 />

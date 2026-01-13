@@ -113,8 +113,8 @@ model Shipment {
   senderCity       String
   senderCountry    String
   senderPostalCode String
-  senderLatitude   Float
-  senderLongitude  Float
+  senderLatitude   Float?
+  senderLongitude  Float?
 
   // Recipient information
   recipientName       String
@@ -124,8 +124,8 @@ model Shipment {
   recipientCity       String
   recipientCountry    String
   recipientPostalCode String
-  recipientLatitude   Float
-  recipientLongitude  Float
+  recipientLatitude   Float?
+  recipientLongitude  Float?
 
   // Package information
   packageType PackageType

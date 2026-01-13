@@ -1,7 +1,7 @@
 import { useShipmentStore } from "@/store/shipment-store"
 import axios from "axios"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/graphql"
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
 
 export function useShipment() {
   const {
@@ -33,7 +33,7 @@ export function useShipment() {
         }
       `
 
-      const response = await axios.post(API_URL, { query, variables: { userId, skip: 0, take: 10 } })
+      const response = await axios.post(APP_URL, { query, variables: { userId, skip: 0, take: 10 } })
       setShipments(response.data.data.getUserShipments)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch shipments")
@@ -56,7 +56,7 @@ export function useShipment() {
         }
       `
 
-      const response = await axios.post(API_URL, { query: mutation, variables: { input: shipmentData } })
+      const response = await axios.post(APP_URL, { query: mutation, variables: { input: shipmentData } })
       const newShipment = response.data.data.createShipment
       addShipment(newShipment)
       return newShipment
@@ -91,7 +91,7 @@ export function useShipment() {
         }
       `
 
-      const response = await axios.post(API_URL, { query, variables: { trackingNumber } })
+      const response = await axios.post(APP_URL, { query, variables: { trackingNumber } })
       const shipment = response.data.data.getShipmentByTracking
       setSelectedShipment(shipment)
       return shipment
