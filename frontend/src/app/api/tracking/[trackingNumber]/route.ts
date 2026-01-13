@@ -1,56 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-// GET /api/tracking/[trackingNumber] - Public tracking endpoint
+// GET /api/tracking/[trackingNumber] - Get shipment by tracking number (public endpoint)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { trackingNumber: string } }
+  { params }: { params: Promise<{ trackingNumber: string }> }
 ) {
   try {
+    const { trackingNumber } = await params
+
     const shipment = await prisma.shipment.findUnique({
-      where: {
-        trackingNumber: params.trackingNumber,
-      },
-      include: {
+      where: { trackingNumber },
+      select: {
+        id: true,
+        trackingNumber: true,
+        status: true,
+        estimatedDeliveryDate: true,
+        senderCity: true,
+        senderCountry: true,
+        recipientCity: true,
+        recipientCountry: true,
+        createdAt: true,
         trackingEvents: {
-          orderBy: { createdAt: 'desc' },
-        },
-      },
+          select: {
+            id: true,
+            status: true,
+            location: true,
+            city: true,
+            country: true,
+            description: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' }
+        }
+      }
     })
 
     if (!shipment) {
-      return NextResponse.json({ error: 'Tracking number not found' }, { status: 404 })
+      return NextResponse.json(
+        { error: 'Shipment not found' },
+        { status: 404 }
+      )
     }
 
-    // Return public tracking information (without sensitive data)
-    const publicShipment = {
-      trackingNumber: shipment.trackingNumber,
-      status: shipment.status,
-      senderCity: shipment.senderCity,
-      senderCountry: shipment.senderCountry,
-      recipientCity: shipment.recipientCity,
-      recipientCountry: shipment.recipientCountry,
-      serviceType: shipment.serviceType,
-      transportMode: shipment.transportMode,
-      estimatedDeliveryDate: shipment.estimatedDeliveryDate,
-      actualDeliveryDate: shipment.actualDeliveryDate,
-      createdAt: shipment.createdAt,
-      trackingEvents: shipment.trackingEvents.map(event => ({
-        id: event.id,
-        status: event.status,
-        location: event.location,
-        city: event.city,
-        country: event.country,
-        facility: event.facility,
-        description: event.description,
-        transportMode: event.transportMode,
-        createdAt: event.createdAt,
-      })),
-    }
-
-    return NextResponse.json(publicShipment)
+    return NextResponse.json({ shipment })
   } catch (error) {
-    console.error('Error fetching tracking information:', error)
+    console.error('Error fetching shipment:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

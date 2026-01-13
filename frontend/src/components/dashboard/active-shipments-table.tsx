@@ -32,34 +32,15 @@ export default function ActiveShipmentsTable() {
   useEffect(() => {
     const fetchShipments = async () => {
       try {
-        const response = await fetch('/api/graphql-proxy', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+        const response = await fetch('/api/shipments?take=10', {
           credentials: 'include',
-          body: JSON.stringify({
-            query: `
-              query GetUserShipments {
-                getUserShipments {
-                  id
-                  trackingNumber
-                  recipientName
-                  recipientAddress
-                  status
-                  createdAt
-                  estimatedDeliveryDate
-                }
-              }
-            `
-          })
         })
 
         if (response.ok) {
           const data = await response.json()
-          if (data.data?.getUserShipments) {
+          if (data.shipments) {
             // Show only active shipments (not delivered or cancelled)
-            const activeShipments = data.data.getUserShipments.filter(
+            const activeShipments = data.shipments.filter(
               (shipment: Shipment) => 
                 shipment.status !== 'DELIVERED' && shipment.status !== 'CANCELLED'
             ).slice(0, 3) // Show only first 3

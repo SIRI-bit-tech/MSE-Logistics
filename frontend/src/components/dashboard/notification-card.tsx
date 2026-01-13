@@ -47,35 +47,16 @@ export default function NotificationCard() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await fetch('/api/graphql-proxy', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+        const response = await fetch('/api/notifications?limit=3', {
           credentials: 'include',
-          body: JSON.stringify({
-            query: `
-              query GetUserNotifications {
-                getUserNotifications {
-                  id
-                  title
-                  message
-                  type
-                  isRead
-                  createdAt
-                }
-              }
-            `
-          })
         })
 
         if (response.ok) {
           const data = await response.json()
-          if (data.data?.getUserNotifications) {
+          if (data.notifications) {
             // Convert backend notifications to frontend format
-            const formattedNotifications = data.data.getUserNotifications
+            const formattedNotifications = data.notifications
               .filter((n: any) => !n.isRead)
-              .slice(0, 3)
               .map((notification: any) => ({
                 id: notification.id,
                 type: notification.type?.toLowerCase() || 'alert',

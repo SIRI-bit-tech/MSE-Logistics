@@ -18,7 +18,7 @@ async function getUserFromToken(request: NextRequest) {
   }
 }
 
-// GET /api/notifications - Get user's notifications
+// GET /api/activities - Get user's recent activities
 export async function GET(request: NextRequest) {
   try {
     const userId = await getUserFromToken(request)
@@ -29,23 +29,33 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '5')
 
-    const notifications = await prisma.notification.findMany({
+    // Get recent shipments as activities
+    const recentShipments = await prisma.shipment.findMany({
       where: { userId },
       select: {
         id: true,
-        title: true,
-        message: true,
-        type: true,
-        isRead: true,
+        trackingNumber: true,
+        status: true,
         createdAt: true,
+        recipientCity: true,
       },
       orderBy: { createdAt: 'desc' },
       take: limit,
     })
 
-    return NextResponse.json({ notifications })
+    // Format as activities
+    const activities = recentShipments.map(shipment => ({
+      id: shipment.id,
+      type: 'shipment_created',
+      title: `Shipment ${shipment.trackingNumber} to ${shipment.recipientCity}`,
+      time: shipment.createdAt.toISOString(),
+      actionText: 'Track',
+      actionHref: `/tracking/${shipment.trackingNumber}`
+    }))
+
+    return NextResponse.json({ activities })
   } catch (error) {
-    console.error('Error fetching notifications:', error)
+    console.error('Error fetching activities:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

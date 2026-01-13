@@ -35,38 +35,21 @@ export default function RecentActivity() {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const response = await fetch('/api/graphql-proxy', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+        const response = await fetch('/api/activities?limit=5', {
           credentials: 'include',
-          body: JSON.stringify({
-            query: `
-              query GetUserActivities {
-                getUserActivities {
-                  id
-                  type
-                  description
-                  createdAt
-                  relatedId
-                }
-              }
-            `
-          })
         })
 
         if (response.ok) {
           const data = await response.json()
-          if (data.data?.getUserActivities) {
-            const formattedActivities = data.data.getUserActivities
-              .slice(0, 5)
-              .map((activity: any) => ({
-                id: activity.id,
-                type: activity.type,
-                title: activity.description,
-                time: formatTimeAgo(activity.createdAt)
-              }))
+          if (data.activities) {
+            const formattedActivities = data.activities.map((activity: any) => ({
+              id: activity.id,
+              type: activity.type,
+              title: activity.title,
+              time: formatTimeAgo(activity.time),
+              actionText: activity.actionText,
+              actionHref: activity.actionHref
+            }))
             setActivities(formattedActivities)
           }
         }

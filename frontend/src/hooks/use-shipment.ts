@@ -1,6 +1,4 @@
 import { useShipmentStore } from "@/store/shipment-store"
-import axios from "axios"
-import { APP_URL } from "../../constants"
 
 export function useShipment() {
   const {
@@ -18,34 +16,16 @@ export function useShipment() {
   const fetchShipments = async (userId: string) => {
     setLoading(true)
     try {
-      const query = `
-        query GetUserShipments($userId: String!, $skip: Int!, $take: Int!) {
-          getUserShipments(userId: $userId, skip: $skip, take: $take) {
-            id
-            trackingNumber
-            status
-            createdAt
-            recipientCity
-            recipientCountry
-          }
-        }
-      `
-
-      const response = await axios.post(APP_URL, { query, variables: { userId, skip: 0, take: 10 } })
+      const response = await fetch(`/api/shipments?skip=0&take=10`, {
+        credentials: 'include',
+      })
       
-      // Check for GraphQL errors first
-      if (response.data.errors) {
-        const errorMessage = response.data.errors[0]?.message || "GraphQL error occurred"
-        setError(errorMessage)
-        return
+      if (!response.ok) {
+        throw new Error('Failed to fetch shipments')
       }
       
-      // Only set shipments if data exists
-      if (response.data && response.data.data && response.data.data.getUserShipments) {
-        setShipments(response.data.data.getUserShipments)
-      } else {
-        setError("No shipment data received")
-      }
+      const data = await response.json()
+      setShipments(data.shipments || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch shipments")
     } finally {
@@ -56,36 +36,23 @@ export function useShipment() {
   const createShipment = async (shipmentData: any) => {
     setLoading(true)
     try {
-      const mutation = `
-        mutation CreateShipment($input: CreateShipmentInput!) {
-          createShipment(input: $input) {
-            id
-            trackingNumber
-            status
-            totalCost
-          }
-        }
-      `
+      const response = await fetch('/api/shipments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(shipmentData),
+      })
 
-      const response = await axios.post(APP_URL, { query: mutation, variables: { input: shipmentData } })
-      
-      // Check for GraphQL errors first
-      if (response.data.errors) {
-        const errorMessage = response.data.errors[0]?.message || "GraphQL error occurred"
-        setError(errorMessage)
-        throw new Error(errorMessage)
+      if (!response.ok) {
+        throw new Error('Failed to create shipment')
       }
-      
-      // Only process data if it exists
-      if (response.data && response.data.data && response.data.data.createShipment) {
-        const newShipment = response.data.data.createShipment
-        addShipment(newShipment)
-        return newShipment
-      } else {
-        const errorMessage = "No shipment data received"
-        setError(errorMessage)
-        throw new Error(errorMessage)
-      }
+
+      const data = await response.json()
+      const newShipment = data.shipment
+      addShipment(newShipment)
+      return newShipment
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create shipment")
       throw err
@@ -97,43 +64,19 @@ export function useShipment() {
   const getShipmentDetails = async (trackingNumber: string) => {
     setLoading(true)
     try {
-      const query = `
-        query GetShipment($trackingNumber: String!) {
-          getShipmentByTracking(trackingNumber: $trackingNumber) {
-            id
-            trackingNumber
-            status
-            estimatedDeliveryDate
-            trackingEvents {
-              id
-              status
-              location
-              city
-              country
-              description
-              createdAt
-            }
-          }
+      const response = await fetch(`/api/tracking/${trackingNumber}`)
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Shipment not found')
         }
-      `
-
-      const response = await axios.post(APP_URL, { query, variables: { trackingNumber } })
-      
-      // Check for GraphQL errors first
-      if (response.data.errors) {
-        const errorMessage = response.data.errors[0]?.message || "GraphQL error occurred"
-        setError(errorMessage)
-        return
+        throw new Error('Failed to fetch shipment details')
       }
       
-      // Only set shipment if data exists
-      if (response.data && response.data.data && response.data.data.getShipmentByTracking) {
-        const shipment = response.data.data.getShipmentByTracking
-        setSelectedShipment(shipment)
-        return shipment
-      } else {
-        setError("No shipment details received")
-      }
+      const data = await response.json()
+      const shipment = data.shipment
+      setSelectedShipment(shipment)
+      return shipment
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch shipment details")
     } finally {
