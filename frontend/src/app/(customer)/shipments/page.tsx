@@ -1,109 +1,154 @@
 "use client"
 
-import {
-  Button,
-  Card,
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-  Badge,
-  Link,
-} from "@heroui/react"
-import { Plus, Eye } from "lucide-react"
-import { useState } from "react"
-import { motion } from "framer-motion"
+import { Button } from "@nextui-org/react"
+import { Package, CheckCircle, Truck, Archive, FileText, Plus } from "lucide-react"
+import { useAuth } from "@/hooks/use-auth"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import Sidebar from "@/components/dashboard/sidebar"
+import StatsCard from "@/components/dashboard/stats-card"
+import RecentShipmentsTable from "@/components/dashboard/recent-shipments-table"
+import QuickSupport from "@/components/dashboard/quick-support"
 
-export default function ShipmentsPage() {
-  const [shipments] = useState([
-    {
-      id: "1",
-      trackingNumber: "SS-2024-001234",
-      destination: "New York, USA",
-      status: "IN_TRANSIT",
-      date: "2024-01-15",
-      price: "$250.00",
-    },
-    {
-      id: "2",
-      trackingNumber: "SS-2024-001235",
-      destination: "London, UK",
-      status: "DELIVERED",
-      date: "2024-01-10",
-      price: "$320.00",
-    },
-    {
-      id: "3",
-      trackingNumber: "SS-2024-001236",
-      destination: "Tokyo, Japan",
-      status: "PROCESSING",
-      date: "2024-01-18",
-      price: "$450.00",
-    },
-  ])
+interface DashboardStats {
+  activeShipments: number
+  delivered: number
+  inTransit: number
+  totalPackages: number
+}
 
-  const statusColor = {
-    PENDING: "warning",
-    PROCESSING: "default",
-    PICKED_UP: "secondary",
-    IN_TRANSIT: "primary",
-    DELIVERED: "success",
-    CANCELLED: "danger",
-  } as const
+export default function DashboardPage() {
+  const { user } = useAuth()
+  const router = useRouter()
+  const [stats, setStats] = useState<DashboardStats>({
+    activeShipments: 0,
+    delivered: 0,
+    inTransit: 0,
+    totalPackages: 0
+  })
+  const [loading, setLoading] = useState(true)
+
+  const welcomeName = user?.firstName || 'User'
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!user?.id) return
+      
+      try {
+        const response = await fetch('/api/shipments/stats', {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          setStats({
+            activeShipments: data.activeShipments || 0,
+            delivered: data.delivered || 0,
+            inTransit: data.inTransit || 0,
+            totalPackages: data.totalPackages || 0
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [user?.id])
+
+  const handleNewShipment = () => {
+    router.push('/shipments/new')
+  }
+
+  const handleReports = () => {
+    router.push('/reports')
+  }
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8"
-        >
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground">My Shipments</h1>
-            <p className="text-foreground-600 mt-2">Track and manage all your shipments</p>
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar />
+      
+      <div className="flex-1">
+        {/* Main Content */}
+        <div className="p-8">
+          {/* Header Section */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                Welcome back, {welcomeName}!
+              </h1>
+              <p className="text-gray-600">Here's what's happening with your shipments today.</p>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="bordered" 
+                startContent={<FileText className="w-4 h-4" />}
+                className="border-gray-300 text-gray-700"
+                onClick={handleReports}
+              >
+                Reports
+              </Button>
+              <Button 
+                className="bg-msc-yellow text-black hover:bg-msc-gold"
+                startContent={<Plus className="w-4 h-4" />}
+                onClick={handleNewShipment}
+              >
+                New Shipment
+              </Button>
+            </div>
           </div>
-          <Button as={Link} href="/shipments/new" color="primary" startContent={<Plus />}>
-            New Shipment
-          </Button>
-        </motion.div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-          <Card className="overflow-hidden">
-            <Table aria-label="Shipments table">
-              <TableHeader>
-                <TableColumn>TRACKING NUMBER</TableColumn>
-                <TableColumn>DESTINATION</TableColumn>
-                <TableColumn>STATUS</TableColumn>
-                <TableColumn>DATE</TableColumn>
-                <TableColumn>PRICE</TableColumn>
-                <TableColumn>ACTION</TableColumn>
-              </TableHeader>
-              <TableBody>
-                {shipments.map((shipment) => (
-                  <TableRow key={shipment.id}>
-                    <TableCell className="font-mono text-sm">{shipment.trackingNumber}</TableCell>
-                    <TableCell>{shipment.destination}</TableCell>
-                    <TableCell>
-                      <Badge color={statusColor[shipment.status as keyof typeof statusColor]} variant="flat">
-                        {shipment.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{shipment.date}</TableCell>
-                    <TableCell className="font-semibold">{shipment.price}</TableCell>
-                    <TableCell>
-                      <Button as={Link} isIconOnly variant="light" href={`/tracking/${shipment.trackingNumber}`}>
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        </motion.div>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <StatsCard
+              title="Active Shipments"
+              value={loading ? "..." : stats.activeShipments}
+              icon={Package}
+              change="+2%"
+              changeType="positive"
+            />
+            <StatsCard
+              title="Delivered"
+              value={loading ? "..." : stats.delivered}
+              icon={CheckCircle}
+              change="+5%"
+              changeType="positive"
+            />
+            <StatsCard
+              title="In Transit"
+              value={loading ? "..." : stats.inTransit}
+              icon={Truck}
+              change="-1%"
+              changeType="negative"
+            />
+            <StatsCard
+              title="Total Packages"
+              value={loading ? "..." : stats.totalPackages}
+              icon={Archive}
+              change="+12%"
+              changeType="positive"
+            />
+          </div>
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Recent Shipments - Takes up 2 columns */}
+            <div className="lg:col-span-2">
+              <RecentShipmentsTable />
+            </div>
+
+            {/* Quick Support - Takes up 1 column */}
+            <div>
+              <QuickSupport />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

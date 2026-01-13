@@ -76,6 +76,7 @@ export default function HeroSection() {
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
               className="flex-1"
+              aria-label="Enter tracking number"
               classNames={{
                 input: "text-gray-700",
                 inputWrapper: "bg-white border-white"

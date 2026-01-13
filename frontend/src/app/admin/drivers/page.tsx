@@ -68,6 +68,7 @@ export default function AdminDriversPage() {
             startContent={<Search className="w-4 h-4" />}
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
+            aria-label="Search drivers by name or email"
           />
         </motion.div>
 

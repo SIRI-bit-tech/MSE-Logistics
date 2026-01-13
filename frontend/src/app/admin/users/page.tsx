@@ -68,6 +68,7 @@ export default function AdminUsersPage() {
             startContent={<Search className="w-4 h-4" />}
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
+            aria-label="Search users by name or email"
           />
         </motion.div>
 

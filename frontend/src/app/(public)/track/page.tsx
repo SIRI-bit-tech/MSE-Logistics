@@ -33,6 +33,7 @@ export default function Track() {
               placeholder="e.g., SS-2024-001234"
               size="lg"
               className="text-sm md:text-base"
+              aria-label="Enter tracking number"
             />
             <Button
               isIconOnly
