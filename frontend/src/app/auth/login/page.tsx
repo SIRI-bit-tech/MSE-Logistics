@@ -5,10 +5,11 @@ import { Input, Button, Checkbox, Link } from "@nextui-org/react"
 import { useRouter } from "next/navigation"
 import { Eye, EyeOff, User as UserIcon } from "lucide-react"
 import toast from "react-hot-toast"
-import type { User } from "../../../../global"
+import { useAuth } from "@/hooks/use-auth"
 
 export default function LoginPage() {
   const router = useRouter()
+  const { loginWithCredentials } = useAuth()
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -30,39 +31,13 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      // Use Auth0's authentication API directly (secure)
-      const authResponse = await fetch('/api/auth/login-with-credentials', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password
-        })
-      })
-
-      if (!authResponse.ok) {
-        const error = await authResponse.json()
-        throw new Error(error.message || 'Login failed')
-      }
-
-      const authData = await authResponse.json() as { user: User; token: string }
+      const result = await loginWithCredentials(formData.email, formData.password)
       
-      // Token is now stored in httpOnly cookie by the backend
-      // No need to store in localStorage anymore
-      
-      toast.success("Login successful!")
-      
-      // Role-based redirection
-      const userRole = authData.user?.role
-      if (userRole === 'DRIVER') {
-        router.push("/dashboard") // Driver dashboard
-      } else if (userRole === 'CUSTOMER') {
-        router.push("/shipments") // Customer main page
+      if (result.success) {
+        toast.success("Login successful!")
+        router.push("/shipments") // Redirect to main dashboard
       } else {
-        // Fallback for missing or unknown roles
-        router.push("/dashboard")
+        toast.error(result.error || "Login failed. Please try again.")
       }
     } catch (error: any) {
       console.error('Login error:', error)
@@ -123,18 +98,18 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-800 mb-2">Login to Your Account</h2>
-            <p className="text-gray-600">Secure authentication powered by Auth0 with custom forms.</p>
+            <p className="text-gray-600">Secure authentication with Better Auth.</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email or Username
+                Email
               </label>
               <Input
                 name="email"
                 type="email"
-                placeholder="Enter your email or username"
+                placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
                 endContent={<UserIcon className="w-4 h-4 text-gray-400" />}
@@ -210,9 +185,9 @@ export default function LoginPage() {
               Register New Account
             </Button>
 
-            {/* <div className="text-center text-sm text-gray-500 mt-4">
-              <p>🔒 Secured by Auth0 with OAuth 2.0</p>
-            </div> */}
+            <div className="text-center text-sm text-gray-500 mt-4">
+              <p>🔒 Secured by Better Auth</p>
+            </div>
           </form>
         </div>
       </div>

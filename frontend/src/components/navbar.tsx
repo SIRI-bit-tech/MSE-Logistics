@@ -22,13 +22,53 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const menuItems = [
+  // Public navigation for unauthenticated users
+  const publicMenuItems = [
     { label: "Home", href: "/" },
     { label: "Features", href: "/features" },
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
     { label: "Track Shipment", href: "/track" },
   ]
+
+  // Authenticated navigation based on user role
+  const getAuthenticatedMenuItems = () => {
+    const baseItems = [
+      { label: "Dashboard", href: user?.role === "DRIVER" ? "/dashboard" : "/shipments" },
+      { label: "Track Shipment", href: "/track" },
+    ]
+
+    if (user?.role === "CUSTOMER") {
+      return [
+        { label: "My Shipments", href: "/shipments" },
+        { label: "New Shipment", href: "/shipments/new" },
+        { label: "Track Shipment", href: "/track" },
+        { label: "Profile", href: "/profile" },
+      ]
+    }
+
+    if (user?.role === "DRIVER") {
+      return [
+        { label: "Dashboard", href: "/dashboard" },
+        { label: "My Deliveries", href: "/deliveries" },
+        { label: "Track Shipment", href: "/track" },
+        { label: "Profile", href: "/driver-profile" },
+      ]
+    }
+
+    if (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN") {
+      return [
+        { label: "Admin Dashboard", href: "/admin/dashboard" },
+        { label: "Users", href: "/admin/users" },
+        { label: "Shipments", href: "/admin/shipments" },
+        { label: "Track Shipment", href: "/track" },
+      ]
+    }
+
+    return baseItems
+  }
+
+  const menuItems = isAuthenticated ? getAuthenticatedMenuItems() : publicMenuItems
 
   return (
     <NextUINavbar
@@ -40,7 +80,7 @@ export default function Navbar() {
       <NavbarContent>
         <NavbarMenuToggle aria-label="toggle navigation" className="md:hidden" />
         <NavbarBrand>
-          <Link href="/" className="font-bold text-gray-800 text-lg md:text-xl flex items-center gap-2">
+          <Link href={isAuthenticated ? (user?.role === "DRIVER" ? "/dashboard" : "/shipments") : "/"} className="font-bold text-gray-800 text-lg md:text-xl flex items-center gap-2">
             <span className="bg-msc-yellow text-black rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
               M
             </span>
@@ -71,12 +111,17 @@ export default function Navbar() {
               </Button>
             </DropdownTrigger>
             <DropdownMenu aria-label="User menu actions">
-              <DropdownItem key="profile" href="/profile">
+              <DropdownItem key="profile" href={user.role === "DRIVER" ? "/driver-profile" : "/profile"}>
                 My Profile
               </DropdownItem>
-              <DropdownItem key="dashboard" href="/dashboard">
-                Dashboard
+              <DropdownItem key="dashboard" href={user.role === "DRIVER" ? "/dashboard" : "/shipments"}>
+                {user.role === "DRIVER" ? "Dashboard" : "My Shipments"}
               </DropdownItem>
+              {user.role === "CUSTOMER" ? (
+                <DropdownItem key="new-shipment" href="/shipments/new">
+                  New Shipment
+                </DropdownItem>
+              ) : null}
               {(user.role === "ADMIN" || user.role === "SUPER_ADMIN") ? (
                 <DropdownItem key="admin" href="/admin/dashboard">
                   Admin Panel
@@ -117,11 +162,18 @@ export default function Navbar() {
       <NavbarMenu>
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={`${item.href}-${index}`}>
-            <Link color="foreground" href={item.href} className="w-full text-white" size="lg">
+            <Link color="foreground" href={item.href} className="w-full text-gray-700" size="lg">
               {item.label}
             </Link>
           </NavbarMenuItem>
         ))}
+        {isAuthenticated && (
+          <NavbarMenuItem key="logout">
+            <Button color="danger" variant="flat" onPress={logout} className="w-full justify-start">
+              Sign Out
+            </Button>
+          </NavbarMenuItem>
+        )}
       </NavbarMenu>
     </NextUINavbar>
   )

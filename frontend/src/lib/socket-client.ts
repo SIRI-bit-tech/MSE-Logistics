@@ -7,7 +7,7 @@ export function initializeSocket(): Socket {
     return socket
   }
 
-  socket = io(process.env.NEXT_PUBLIC_API_URL?.replace("/graphql", "") || "http://localhost:3001", {
+  socket = io(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000", {
     autoConnect: true,
     reconnection: true,
     reconnectionDelay: 1000,

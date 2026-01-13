@@ -7,50 +7,15 @@ import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
 import Link from "next/link"
 import { User, Mail, Phone, Globe, Lock, Eye, EyeOff } from "lucide-react"
-
-const countries = [
-  { key: "US", label: "United States", flag: "🇺🇸" },
-  { key: "GB", label: "United Kingdom", flag: "🇬🇧" },
-  { key: "CA", label: "Canada", flag: "🇨🇦" },
-  { key: "AU", label: "Australia", flag: "🇦🇺" },
-  { key: "DE", label: "Germany", flag: "🇩🇪" },
-  { key: "FR", label: "France", flag: "🇫🇷" },
-  { key: "IT", label: "Italy", flag: "🇮🇹" },
-  { key: "ES", label: "Spain", flag: "🇪🇸" },
-  { key: "NL", label: "Netherlands", flag: "🇳🇱" },
-  { key: "BE", label: "Belgium", flag: "🇧🇪" },
-  { key: "CH", label: "Switzerland", flag: "🇨🇭" },
-  { key: "AT", label: "Austria", flag: "🇦🇹" },
-  { key: "SE", label: "Sweden", flag: "🇸🇪" },
-  { key: "NO", label: "Norway", flag: "🇳🇴" },
-  { key: "DK", label: "Denmark", flag: "🇩🇰" },
-  { key: "FI", label: "Finland", flag: "🇫🇮" },
-  { key: "PL", label: "Poland", flag: "🇵🇱" },
-  { key: "CZ", label: "Czech Republic", flag: "🇨🇿" },
-  { key: "HU", label: "Hungary", flag: "🇭🇺" },
-  { key: "GR", label: "Greece", flag: "🇬🇷" },
-  { key: "PT", label: "Portugal", flag: "🇵🇹" },
-  { key: "IE", label: "Ireland", flag: "🇮🇪" },
-  { key: "JP", label: "Japan", flag: "🇯🇵" },
-  { key: "KR", label: "South Korea", flag: "🇰🇷" },
-  { key: "CN", label: "China", flag: "🇨🇳" },
-  { key: "IN", label: "India", flag: "🇮🇳" },
-  { key: "SG", label: "Singapore", flag: "🇸🇬" },
-  { key: "HK", label: "Hong Kong", flag: "🇭🇰" },
-  { key: "AE", label: "United Arab Emirates", flag: "🇦🇪" },
-  { key: "SA", label: "Saudi Arabia", flag: "🇸🇦" },
-  { key: "EG", label: "Egypt", flag: "🇪🇬" },
-  { key: "ZA", label: "South Africa", flag: "🇿🇦" },
-  { key: "BR", label: "Brazil", flag: "🇧🇷" },
-  { key: "MX", label: "Mexico", flag: "🇲🇽" },
-  { key: "AR", label: "Argentina", flag: "🇦🇷" },
-  { key: "CL", label: "Chile", flag: "🇨🇱" },
-  { key: "CO", label: "Colombia", flag: "🇨🇴" },
-  { key: "PE", label: "Peru", flag: "🇵🇪" },
-]
+import { useAuth } from "@/hooks/use-auth"
+import useCountries from "react-select-country-list"
+import ReactCountryFlag from "react-country-flag"
 
 export default function SignupPage() {
   const router = useRouter()
+  const { registerWithCredentials } = useAuth()
+  const countries = useCountries()
+  
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -88,36 +53,19 @@ export default function SignupPage() {
     setLoading(true)
 
     try {
-      // Use Auth0's registration API with custom form data
-      const response = await fetch('/api/auth/register-with-credentials', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          businessEmail: formData.businessEmail,
-          phoneNumber: formData.phoneNumber,
-          country: formData.country,
-          password: formData.password
-        })
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Registration failed')
+      const result = await registerWithCredentials(
+        formData.businessEmail,
+        formData.password,
+        formData.firstName,
+        formData.lastName
+      )
+      
+      if (result.success) {
+        toast.success("Account created successfully!")
+        router.push("/shipments") // Customer main page
+      } else {
+        toast.error(result.error || "Registration failed. Please try again.")
       }
-
-      await response.json()
-      
-      // Token is now stored in httpOnly cookie by the backend
-      // No need to store in localStorage anymore
-      
-      toast.success("Account created successfully!")
-      
-      // All new registrations default to CUSTOMER role
-      router.push("/shipments") // Customer main page
     } catch (error: any) {
       console.error('Registration error:', error)
       toast.error(error.message || "Registration failed. Please try again.")
@@ -277,14 +225,43 @@ export default function SignupPage() {
                 size="lg"
                 classNames={{
                   trigger: "h-12 border-2 border-gray-200 hover:border-gray-300 data-[focus=true]:border-msc-yellow bg-white",
-                  value: "text-gray-900 text-base"
+                  value: "text-gray-900 text-base",
+                  popoverContent: "bg-white"
+                }}
+                renderValue={(items) => {
+                  return items.map((item) => {
+                    const country = countries.getData().find(c => c.value === item.key)
+                    return (
+                      <div key={item.key} className="flex items-center gap-2">
+                        <ReactCountryFlag 
+                          countryCode={item.key as string} 
+                          svg 
+                          style={{
+                            width: '1.2em',
+                            height: '1.2em',
+                          }}
+                        />
+                        <span>{country?.label}</span>
+                      </div>
+                    )
+                  })
                 }}
               >
-                {countries.map((country) => (
+                {countries.getData().map((country) => (
                   <SelectItem 
-                    key={country.key} 
-                    value={country.key}
-                    startContent={<span className="text-lg">{country.flag}</span>}
+                    key={country.value} 
+                    value={country.value}
+                    className="text-gray-900"
+                    startContent={
+                      <ReactCountryFlag 
+                        countryCode={country.value} 
+                        svg 
+                        style={{
+                          width: '1.2em',
+                          height: '1.2em',
+                        }}
+                      />
+                    }
                   >
                     {country.label}
                   </SelectItem>

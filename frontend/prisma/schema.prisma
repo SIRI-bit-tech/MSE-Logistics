@@ -1,0 +1,301 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  firstName    String
+  lastName     String
+  phone        String?
+  profileImage String?
+  role         Role     @default(CUSTOMER)
+  password     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  shipments     Shipment[]
+  addresses     Address[]
+  paymentMethods PaymentMethod[]
+  notifications Notification[]
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Address {
+  id          String      @id @default(cuid())
+  userId      String
+  type        AddressType @default(HOME)
+  label       String
+  address     String
+  city        String
+  country     String
+  postalCode  String
+  latitude    Float
+  longitude   Float
+  isDefault   Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("addresses")
+}
+
+model PaymentMethod {
+  id          String            @id @default(cuid())
+  userId      String
+  type        PaymentMethodType
+  cardLast4   String?
+  cardBrand   String?
+  expiryMonth Int?
+  expiryYear  Int?
+  isDefault   Boolean           @default(false)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payment_methods")
+}
+
+model Shipment {
+  id             String   @id @default(cuid())
+  trackingNumber String   @unique
+  userId         String
+
+  // Sender information
+  senderName       String
+  senderEmail      String
+  senderPhone      String
+  senderAddress    String
+  senderCity       String
+  senderCountry    String
+  senderPostalCode String
+  senderLatitude   Float
+  senderLongitude  Float
+
+  // Recipient information
+  recipientName       String
+  recipientEmail      String
+  recipientPhone      String
+  recipientAddress    String
+  recipientCity       String
+  recipientCountry    String
+  recipientPostalCode String
+  recipientLatitude   Float
+  recipientLongitude  Float
+
+  // Package information
+  packageType PackageType
+  weight      Float
+  length      Float
+  width       Float
+  height      Float
+  description String
+  value       Float
+  currency    String
+
+  // Service information
+  serviceType   ServiceType
+  transportMode TransportMode
+  status        ShipmentStatus @default(PENDING)
+
+  // Costs
+  shippingCost  Float
+  insuranceCost Float?
+  totalCost     Float
+
+  // Delivery information
+  estimatedDeliveryDate DateTime?
+  actualDeliveryDate    DateTime?
+  deliverySignature     String?
+  deliveryPhoto         String?
+  recipientNameConfirm  String?
+
+  // Customs information
+  customsStatus    CustomsStatus?
+  customsDocuments String[]
+
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user           User            @relation(fields: [userId], references: [id])
+  trackingEvents TrackingEvent[]
+
+  @@map("shipments")
+}
+
+model TrackingEvent {
+  id            String         @id @default(cuid())
+  shipmentId    String
+  status        ShipmentStatus
+  location      String
+  city          String
+  country       String
+  latitude      Float?
+  longitude     Float?
+  facility      String?
+  description   String
+  transportMode TransportMode?
+  notes         String?
+  updatedBy     String
+  createdAt     DateTime       @default(now())
+
+  shipment Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@map("tracking_events")
+}
+
+model Driver {
+  id                String       @id @default(cuid())
+  email             String       @unique
+  firstName         String
+  lastName          String
+  phone             String
+  licenseNumber     String
+  licenseExpiry     DateTime
+  vehicleNumber     String
+  vehicleType       String
+  status            DriverStatus @default(ACTIVE)
+  currentLatitude   Float?
+  currentLongitude  Float?
+  totalDeliveries   Int          @default(0)
+  rating            Float        @default(0)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@map("drivers")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// Enums
+enum Role {
+  CUSTOMER
+  DRIVER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum AddressType {
+  HOME
+  BUSINESS
+  OTHER
+}
+
+enum PaymentMethodType {
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  WALLET
+}
+
+enum ShipmentStatus {
+  PENDING
+  PROCESSING
+  ON_HOLD
+  PICKED_UP
+  IN_TRANSIT
+  IN_CUSTOMS
+  CUSTOMS_CLEARED
+  ARRIVED_AT_FACILITY
+  OUT_FOR_DELIVERY
+  DELIVERY_ATTEMPTED
+  DELIVERED
+  RETURNED
+  CANCELLED
+}
+
+enum TransportMode {
+  AIR
+  LAND
+  WATER
+  MULTIMODAL
+}
+
+enum ServiceType {
+  EXPRESS
+  STANDARD
+  ECONOMY
+}
+
+enum PackageType {
+  DOCUMENTS
+  PARCEL
+  FRAGILE
+  ELECTRONICS
+  CLOTHING
+  FOOD
+  HAZARDOUS
+  OTHER
+}
+
+enum CustomsStatus {
+  PENDING
+  IN_REVIEW
+  CLEARED
+  REJECTED
+  PENDING_PAYMENT
+}
+
+enum DriverStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}

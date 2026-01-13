@@ -99,13 +99,66 @@ export interface Shipment {
   recipientNameConfirm?: string
 
   customsStatus?: CustomsStatus
-  customsDocuments: string[]
+  customsDocuments: string[] // Will be parsed from JSON string
 
   notes?: string
   createdAt: Date
   updatedAt: Date
 
   trackingEvents: TrackingEvent[]
+}
+
+// Shipment Form Interfaces
+export interface ShipmentFormData {
+  // Sender Info
+  senderName: string
+  senderEmail: string
+  senderPhone: string
+  senderAddress: string
+  senderCity: string
+  senderCountry: string
+  senderPostalCode: string
+
+  // Recipient Info
+  recipientName: string
+  recipientEmail: string
+  recipientPhone: string
+  recipientAddress: string
+  recipientCity: string
+  recipientCountry: string
+  recipientPostalCode: string
+
+  // Package Details
+  packageType: PackageType
+  weight: number
+  length: number
+  width: number
+  height: number
+  description: string
+  value: number
+  currency: string
+
+  // Service Selection
+  serviceType: ServiceType
+  insuranceOptional: boolean
+}
+
+export interface ShippingRate {
+  serviceType: ServiceType
+  baseRate: number
+  fuelSurcharge: number
+  insurance: number
+  totalCost: number
+  deliveryDays: number
+  description: string
+}
+
+export interface StepperStep {
+  id: number
+  title: string
+  description: string
+  completed: boolean
+  active: boolean
 }
 
 export type ShipmentStatus =
