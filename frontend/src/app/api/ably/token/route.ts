@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     const tokenRequest = await ably.auth.createTokenRequest({
       clientId: session.user.id,
       capability: {
-        [`tracking:*`]: ['subscribe'],
+        [`user:${session.user.id}:tracking:*`]: ['subscribe'],
         [`user:${session.user.id}:shipments`]: ['subscribe'],
       },
       ttl: 60 * 60 * 1000, // 1 hour
