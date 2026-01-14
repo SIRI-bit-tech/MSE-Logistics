@@ -1,22 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { jwtVerify } from 'jose'
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'your-secret-key-change-in-production'
-)
-
-async function getUserFromToken(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value
-  if (!token) return null
-
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET)
-    return payload.userId as string
-  } catch {
-    return null
-  }
-}
+import { getUserFromToken } from '@/lib/jwt-config'
 
 // GET /api/shipments - Get user's shipments
 export async function GET(request: NextRequest) {
@@ -27,8 +11,21 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const skip = parseInt(searchParams.get('skip') || '0')
-    const take = parseInt(searchParams.get('take') || '10')
+    const skipParam = searchParams.get('skip')
+    const takeParam = searchParams.get('take')
+    
+    const parsedSkip = skipParam ? parseInt(skipParam, 10) : 0
+    const parsedTake = takeParam ? parseInt(takeParam, 10) : 10
+    
+    // Validate and clamp skip: default 0, min 0, max 10000
+    const skip = Number.isFinite(parsedSkip) && parsedSkip >= 0 && parsedSkip <= 10000
+      ? parsedSkip
+      : 0
+    
+    // Validate and clamp take: default 10, min 1, max 100
+    const take = Number.isFinite(parsedTake) && parsedTake >= 1 && parsedTake <= 100
+      ? parsedTake
+      : 10
 
     const shipments = await prisma.shipment.findMany({
       where: { userId },

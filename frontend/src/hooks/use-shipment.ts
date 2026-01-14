@@ -13,7 +13,7 @@ export function useShipment() {
     addShipment,
   } = useShipmentStore()
 
-  const fetchShipments = async (userId: string) => {
+  const fetchShipments = async () => {
     setLoading(true)
     try {
       const response = await fetch(`/api/shipments?skip=0&take=10`, {

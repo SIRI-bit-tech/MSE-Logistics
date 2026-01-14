@@ -1,26 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { jwtVerify } from 'jose'
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'your-secret-key-change-in-production'
-)
+import { getUserFromToken } from '@/lib/jwt-config'
 
 // GET /api/auth/me - Get current user data with role
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('auth_token')?.value
-
-    if (!token) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
-    }
-
-    // Verify JWT token
-    const { payload } = await jwtVerify(token, JWT_SECRET)
-    const userId = payload.userId as string
+    const userId = await getUserFromToken(request)
 
     if (!userId) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
     // Fetch complete user data from database

@@ -1,23 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
+import { getUserFromToken } from '@/lib/jwt-config'
 import bcrypt from 'bcryptjs'
 
 // POST /api/admin/create-admin - Create admin account (SUPER_ADMIN only)
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    })
+    const userId = await getUserFromToken(request)
 
     // Check authentication
-    if (!session) {
+    if (!userId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
 
     // Check authorization - only SUPER_ADMIN can create admin accounts
     const currentUser = await prisma.user.findUnique({
-      where: { id: session.user.id }
+      where: { id: userId }
     })
 
     if (!currentUser || currentUser.role !== 'SUPER_ADMIN') {
@@ -91,6 +90,17 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error creating admin account:', error)
+    
+    // Handle Prisma unique constraint violation
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        return NextResponse.json(
+          { error: 'User with this email already exists' },
+          { status: 409 }
+        )
+      }
+    }
+    
     return NextResponse.json({ 
       error: 'Internal server error' 
     }, { status: 500 })

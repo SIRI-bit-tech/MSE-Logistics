@@ -52,6 +52,24 @@ export function useAuth() {
         throw new Error(errorMessage)
       }
       
+      // Update user state immediately after successful login
+      if (result.user) {
+        setUser(result.user)
+      } else {
+        // Fallback: fetch user data if not included in response
+        try {
+          const userResponse = await fetch('/api/auth/me', {
+            credentials: 'include',
+          })
+          if (userResponse.ok) {
+            const userData = await userResponse.json()
+            setUser(userData.user)
+          }
+        } catch (error) {
+          console.error('Error fetching user data after login:', error)
+        }
+      }
+      
       return { success: true }
     } catch (error) {
       console.error("Login error:", error)

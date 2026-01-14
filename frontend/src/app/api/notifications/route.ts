@@ -1,22 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { jwtVerify } from 'jose'
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'your-secret-key-change-in-production'
-)
-
-async function getUserFromToken(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value
-  if (!token) return null
-
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET)
-    return payload.userId as string
-  } catch {
-    return null
-  }
-}
+import { getUserFromToken } from '@/lib/jwt-config'
 
 // GET /api/notifications - Get user's notifications
 export async function GET(request: NextRequest) {
@@ -27,7 +11,13 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const limit = parseInt(searchParams.get('limit') || '5')
+    const limitParam = searchParams.get('limit')
+    const parsedLimit = limitParam ? parseInt(limitParam, 10) : 5
+    
+    // Validate and clamp limit: default 5, min 1, max 100
+    const limit = Number.isFinite(parsedLimit) && parsedLimit >= 1 && parsedLimit <= 100
+      ? parsedLimit
+      : 5
 
     const notifications = await prisma.notification.findMany({
       where: { userId },
