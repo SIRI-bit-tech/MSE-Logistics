@@ -65,41 +65,21 @@ export default function NotificationDropdown() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await fetch('/api/graphql-proxy', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+        const response = await fetch('/api/notifications?limit=5', {
           credentials: 'include',
-          body: JSON.stringify({
-            query: `
-              query GetUserNotifications {
-                getUserNotifications {
-                  id
-                  title
-                  message
-                  type
-                  isRead
-                  createdAt
-                }
-              }
-            `
-          })
         })
 
         if (response.ok) {
           const data = await response.json()
-          if (data.data?.getUserNotifications) {
-            const formattedNotifications = data.data.getUserNotifications
-              .slice(0, 5)
-              .map((notification: any) => ({
-                id: notification.id,
-                type: notification.type?.toLowerCase() || 'alert',
-                title: notification.title,
-                description: notification.message,
-                time: formatTimeAgo(notification.createdAt),
-                isRead: notification.isRead
-              }))
+          if (data.notifications) {
+            const formattedNotifications = data.notifications.map((notification: any) => ({
+              id: notification.id,
+              type: notification.type?.toLowerCase() || 'alert',
+              title: notification.title,
+              description: notification.message,
+              time: formatTimeAgo(notification.createdAt),
+              isRead: notification.isRead
+            }))
             setNotifications(formattedNotifications)
             setUnreadCount(formattedNotifications.filter((n: NotificationItem) => !n.isRead).length)
           }

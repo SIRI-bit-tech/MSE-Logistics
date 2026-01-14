@@ -1,69 +1,129 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { jwtVerify } from 'jose'
+
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || 'your-secret-key-change-in-production'
+)
+
+async function getUserFromToken(request: NextRequest) {
+  const token = request.cookies.get('auth_token')?.value
+  if (!token) return null
+
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET)
+    return payload.userId as string
+  } catch {
+    return null
+  }
+}
 
 // GET /api/shipments/stats - Get user's shipment statistics
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    })
-
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const userId = await getUserFromToken(request)
+    if (!userId) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
-    const userId = session.user.id
+    // Get current month stats
+    const now = new Date()
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0)
 
-    // Get counts for different statuses
+    // Current month stats
     const [
-      totalPackages,
+      activeShipments,
       delivered,
       inTransit,
-      activeShipments
+      totalPackages,
+      // Last month stats for comparison
+      lastMonthActive,
+      lastMonthDelivered,
+      lastMonthInTransit,
+      lastMonthTotal
     ] = await Promise.all([
-      // Total packages
+      // Current month
       prisma.shipment.count({
-        where: { userId }
-      }),
-      
-      // Delivered packages
-      prisma.shipment.count({
-        where: { 
+        where: {
           userId,
-          status: 'DELIVERED'
+          status: { in: ['PENDING', 'PROCESSING', 'PICKED_UP', 'IN_CUSTOMS', 'CUSTOMS_CLEARED', 'ARRIVED_AT_FACILITY', 'OUT_FOR_DELIVERY'] },
+          createdAt: { gte: currentMonthStart }
         }
       }),
-      
-      // In transit packages
       prisma.shipment.count({
-        where: { 
+        where: {
           userId,
-          status: {
-            in: ['IN_TRANSIT', 'PICKED_UP', 'OUT_FOR_DELIVERY']
-          }
+          status: 'DELIVERED',
+          createdAt: { gte: currentMonthStart }
         }
       }),
-      
-      // Active shipments (not delivered, cancelled, or returned)
       prisma.shipment.count({
-        where: { 
+        where: {
           userId,
-          status: {
-            notIn: ['DELIVERED', 'CANCELLED', 'RETURNED']
-          }
+          status: { in: ['IN_TRANSIT', 'OUT_FOR_DELIVERY'] },
+          createdAt: { gte: currentMonthStart }
+        }
+      }),
+      prisma.shipment.count({
+        where: {
+          userId,
+          createdAt: { gte: currentMonthStart }
+        }
+      }),
+      // Last month
+      prisma.shipment.count({
+        where: {
+          userId,
+          status: { in: ['PENDING', 'PROCESSING', 'PICKED_UP', 'IN_CUSTOMS', 'CUSTOMS_CLEARED', 'ARRIVED_AT_FACILITY', 'OUT_FOR_DELIVERY'] },
+          createdAt: { gte: lastMonthStart, lte: lastMonthEnd }
+        }
+      }),
+      prisma.shipment.count({
+        where: {
+          userId,
+          status: 'DELIVERED',
+          createdAt: { gte: lastMonthStart, lte: lastMonthEnd }
+        }
+      }),
+      prisma.shipment.count({
+        where: {
+          userId,
+          status: { in: ['IN_TRANSIT', 'OUT_FOR_DELIVERY'] },
+          createdAt: { gte: lastMonthStart, lte: lastMonthEnd }
+        }
+      }),
+      prisma.shipment.count({
+        where: {
+          userId,
+          createdAt: { gte: lastMonthStart, lte: lastMonthEnd }
         }
       })
     ])
 
-    return NextResponse.json({
-      totalPackages,
+    // Calculate percentage changes
+    const calculateChange = (current: number, previous: number) => {
+      if (previous === 0) return current > 0 ? 100 : 0
+      return Math.round(((current - previous) / previous) * 100)
+    }
+
+    const stats = {
+      activeShipments,
       delivered,
       inTransit,
-      activeShipments,
-    })
+      totalPackages,
+      changes: {
+        activeShipments: calculateChange(activeShipments, lastMonthActive),
+        delivered: calculateChange(delivered, lastMonthDelivered),
+        inTransit: calculateChange(inTransit, lastMonthInTransit),
+        totalPackages: calculateChange(totalPackages, lastMonthTotal)
+      }
+    }
+
+    return NextResponse.json(stats)
   } catch (error) {
-    console.error('Error fetching shipment stats:', error)
+    console.error('Error fetching stats:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -3,82 +3,73 @@
 import { useEffect } from "react"
 import { useAuthStore } from "@/store/auth-store"
 import { useRouter } from "next/navigation"
-import { useSession, signIn, signUp, signOut } from "@/lib/auth-client"
 
 export function useAuth() {
   const router = useRouter()
   const { user, isAuthenticated, isLoading, setUser, setLoading, logout } = useAuthStore()
-  const { data: session, isPending } = useSession()
 
   useEffect(() => {
-    if (isPending) {
+    // Fetch user data on mount
+    const fetchUserData = async () => {
       setLoading(true)
-      return
-    }
-
-    if (session?.user) {
-      // Helper function to create user data from session fallback
-      const createSessionFallback = () => {
-        const nameParts = session.user.name?.split(' ') || []
-        const firstName = nameParts[0] || ""
-        const lastName = nameParts.slice(1).join(' ') || ""
+      try {
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include',
+        })
         
-        return {
-          id: session.user.id,
-          email: session.user.email,
-          firstName,
-          lastName,
-          phone: undefined,
-          profileImage: session.user.image || undefined,
-          role: "CUSTOMER" as const, // Default role with proper typing
-          createdAt: new Date(session.user.createdAt),
+        if (response.ok) {
+          const userData = await response.json()
+          setUser(userData.user)
+        } else {
+          // No valid session
+          setUser(null)
         }
+      } catch (error) {
+        console.error('Error fetching user data:', error)
+        setUser(null)
+      } finally {
+        setLoading(false)
       }
-
-      // Fetch complete user data including role from database
-      const fetchUserData = async () => {
-        try {
-          const response = await fetch('/api/auth/me')
-          if (response.ok) {
-            const userData = await response.json()
-            setUser(userData.user)
-            setLoading(false)
-          } else {
-            // Fallback to session data if API fails
-            setUser(createSessionFallback())
-            setLoading(false)
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error)
-          // Use session fallback on error
-          setUser(createSessionFallback())
-          setLoading(false)
-        }
-      }
-
-      fetchUserData()
-    } else {
-      setLoading(false)
     }
-  }, [session, isPending, setUser, setLoading])
+
+    fetchUserData()
+  }, [setUser, setLoading])
 
   const loginWithCredentials = async (email: string, password: string) => {
     try {
-      const result = await signIn.email({
-        email,
-        password,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
       })
-      
-      if (result.error) {
-        throw new Error(result.error.message)
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        const errorMessage = result?.error || 'Login failed'
+        throw new Error(errorMessage)
       }
       
       return { success: true }
     } catch (error) {
       console.error("Login error:", error)
+      
+      // Provide user-friendly error messages
+      let userMessage = "Login failed. Please try again."
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Invalid email or password')) {
+          userMessage = "Invalid email or password."
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          userMessage = "Network error. Please check your connection."
+        }
+      }
+      
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : "Login failed" 
+        error: userMessage
       }
     }
   }
@@ -90,30 +81,57 @@ export function useAuth() {
     lastName: string
   ) => {
     try {
-      const result = await signUp.email({
-        email,
-        password,
-        name: `${firstName} ${lastName}`,
-        callbackURL: "/shipments"
+      // Use direct API registration instead of GraphQL
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          firstName,
+          lastName,
+        }),
       })
-      
-      if (result.error) {
-        throw new Error(result.error.message)
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        const errorMessage = result?.message || result?.error || 'Registration failed'
+        throw new Error(errorMessage)
       }
-      
+
       return { success: true }
     } catch (error) {
       console.error("Registration error:", error)
+      
+      // Provide user-friendly error messages
+      let userMessage = "Registration failed. Please try again."
+      
+      if (error instanceof Error) {
+        if (error.message.includes('email') || error.message.includes('already exists')) {
+          userMessage = "Email address is already in use."
+        } else if (error.message.includes('password')) {
+          userMessage = "Password does not meet requirements."
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          userMessage = "Network error. Please check your connection."
+        }
+      }
+      
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : "Registration failed" 
+        error: userMessage
       }
     }
   }
 
   const logoutUser = async () => {
     try {
-      await signOut()
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      })
       logout()
       router.push("/")
     } catch (error) {

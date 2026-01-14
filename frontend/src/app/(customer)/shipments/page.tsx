@@ -16,6 +16,12 @@ interface DashboardStats {
   delivered: number
   inTransit: number
   totalPackages: number
+  changes: {
+    activeShipments: number
+    delivered: number
+    inTransit: number
+    totalPackages: number
+  }
 }
 
 export default function DashboardPage() {
@@ -25,7 +31,13 @@ export default function DashboardPage() {
     activeShipments: 0,
     delivered: 0,
     inTransit: 0,
-    totalPackages: 0
+    totalPackages: 0,
+    changes: {
+      activeShipments: 0,
+      delivered: 0,
+      inTransit: 0,
+      totalPackages: 0
+    }
   })
   const [loading, setLoading] = useState(true)
 
@@ -37,19 +49,12 @@ export default function DashboardPage() {
       
       try {
         const response = await fetch('/api/shipments/stats', {
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          credentials: 'include',
         })
         
         if (response.ok) {
           const data = await response.json()
-          setStats({
-            activeShipments: data.activeShipments || 0,
-            delivered: data.delivered || 0,
-            inTransit: data.inTransit || 0,
-            totalPackages: data.totalPackages || 0
-          })
+          setStats(data)
         }
       } catch (error) {
         console.error('Error fetching stats:', error)
@@ -110,29 +115,29 @@ export default function DashboardPage() {
               title="Active Shipments"
               value={loading ? "..." : stats.activeShipments}
               icon={Package}
-              change="+2%"
-              changeType="positive"
+              change={loading ? "..." : `${stats.changes.activeShipments > 0 ? '+' : ''}${stats.changes.activeShipments}%`}
+              changeType={stats.changes.activeShipments >= 0 ? "positive" : "negative"}
             />
             <StatsCard
               title="Delivered"
               value={loading ? "..." : stats.delivered}
               icon={CheckCircle}
-              change="+5%"
-              changeType="positive"
+              change={loading ? "..." : `${stats.changes.delivered > 0 ? '+' : ''}${stats.changes.delivered}%`}
+              changeType={stats.changes.delivered >= 0 ? "positive" : "negative"}
             />
             <StatsCard
               title="In Transit"
               value={loading ? "..." : stats.inTransit}
               icon={Truck}
-              change="-1%"
-              changeType="negative"
+              change={loading ? "..." : `${stats.changes.inTransit > 0 ? '+' : ''}${stats.changes.inTransit}%`}
+              changeType={stats.changes.inTransit >= 0 ? "positive" : "negative"}
             />
             <StatsCard
               title="Total Packages"
               value={loading ? "..." : stats.totalPackages}
               icon={Archive}
-              change="+12%"
-              changeType="positive"
+              change={loading ? "..." : `${stats.changes.totalPackages > 0 ? '+' : ''}${stats.changes.totalPackages}%`}
+              changeType={stats.changes.totalPackages >= 0 ? "positive" : "negative"}
             />
           </div>
 
