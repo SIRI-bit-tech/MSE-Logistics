@@ -64,12 +64,50 @@ export async function POST(request: NextRequest) {
     // Generate tracking number
     const trackingNumber = `MSE${Date.now()}${Math.random().toString(36).substr(2, 4).toUpperCase()}`
 
+    // Calculate costs (basic calculation - can be enhanced)
+    const baseRate = body.weight * 5 // $5 per kg base rate
+    const insuranceCost = body.insuranceOptional ? body.value * 0.02 : 0 // 2% of value
+    const shippingCost = baseRate
+    const totalCost = shippingCost + insuranceCost
+
+    // Map form fields to DB schema explicitly
     const shipment = await prisma.shipment.create({
       data: {
-        ...body,
         userId,
         trackingNumber,
         status: 'PENDING',
+        // Sender info
+        senderName: body.senderName,
+        senderEmail: body.senderEmail,
+        senderPhone: body.senderPhone,
+        senderAddress: body.senderAddress,
+        senderCity: body.senderCity,
+        senderCountry: body.senderCountry,
+        senderPostalCode: body.senderPostalCode,
+        // Recipient info
+        recipientName: body.recipientName,
+        recipientEmail: body.recipientEmail,
+        recipientPhone: body.recipientPhone,
+        recipientAddress: body.recipientAddress,
+        recipientCity: body.recipientCity,
+        recipientCountry: body.recipientCountry,
+        recipientPostalCode: body.recipientPostalCode,
+        // Package info
+        packageType: body.packageType,
+        weight: body.weight,
+        length: body.length,
+        width: body.width,
+        height: body.height,
+        description: body.description,
+        value: body.value,
+        currency: body.currency,
+        // Service info (defaults for now)
+        serviceType: 'STANDARD',
+        transportMode: 'WATER',
+        // Costs
+        shippingCost,
+        insuranceCost: body.insuranceOptional ? insuranceCost : null,
+        totalCost,
       },
       select: {
         id: true,

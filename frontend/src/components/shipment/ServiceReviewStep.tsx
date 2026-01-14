@@ -33,10 +33,6 @@ export default function ServiceReviewStep({ formData, onPrevious, onSubmit, isLo
               <span className="ml-2 text-gray-900">{formData.senderName}</span>
             </div>
             <div>
-              <span className="text-gray-600">Company:</span>
-              <span className="ml-2 text-gray-900">{formData.senderCompany || 'N/A'}</span>
-            </div>
-            <div>
               <span className="text-gray-600">Email:</span>
               <span className="ml-2 text-gray-900">{formData.senderEmail}</span>
             </div>
@@ -47,7 +43,7 @@ export default function ServiceReviewStep({ formData, onPrevious, onSubmit, isLo
             <div className="col-span-2">
               <span className="text-gray-600">Address:</span>
               <span className="ml-2 text-gray-900">
-                {formData.senderAddress}, {formData.senderCity}, {formData.senderCountry} {formData.senderZipCode}
+                {formData.senderAddress}, {formData.senderCity}, {formData.senderCountry} {formData.senderPostalCode}
               </span>
             </div>
           </div>
@@ -62,10 +58,6 @@ export default function ServiceReviewStep({ formData, onPrevious, onSubmit, isLo
               <span className="ml-2 text-gray-900">{formData.recipientName}</span>
             </div>
             <div>
-              <span className="text-gray-600">Company:</span>
-              <span className="ml-2 text-gray-900">{formData.recipientCompany || 'N/A'}</span>
-            </div>
-            <div>
               <span className="text-gray-600">Email:</span>
               <span className="ml-2 text-gray-900">{formData.recipientEmail}</span>
             </div>
@@ -76,7 +68,7 @@ export default function ServiceReviewStep({ formData, onPrevious, onSubmit, isLo
             <div className="col-span-2">
               <span className="text-gray-600">Address:</span>
               <span className="ml-2 text-gray-900">
-                {formData.recipientAddress}, {formData.recipientCity}, {formData.recipientCountry} {formData.recipientZipCode}
+                {formData.recipientAddress}, {formData.recipientCity}, {formData.recipientCountry} {formData.recipientPostalCode}
               </span>
             </div>
           </div>
@@ -103,7 +95,7 @@ export default function ServiceReviewStep({ formData, onPrevious, onSubmit, isLo
             <div>
               <span className="text-gray-600">Value:</span>
               <span className="ml-2 text-gray-900">
-                {formData.declaredValue} {formData.currency}
+                {formData.value} {formData.currency}
               </span>
             </div>
             <div className="col-span-2">
@@ -112,7 +104,7 @@ export default function ServiceReviewStep({ formData, onPrevious, onSubmit, isLo
             </div>
             <div className="col-span-2">
               <span className="text-gray-600">Insurance:</span>
-              <span className="ml-2 text-gray-900">{formData.insuranceRequired ? 'Yes' : 'No'}</span>
+              <span className="ml-2 text-gray-900">{formData.insuranceOptional ? 'Yes' : 'No'}</span>
             </div>
           </div>
         </div>

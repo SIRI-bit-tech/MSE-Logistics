@@ -2,6 +2,7 @@
 
 import { Card, Input, Button, Select, SelectItem, Textarea, Checkbox } from "@nextui-org/react"
 import { ArrowRight, ArrowLeft, Package } from "lucide-react"
+import { PACKAGE_TYPES } from "../../../constants"
 
 interface PackageDetailsStepProps {
   formData: {
@@ -11,24 +12,14 @@ interface PackageDetailsStepProps {
     width: number
     height: number
     description: string
-    declaredValue: number
+    value: number
     currency: string
-    insuranceRequired: boolean
+    insuranceOptional: boolean
   }
   onInputChange: (field: string, value: any) => void
   onNext: () => void
   onPrevious: () => void
 }
-
-const PACKAGE_TYPES = [
-  { value: "DOCUMENTS", label: "Documents" },
-  { value: "PARCEL", label: "Parcel" },
-  { value: "FRAGILE", label: "Fragile Items" },
-  { value: "ELECTRONICS", label: "Electronics" },
-  { value: "CLOTHING", label: "Clothing" },
-  { value: "FOOD", label: "Food & Perishables" },
-  { value: "OTHER", label: "Other" },
-]
 
 const CURRENCIES = [
   { value: "USD", label: "USD ($)" },
@@ -57,8 +48,10 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
               placeholder="Select package type"
               selectedKeys={formData.packageType ? [formData.packageType] : []}
               onSelectionChange={(keys) => {
-                const value = Array.from(keys)[0] as string
-                onInputChange('packageType', value)
+                if (keys !== "all") {
+                  const value = keys.size > 0 ? (Array.from(keys)[0] as string) : ''
+                  onInputChange('packageType', value)
+                }
               }}
               classNames={{
                 trigger: "bg-white border-gray-200",
@@ -150,8 +143,8 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
             <Input
               type="number"
               placeholder="0.00"
-              value={formData.declaredValue.toString()}
-              onValueChange={(value) => onInputChange('declaredValue', parseFloat(value) || 0)}
+              value={formData.value.toString()}
+              onValueChange={(value) => onInputChange('value', parseFloat(value) || 0)}
               classNames={{
                 input: "text-gray-900",
                 inputWrapper: "bg-white border-gray-200"
@@ -164,8 +157,10 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
               placeholder="Select currency"
               selectedKeys={formData.currency ? [formData.currency] : []}
               onSelectionChange={(keys) => {
-                const value = Array.from(keys)[0] as string
-                onInputChange('currency', value)
+                if (keys !== "all") {
+                  const value = keys.size > 0 ? (Array.from(keys)[0] as string) : ''
+                  onInputChange('currency', value)
+                }
               }}
               classNames={{
                 trigger: "bg-white border-gray-200",
@@ -184,8 +179,8 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
 
         <div className="pt-4">
           <Checkbox
-            isSelected={formData.insuranceRequired}
-            onValueChange={(checked) => onInputChange('insuranceRequired', checked)}
+            isSelected={formData.insuranceOptional}
+            onValueChange={(checked) => onInputChange('insuranceOptional', checked)}
             classNames={{
               label: "text-sm text-gray-700"
             }}

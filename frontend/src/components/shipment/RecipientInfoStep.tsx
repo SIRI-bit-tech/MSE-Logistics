@@ -6,13 +6,12 @@ import { ArrowRight, ArrowLeft, Mail, Phone, MapPin } from "lucide-react"
 interface RecipientInfoStepProps {
   formData: {
     recipientName: string
-    recipientCompany: string
     recipientEmail: string
     recipientPhone: string
     recipientAddress: string
     recipientCity: string
     recipientCountry: string
-    recipientZipCode: string
+    recipientPostalCode: string
   }
   onInputChange: (field: string, value: any) => void
   onNext: () => void
@@ -33,37 +32,25 @@ export default function RecipientInfoStep({ formData, onInputChange, onNext, onP
       </div>
 
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">RECIPIENT NAME</label>
-            <Input
-              placeholder="Jane Smith"
-              value={formData.recipientName}
-              onValueChange={(value) => onInputChange('recipientName', value)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">COMPANY NAME</label>
-            <Input
-              placeholder="Recipient Company Ltd"
-              value={formData.recipientCompany}
-              onValueChange={(value) => onInputChange('recipientCompany', value)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
-            />
-          </div>
+        <div>
+          <label htmlFor="recipientName" className="block text-sm font-medium text-gray-700 mb-2">RECIPIENT NAME</label>
+          <Input
+            id="recipientName"
+            placeholder="Jane Smith"
+            value={formData.recipientName}
+            onValueChange={(value) => onInputChange('recipientName', value)}
+            classNames={{
+              input: "text-gray-900",
+              inputWrapper: "bg-white border-gray-200"
+            }}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">EMAIL ADDRESS</label>
+            <label htmlFor="recipientEmail" className="block text-sm font-medium text-gray-700 mb-2">EMAIL ADDRESS</label>
             <Input
+              id="recipientEmail"
               type="email"
               placeholder="recipient@example.com"
               value={formData.recipientEmail}
@@ -76,8 +63,9 @@ export default function RecipientInfoStep({ formData, onInputChange, onNext, onP
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">PHONE NUMBER</label>
+            <label htmlFor="recipientPhone" className="block text-sm font-medium text-gray-700 mb-2">PHONE NUMBER</label>
             <Input
+              id="recipientPhone"
               placeholder="+44 20 1234 5678"
               value={formData.recipientPhone}
               onValueChange={(value) => onInputChange('recipientPhone', value)}
@@ -91,8 +79,9 @@ export default function RecipientInfoStep({ formData, onInputChange, onNext, onP
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">ADDRESS</label>
+          <label htmlFor="recipientAddress" className="block text-sm font-medium text-gray-700 mb-2">ADDRESS</label>
           <Input
+            id="recipientAddress"
             placeholder="456 High Street, Suite 200"
             value={formData.recipientAddress}
             onValueChange={(value) => onInputChange('recipientAddress', value)}
@@ -105,8 +94,9 @@ export default function RecipientInfoStep({ formData, onInputChange, onNext, onP
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">CITY</label>
+            <label htmlFor="recipientCity" className="block text-sm font-medium text-gray-700 mb-2">CITY</label>
             <Input
+              id="recipientCity"
               placeholder="London"
               value={formData.recipientCity}
               onValueChange={(value) => onInputChange('recipientCity', value)}
@@ -117,8 +107,9 @@ export default function RecipientInfoStep({ formData, onInputChange, onNext, onP
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">COUNTRY</label>
+            <label htmlFor="recipientCountry" className="block text-sm font-medium text-gray-700 mb-2">COUNTRY</label>
             <Input
+              id="recipientCountry"
               placeholder="United Kingdom"
               value={formData.recipientCountry}
               onValueChange={(value) => onInputChange('recipientCountry', value)}
@@ -129,11 +120,12 @@ export default function RecipientInfoStep({ formData, onInputChange, onNext, onP
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">ZIP CODE</label>
+            <label htmlFor="recipientPostalCode" className="block text-sm font-medium text-gray-700 mb-2">POSTAL CODE</label>
             <Input
+              id="recipientPostalCode"
               placeholder="SW1A 1AA"
-              value={formData.recipientZipCode}
-              onValueChange={(value) => onInputChange('recipientZipCode', value)}
+              value={formData.recipientPostalCode}
+              onValueChange={(value) => onInputChange('recipientPostalCode', value)}
               classNames={{
                 input: "text-gray-900",
                 inputWrapper: "bg-white border-gray-200"

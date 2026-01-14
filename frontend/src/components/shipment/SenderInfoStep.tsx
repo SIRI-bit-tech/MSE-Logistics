@@ -1,19 +1,17 @@
 "use client"
 
-import { Card, Input, Button, Checkbox } from "@nextui-org/react"
+import { Card, Input, Button } from "@nextui-org/react"
 import { ArrowRight, Mail, Phone, MapPin } from "lucide-react"
 
 interface SenderInfoStepProps {
   formData: {
     senderName: string
-    senderCompany: string
     senderEmail: string
     senderPhone: string
     senderAddress: string
     senderCity: string
     senderCountry: string
-    senderZipCode: string
-    saveToAddressBook: boolean
+    senderPostalCode: string
   }
   onInputChange: (field: string, value: any) => void
   onNext: () => void
@@ -33,31 +31,17 @@ export default function SenderInfoStep({ formData, onInputChange, onNext }: Send
       </div>
 
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">SENDER NAME</label>
-            <Input
-              placeholder="John Doe"
-              value={formData.senderName}
-              onValueChange={(value) => onInputChange('senderName', value)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">COMPANY NAME</label>
-            <Input
-              placeholder="MSE Mediterranean Services"
-              value={formData.senderCompany}
-              onValueChange={(value) => onInputChange('senderCompany', value)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">SENDER NAME</label>
+          <Input
+            placeholder="John Doe"
+            value={formData.senderName}
+            onValueChange={(value) => onInputChange('senderName', value)}
+            classNames={{
+              input: "text-gray-900",
+              inputWrapper: "bg-white border-gray-200"
+            }}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -129,29 +113,17 @@ export default function SenderInfoStep({ formData, onInputChange, onNext }: Send
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">ZIP CODE</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">POSTAL CODE</label>
             <Input
               placeholder="10001"
-              value={formData.senderZipCode}
-              onValueChange={(value) => onInputChange('senderZipCode', value)}
+              value={formData.senderPostalCode}
+              onValueChange={(value) => onInputChange('senderPostalCode', value)}
               classNames={{
                 input: "text-gray-900",
                 inputWrapper: "bg-white border-gray-200"
               }}
             />
           </div>
-        </div>
-
-        <div className="pt-4">
-          <Checkbox
-            isSelected={formData.saveToAddressBook}
-            onValueChange={(checked) => onInputChange('saveToAddressBook', checked)}
-            classNames={{
-              label: "text-sm text-gray-700"
-            }}
-          >
-            Save these details to my address book for future shipments.
-          </Checkbox>
         </div>
 
         <div className="pt-6 flex justify-end">

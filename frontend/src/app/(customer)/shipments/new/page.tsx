@@ -14,23 +14,20 @@ import { useAuth } from "@/hooks/use-auth"
 interface ShipmentFormData {
   // Sender
   senderName: string
-  senderCompany: string
   senderEmail: string
   senderPhone: string
   senderAddress: string
   senderCity: string
   senderCountry: string
-  senderZipCode: string
-  saveToAddressBook: boolean
+  senderPostalCode: string
   // Recipient
   recipientName: string
-  recipientCompany: string
   recipientEmail: string
   recipientPhone: string
   recipientAddress: string
   recipientCity: string
   recipientCountry: string
-  recipientZipCode: string
+  recipientPostalCode: string
   // Package
   packageType: string
   weight: number
@@ -38,9 +35,9 @@ interface ShipmentFormData {
   width: number
   height: number
   description: string
-  declaredValue: number
+  value: number
   currency: string
-  insuranceRequired: boolean
+  insuranceOptional: boolean
 }
 
 export default function CreateShipmentPage() {
@@ -50,31 +47,28 @@ export default function CreateShipmentPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState<ShipmentFormData>({
     senderName: user ? `${user.firstName} ${user.lastName}` : "",
-    senderCompany: "",
     senderEmail: user?.email || "",
     senderPhone: user?.phone || "",
     senderAddress: "",
     senderCity: "",
     senderCountry: "",
-    senderZipCode: "",
-    saveToAddressBook: false,
+    senderPostalCode: "",
     recipientName: "",
-    recipientCompany: "",
     recipientEmail: "",
     recipientPhone: "",
     recipientAddress: "",
     recipientCity: "",
     recipientCountry: "",
-    recipientZipCode: "",
+    recipientPostalCode: "",
     packageType: "PARCEL",
     weight: 0,
     length: 0,
     width: 0,
     height: 0,
     description: "",
-    declaredValue: 0,
+    value: 0,
     currency: "USD",
-    insuranceRequired: false,
+    insuranceOptional: false,
   })
 
   const handleInputChange = (field: string, value: any) => {
@@ -92,15 +86,42 @@ export default function CreateShipmentPage() {
   const handleSubmit = async () => {
     setIsLoading(true)
     try {
+      // Map form fields to DB schema explicitly
+      const shipmentData = {
+        senderName: formData.senderName,
+        senderEmail: formData.senderEmail,
+        senderPhone: formData.senderPhone,
+        senderAddress: formData.senderAddress,
+        senderCity: formData.senderCity,
+        senderCountry: formData.senderCountry,
+        senderPostalCode: formData.senderPostalCode,
+        recipientName: formData.recipientName,
+        recipientEmail: formData.recipientEmail,
+        recipientPhone: formData.recipientPhone,
+        recipientAddress: formData.recipientAddress,
+        recipientCity: formData.recipientCity,
+        recipientCountry: formData.recipientCountry,
+        recipientPostalCode: formData.recipientPostalCode,
+        packageType: formData.packageType,
+        weight: formData.weight,
+        length: formData.length,
+        width: formData.width,
+        height: formData.height,
+        description: formData.description,
+        value: formData.value,
+        currency: formData.currency,
+        insuranceOptional: formData.insuranceOptional,
+      }
+
       const response = await fetch('/api/shipments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(formData),
+        body: JSON.stringify(shipmentData),
       })
 
       if (response.ok) {
-        const { shipment } = await response.json()
+        await response.json()
         router.push(`/shipments`)
       }
     } catch (error) {
@@ -264,7 +285,7 @@ export default function CreateShipmentPage() {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Insurance</span>
                     <span className="font-medium text-gray-900">
-                      {formData.insuranceRequired ? 'Yes' : '--'}
+                      {formData.insuranceOptional ? 'Yes' : '--'}
                     </span>
                   </div>
 
