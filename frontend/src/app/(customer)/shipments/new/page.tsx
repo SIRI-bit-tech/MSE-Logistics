@@ -285,7 +285,7 @@ export default function CreateShipmentPage() {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Insurance</span>
                     <span className="font-medium text-gray-900">
-                      {formData.insuranceOptional ? 'Yes' : '--'}
+                      {formData.insuranceOptional ? 'Yes' : 'No'}
                     </span>
                   </div>
 
