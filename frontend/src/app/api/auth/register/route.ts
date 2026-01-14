@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 
 // Input validation schema
 const registerSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   firstName: z.string().min(1, 'First name is required').max(50, 'First name too long'),
   lastName: z.string().min(1, 'Last name is required').max(50, 'Last name too long'),
@@ -76,9 +77,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Registration error:', error)
     
-    // Handle Prisma errors
-    if (error instanceof Error) {
-      if (error.message.includes('Unique constraint')) {
+    // Handle Prisma unique constraint violation
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
         return NextResponse.json(
           { error: 'Email address is already in use' },
           { status: 409 }

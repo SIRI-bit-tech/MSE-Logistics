@@ -1,27 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { getUserFromToken } from '@/lib/jwt-config'
 
 // GET /api/admin/shipments - Get all shipments (admin only)
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    })
-
-    if (!session) {
+    const userId = await getUserFromToken(request)
+    
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if user is admin (you'll need to implement role checking)
-    // For now, assuming all authenticated users can access admin routes
-    // You should add proper role validation here
+    // Check if user has admin role
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true }
+    })
+
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN')) {
+      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 })
+    }
 
     const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
+    const pageParam = searchParams.get('page')
+    const limitParam = searchParams.get('limit')
     const status = searchParams.get('status')
     const search = searchParams.get('search')
+    
+    const parsedPage = pageParam ? parseInt(pageParam, 10) : 1
+    const parsedLimit = limitParam ? parseInt(limitParam, 10) : 20
+    
+    // Validate and clamp page: default 1, min 1, max 10000
+    const page = Number.isFinite(parsedPage) && parsedPage >= 1 && parsedPage <= 10000
+      ? parsedPage
+      : 1
+    
+    // Validate and clamp limit: default 20, min 1, max 100
+    const limit = Number.isFinite(parsedLimit) && parsedLimit >= 1 && parsedLimit <= 100
+      ? parsedLimit
+      : 20
     
     const skip = (page - 1) * limit
 

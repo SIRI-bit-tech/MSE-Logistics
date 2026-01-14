@@ -1,14 +1,14 @@
 "use client"
 
-import type React from "react"
-
-import { Button, Card, Input, Link as HeroLink } from "@heroui/react"
+import { Button, Card, Input, Link as NextUILink } from "@nextui-org/react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Mail, Lock, User } from "lucide-react"
+import { useAuth } from "@/hooks/use-auth"
 
 export default function Register() {
   const router = useRouter()
+  const { registerWithCredentials } = useAuth()
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -19,7 +19,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
 
@@ -28,13 +28,28 @@ export default function Register() {
       return
     }
 
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters long")
+      return
+    }
+
     setLoading(true)
     try {
-      // TODO: Implement registration API call
-      console.log("Register:", formData)
-      router.push("/user/verify-email")
+      const result = await registerWithCredentials(
+        formData.email,
+        formData.password,
+        formData.firstName,
+        formData.lastName
+      )
+
+      if (result.success) {
+        // After successful registration, redirect to login
+        router.push("/user/login?registered=true")
+      } else {
+        setError(result.error || "Registration failed. Please try again.")
+      }
     } catch (err) {
-      setError("Registration failed. Please try again.")
+      setError("An unexpected error occurred. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -84,6 +99,7 @@ export default function Register() {
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             required
             startContent={<Lock className="h-4 w-4" />}
+            description="Must be at least 8 characters"
           />
 
           <Input
@@ -103,9 +119,9 @@ export default function Register() {
         <div className="mt-6 text-center">
           <p className="text-foreground-600">
             Already have an account?{" "}
-            <HeroLink href="/user/login" className="text-[#0066CC] font-semibold">
+            <NextUILink href="/user/login" className="text-[#0066CC] font-semibold">
               Sign in
-            </HeroLink>
+            </NextUILink>
           </p>
         </div>
       </Card>

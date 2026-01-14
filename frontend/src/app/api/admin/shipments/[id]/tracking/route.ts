@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { getUserFromToken } from '@/lib/jwt-config'
 import { z } from 'zod'
 import { emitTrackingUpdate, emitShipmentUpdate } from '@/app/api/socket/route'
 
@@ -26,30 +26,29 @@ const updateTrackingSchema = z.object({
 // POST /api/admin/shipments/[id]/tracking - Add tracking event with real-time updates
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    })
+    const { id } = await params
+    const userId = await getUserFromToken(request)
 
-    if (!session) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Check admin privileges - fetch user role from database
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userId },
       select: { role: true }
     })
 
     if (!user || (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN')) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 })
     }
 
     // Check if shipment exists
     const shipment = await prisma.shipment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { user: true }
     })
 
@@ -63,7 +62,7 @@ export async function POST(
     // Create tracking event with current timestamp
     const trackingEvent = await prisma.trackingEvent.create({
       data: {
-        shipmentId: params.id,
+        shipmentId: id,
         status: validatedData.status,
         location: validatedData.location,
         city: validatedData.city,
@@ -74,7 +73,7 @@ export async function POST(
         description: validatedData.description,
         transportMode: validatedData.transportMode,
         notes: validatedData.notes,
-        updatedBy: session.user.id,
+        updatedBy: userId,
         createdAt: new Date(), // Current timestamp
       },
     })
@@ -97,7 +96,7 @@ export async function POST(
     }
 
     const updatedShipment = await prisma.shipment.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         trackingEvents: {
@@ -181,7 +180,7 @@ export async function POST(
     }, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Validation error', details: error.errors }, { status: 400 })
+      return NextResponse.json({ error: 'Validation error', details: error.issues }, { status: 400 })
     }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

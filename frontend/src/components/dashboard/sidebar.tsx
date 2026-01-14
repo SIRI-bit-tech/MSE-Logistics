@@ -4,7 +4,6 @@ import { Link, Button } from "@nextui-org/react"
 import { usePathname, useRouter } from "next/navigation"
 import { 
   LayoutDashboard, 
-  Package, 
   Plus,
   Search,
   User,
@@ -19,11 +18,6 @@ const sidebarItems = [
     label: "Dashboard",
     href: "/shipments",
     icon: LayoutDashboard,
-  },
-  {
-    label: "My Shipments",
-    href: "/shipments/list",
-    icon: Package,
   },
   {
     label: "Create Shipment",
