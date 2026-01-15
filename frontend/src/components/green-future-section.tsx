@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@nextui-org/react"
+import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import Link from "next/link"
 
@@ -51,21 +51,23 @@ export default function GreenFutureSection() {
           className="flex gap-4 justify-center flex-wrap"
         >
           <Button 
-            as={Link}
-            href="/sustainability"
+            asChild
             size="lg" 
-            className="bg-msc-yellow hover:bg-msc-gold text-black font-bold px-8 py-3"
+            className="bg-[#FFD700] hover:bg-[#D4AF37] text-black font-bold px-8 py-3"
           >
-            Our Sustainability Goals
+            <Link href="/sustainability">
+              Our Sustainability Goals
+            </Link>
           </Button>
           <Button 
-            as={Link}
-            href="/green-initiatives"
+            asChild
             size="lg" 
-            variant="bordered" 
+            variant="outline" 
             className="text-white border-white hover:bg-white/10 font-semibold px-8 py-3"
           >
-            Green Initiatives
+            <Link href="/green-initiatives">
+              Green Initiatives
+            </Link>
           </Button>
         </motion.div>
       </div>

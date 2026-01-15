@@ -1,6 +1,7 @@
 "use client"
 
-import { Card, CardBody, Button } from "@nextui-org/react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -74,7 +75,7 @@ export default function ShippingNeedsCarousel() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">Your Shipping Needs Met</h2>
-          <div className="w-16 h-1 bg-msc-yellow mx-auto mb-8"></div>
+          <div className="w-16 h-1 bg-[#FFD700] mx-auto mb-8"></div>
           <p className="text-lg text-gray-600 max-w-4xl mx-auto leading-relaxed">
             At MSC we pride ourselves on being a global container shipping company that delivers technical solutions designed to 
             meet the specific needs of each of our customers. Regardless of your cargo type, or final destination, we offer versatile 
@@ -106,42 +107,46 @@ export default function ShippingNeedsCarousel() {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <CardBody className="p-6">
+                  <CardContent className="p-6">
                     <h3 className="text-xl font-bold text-gray-800 mb-3">{item.title}</h3>
                     <p className="text-gray-600 text-sm leading-relaxed mb-4">
                       {item.description}
                     </p>
                     <Button
-                      as={Link}
-                      href={item.readMore}
-                      variant="light"
-                      className="text-msc-yellow hover:text-msc-gold p-0 h-auto font-semibold"
-                      endContent={<span className="text-msc-yellow">→</span>}
+                      asChild
+                      variant="link"
+                      className="text-[#FFD700] hover:text-[#D4AF37] p-0 h-auto font-semibold"
                     >
-                      READ MORE
+                      <Link href={item.readMore}>
+                        READ MORE →
+                      </Link>
                     </Button>
-                  </CardBody>
+                  </CardContent>
                 </Card>
               </motion.div>
             ))}
           </div>
 
           {/* Navigation Arrows */}
-          <button
+          <Button
             onClick={prevSlide}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors"
+            variant="outline"
+            size="icon"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white shadow-lg rounded-full"
             disabled={currentIndex === 0}
           >
             <ChevronLeft className="w-6 h-6 text-gray-600" />
-          </button>
+          </Button>
           
-          <button
+          <Button
             onClick={nextSlide}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors"
+            variant="outline"
+            size="icon"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white shadow-lg rounded-full"
             disabled={currentIndex + itemsPerView >= shippingNeeds.length}
           >
             <ChevronRight className="w-6 h-6 text-gray-600" />
-          </button>
+          </Button>
         </div>
 
         {/* Dots indicator */}
@@ -152,7 +157,7 @@ export default function ShippingNeedsCarousel() {
               onClick={() => setCurrentIndex(index * itemsPerView)}
               className={`w-3 h-3 rounded-full transition-colors ${
                 Math.floor(currentIndex / itemsPerView) === index 
-                  ? 'bg-msc-yellow' 
+                  ? 'bg-[#FFD700]' 
                   : 'bg-gray-300'
               }`}
             />

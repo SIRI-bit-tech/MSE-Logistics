@@ -1,6 +1,8 @@
 "use client"
 
-import { Button, Card, Input } from "@nextui-org/react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Search } from "lucide-react"
@@ -17,35 +19,35 @@ export default function Track() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-slate-950 dark:to-slate-900 flex items-center justify-center px-4 py-8 md:py-0">
+    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white dark:from-slate-950 dark:to-slate-900 flex items-center justify-center px-4 py-8 md:py-0">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mx-auto w-full max-w-md">
-        <Card className="p-6 md:p-8">
-          <h1 className="mb-2 text-center text-2xl md:text-3xl font-bold text-foreground">Track Your Shipment</h1>
-          <p className="mb-8 text-center text-sm md:text-base text-foreground-600">
-            Enter your tracking number to get real-time updates
-          </p>
-
-          <div className="flex gap-2">
-            <Input
-              value={trackingNumber}
-              onChange={(e) => setTrackingNumber(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleTrack()}
-              placeholder="e.g., SS-2024-001234"
-              size="lg"
-              className="text-sm md:text-base"
-              aria-label="Enter tracking number"
-            />
-            <Button
-              isIconOnly
-              onClick={handleTrack}
-              color="primary"
-              className="bg-[#0066CC] flex-shrink-0"
-              size="lg"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5" />
-            </Button>
-          </div>
+        <Card className="p-2">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl md:text-3xl">Track Your Shipment</CardTitle>
+            <CardDescription className="text-sm md:text-base">
+              Enter your tracking number to get real-time updates
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-2">
+              <Input
+                value={trackingNumber}
+                onChange={(e) => setTrackingNumber(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleTrack()}
+                placeholder="e.g., SS-2024-001234"
+                className="text-sm md:text-base"
+                aria-label="Enter tracking number"
+              />
+              <Button
+                onClick={handleTrack}
+                className="bg-[#D4AF37] hover:bg-[#B8860B] flex-shrink-0"
+                size="icon"
+                aria-label="Search"
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+            </div>
+          </CardContent>
         </Card>
       </motion.div>
     </div>

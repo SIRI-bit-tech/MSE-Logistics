@@ -1,10 +1,12 @@
 "use client"
 
-import { Card, CardBody, CardHeader, Button, Chip } from "@nextui-org/react"
 import { MapPin, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useAuth } from "@/hooks/use-auth"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 
 interface Shipment {
   id: string
@@ -15,22 +17,19 @@ interface Shipment {
   estimatedDeliveryDate: string | null
 }
 
-const getStatusColor = (status: string) => {
+const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
   switch (status.toUpperCase()) {
     case 'DELIVERED':
-      return 'success'
+      return 'default'
     case 'IN_TRANSIT':
     case 'PICKED_UP':
     case 'OUT_FOR_DELIVERY':
-      return 'warning'
-    case 'PROCESSING':
-    case 'PENDING':
-      return 'primary'
+      return 'secondary'
     case 'ON_HOLD':
     case 'CANCELLED':
-      return 'danger'
+      return 'destructive'
     default:
-      return 'default'
+      return 'outline'
   }
 }
 
@@ -83,19 +82,20 @@ export default function RecentShipmentsTable() {
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between w-full">
           <h3 className="text-xl font-bold text-gray-900">Recent Shipments</h3>
-          <Link href="/shipments">
-            <Button 
-              variant="light" 
-              size="sm"
-              className="text-msc-yellow hover:text-msc-gold"
-              endContent={<ExternalLink className="w-4 h-4" />}
-            >
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-msc-yellow hover:text-msc-gold"
+            asChild
+          >
+            <Link href="/shipments" className="flex items-center gap-2">
               View All
-            </Button>
-          </Link>
+              <ExternalLink className="w-4 h-4" />
+            </Link>
+          </Button>
         </div>
       </CardHeader>
-      <CardBody className="pt-0">
+      <CardContent className="pt-0">
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <div className="text-gray-500">Loading shipments...</div>
@@ -103,11 +103,11 @@ export default function RecentShipmentsTable() {
         ) : shipments.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <div className="text-gray-500 mb-2">No shipments found</div>
-            <Link href="/shipments/new">
-              <Button className="bg-msc-yellow text-black hover:bg-msc-gold">
+            <Button className="bg-msc-yellow text-black hover:bg-msc-gold" asChild>
+              <Link href="/shipments/new">
                 Create Your First Shipment
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -146,27 +146,24 @@ export default function RecentShipmentsTable() {
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <Chip 
-                        size="sm" 
-                        color={getStatusColor(shipment.status)}
-                        variant="flat"
-                      >
+                      <Badge variant={getStatusVariant(shipment.status)}>
                         {formatStatus(shipment.status)}
-                      </Chip>
+                      </Badge>
                     </td>
                     <td className="py-4 px-4 text-gray-600">
                       {formatDate(shipment.estimatedDeliveryDate)}
                     </td>
                     <td className="py-4 px-4">
-                      <Link href={`/track?number=${shipment.trackingNumber}`}>
-                        <Button 
-                          size="sm" 
-                          variant="light"
-                          className="text-msc-yellow hover:text-msc-gold"
-                        >
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        className="text-msc-yellow hover:text-msc-gold"
+                        asChild
+                      >
+                        <Link href={`/track?number=${shipment.trackingNumber}`}>
                           Details
-                        </Button>
-                      </Link>
+                        </Link>
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -174,7 +171,7 @@ export default function RecentShipmentsTable() {
             </table>
           </div>
         )}
-      </CardBody>
+      </CardContent>
     </Card>
   )
 }

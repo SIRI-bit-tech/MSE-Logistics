@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardBody } from "@nextui-org/react"
+import { Card, CardContent } from "@/components/ui/card"
 import { motion } from "framer-motion"
 import Link from "next/link"
 
@@ -68,14 +68,14 @@ export default function FeaturesSection() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
-                  <CardBody className="p-6">
-                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-msc-yellow transition-colors">
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-[#FFD700] transition-colors">
                       {service.title}
                     </h3>
                     <p className="text-gray-600 text-sm leading-relaxed">
                       {service.description}
                     </p>
-                  </CardBody>
+                  </CardContent>
                 </Card>
               </Link>
             </motion.div>

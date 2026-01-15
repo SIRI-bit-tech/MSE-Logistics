@@ -1,7 +1,7 @@
 "use client"
 
-import { Link, Button } from "@nextui-org/react"
 import { usePathname, useRouter } from "next/navigation"
+import Link from "next/link"
 import { 
   LayoutDashboard, 
   Plus,
@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/hooks/use-auth"
+import { Button } from "@/components/ui/button"
 
 const sidebarItems = [
   {
@@ -117,10 +118,10 @@ export default function Sidebar() {
         {/* Logout Button */}
         <Button
           onClick={handleLogout}
-          variant="light"
+          variant="ghost"
           className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors w-full justify-start"
-          startContent={<LogOut className="w-5 h-5" />}
         >
+          <LogOut className="w-5 h-5" />
           Logout
         </Button>
       </div>

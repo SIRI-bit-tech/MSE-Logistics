@@ -1,8 +1,8 @@
 "use client"
 
-import { Card, CardBody } from "@nextui-org/react"
 import { motion } from "framer-motion"
 import { LucideIcon } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
 
 interface StatsCardProps {
   title: string
@@ -38,7 +38,7 @@ export default function StatsCard({ title, value, icon: Icon, change, changeType
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02 }}>
       <Card className="bg-white border border-gray-200 hover:shadow-md transition-shadow">
-        <CardBody className="p-6">
+        <CardContent className="p-6">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-4">
@@ -59,7 +59,7 @@ export default function StatsCard({ title, value, icon: Icon, change, changeType
               </div>
             </div>
           </div>
-        </CardBody>
+        </CardContent>
       </Card>
     </motion.div>
   )

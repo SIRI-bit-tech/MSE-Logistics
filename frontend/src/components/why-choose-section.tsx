@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardBody, Button } from "@nextui-org/react"
+import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { CheckCircle, Clock, Shield, Globe } from "lucide-react"
 import Link from "next/link"
@@ -46,7 +46,7 @@ export default function WhyChooseSection() {
               alt="Captain looking through binoculars"
               className="w-full h-96 object-cover rounded-lg shadow-xl"
             />
-            <div className="absolute bottom-6 left-6 bg-msc-yellow text-black p-4 rounded-lg">
+            <div className="absolute bottom-6 left-6 bg-[#FFD700] text-black p-4 rounded-lg">
               <div className="text-3xl font-bold">50+</div>
               <div className="text-sm font-medium">Years of Excellence</div>
             </div>
@@ -79,8 +79,8 @@ export default function WhyChooseSection() {
                     viewport={{ once: true }}
                     className="flex items-start gap-3"
                   >
-                    <div className="bg-msc-yellow/20 rounded-full p-2 flex-shrink-0">
-                      <IconComponent className="w-5 h-5 text-msc-yellow" />
+                    <div className="bg-[#FFD700]/20 rounded-full p-2 flex-shrink-0">
+                      <IconComponent className="w-5 h-5 text-[#FFD700]" />
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-800 mb-1">{feature.title}</h3>
@@ -92,12 +92,13 @@ export default function WhyChooseSection() {
             </div>
 
             <Button 
-              as={Link}
-              href="/about"
+              asChild
               size="lg" 
-              className="bg-msc-yellow hover:bg-msc-gold text-black font-bold px-8"
+              className="bg-[#FFD700] hover:bg-[#D4AF37] text-black font-bold px-8"
             >
-              Learn More About Us
+              <Link href="/about">
+                Learn More About Us
+              </Link>
             </Button>
           </motion.div>
         </div>

@@ -1,6 +1,7 @@
 "use client"
 
-import { Card, Button } from "@nextui-org/react"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { ArrowLeft, CheckCircle } from "lucide-react"
 
 interface ServiceReviewStepProps {
@@ -112,20 +113,20 @@ export default function ServiceReviewStep({ formData, onPrevious, onSubmit, isLo
         <div className="pt-6 flex justify-between">
           <Button
             size="lg"
-            variant="bordered"
+            variant="outline"
             className="px-8"
-            startContent={<ArrowLeft className="w-5 h-5" />}
-            onPress={onPrevious}
+            onClick={onPrevious}
           >
+            <ArrowLeft className="w-5 h-5 mr-2" />
             Previous
           </Button>
           <Button
             size="lg"
-            className="bg-msc-yellow text-black hover:bg-msc-yellow/90 px-8"
-            onPress={onSubmit}
-            isLoading={isLoading}
+            className="bg-[#FFD700] text-black hover:bg-[#D4AF37] px-8"
+            onClick={onSubmit}
+            disabled={isLoading}
           >
-            Create Shipment
+            {isLoading ? "Creating..." : "Create Shipment"}
           </Button>
         </div>
       </div>

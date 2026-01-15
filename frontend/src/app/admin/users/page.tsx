@@ -1,17 +1,10 @@
 "use client"
 
-import {
-  Button,
-  Card,
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-  Badge,
-  Input,
-} from "@nextui-org/react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import { Search, Edit2, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { motion } from "framer-motion"
@@ -49,9 +42,9 @@ export default function AdminUsersPage() {
   ])
 
   const statusColor = {
-    ACTIVE: "success",
-    INACTIVE: "danger",
-    SUSPENDED: "warning",
+    ACTIVE: "default",
+    INACTIVE: "destructive",
+    SUSPENDED: "secondary",
   } as const
 
   return (
@@ -63,58 +56,65 @@ export default function AdminUsersPage() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="mb-6">
-          <Input
-            placeholder="Search by name or email"
-            startContent={<Search className="w-4 h-4" />}
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            aria-label="Search users by name or email"
-          />
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Search by name or email"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              className="pl-10"
+              aria-label="Search users by name or email"
+            />
+          </div>
         </motion.div>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-          <Card className="overflow-hidden">
-            <Table aria-label="Users table">
-              <TableHeader>
-                <TableColumn className="hidden md:table-cell">NAME</TableColumn>
-                <TableColumn className="hidden lg:table-cell">EMAIL</TableColumn>
-                <TableColumn>COMPANY</TableColumn>
-                <TableColumn>STATUS</TableColumn>
-                <TableColumn className="hidden md:table-cell">SHIPMENTS</TableColumn>
-                <TableColumn>ACTIONS</TableColumn>
-              </TableHeader>
-              <TableBody>
-                {users
-                  .filter(
-                    (user) =>
-                      user.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-                      user.email.toLowerCase().includes(searchValue.toLowerCase()),
-                  )
-                  .map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="hidden md:table-cell font-semibold">{user.name}</TableCell>
-                      <TableCell className="hidden lg:table-cell text-sm">{user.email}</TableCell>
-                      <TableCell>{user.company}</TableCell>
-                      <TableCell>
-                        <Badge color={statusColor[user.status as keyof typeof statusColor]} variant="flat">
-                          {user.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">{user.shipments}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button isIconOnly size="sm" variant="light">
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button isIconOnly size="sm" variant="light" color="danger">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="hidden md:table-cell">NAME</TableHead>
+                    <TableHead className="hidden lg:table-cell">EMAIL</TableHead>
+                    <TableHead>COMPANY</TableHead>
+                    <TableHead>STATUS</TableHead>
+                    <TableHead className="hidden md:table-cell">SHIPMENTS</TableHead>
+                    <TableHead>ACTIONS</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users
+                    .filter(
+                      (user) =>
+                        user.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+                        user.email.toLowerCase().includes(searchValue.toLowerCase()),
+                    )
+                    .map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="hidden md:table-cell font-semibold">{user.name}</TableCell>
+                        <TableCell className="hidden lg:table-cell text-sm">{user.email}</TableCell>
+                        <TableCell>{user.company}</TableCell>
+                        <TableCell>
+                          <Badge variant={statusColor[user.status as keyof typeof statusColor]}>
+                            {user.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">{user.shipments}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="ghost">
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button size="sm" variant="ghost">
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </CardContent>
           </Card>
         </motion.div>
       </div>

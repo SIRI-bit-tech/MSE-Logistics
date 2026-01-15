@@ -1,11 +1,10 @@
 "use client"
 
-import { Button } from "@nextui-org/react"
+import { Button } from "@/components/ui/button"
 import { Package, CheckCircle, Truck, Archive, FileText, Plus } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 import Sidebar from "@/components/dashboard/sidebar"
 import StatsCard from "@/components/dashboard/stats-card"
 import RecentShipmentsTable from "@/components/dashboard/recent-shipments-table"
@@ -92,18 +91,18 @@ export default function DashboardPage() {
             
             <div className="flex items-center gap-3">
               <Button 
-                variant="bordered" 
-                startContent={<FileText className="w-4 h-4" />}
+                variant="outline" 
                 className="border-gray-300 text-gray-700"
                 onClick={handleReports}
               >
+                <FileText className="w-4 h-4 mr-2" />
                 Reports
               </Button>
               <Button 
-                className="bg-msc-yellow text-black hover:bg-msc-gold"
-                startContent={<Plus className="w-4 h-4" />}
+                className="bg-[#FFD700] text-black hover:bg-[#D4AF37]"
                 onClick={handleNewShipment}
               >
+                <Plus className="w-4 h-4 mr-2" />
                 New Shipment
               </Button>
             </div>

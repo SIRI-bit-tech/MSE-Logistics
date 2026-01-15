@@ -1,7 +1,9 @@
 "use client"
 
-import { Card, Divider, Image } from "@nextui-org/react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 import { Users, Target, Zap } from "lucide-react"
+import Image from "next/image"
 
 export default function About() {
   return (
@@ -12,22 +14,22 @@ export default function About() {
         <div className="mb-12 grid gap-12 lg:grid-cols-2">
           <div>
             <h2 className="mb-4 text-2xl font-bold text-foreground">Our Story</h2>
-            <p className="mb-4 text-foreground-700">
+            <p className="mb-4 text-muted-foreground">
               Founded in 2020, Mediterranean Shipping Express emerged from a simple vision: to transform international logistics
               through technology and reliability.
             </p>
-            <p className="mb-4 text-foreground-700">
+            <p className="mb-4 text-muted-foreground">
               We started with a small team of logistics experts and software engineers who understood the pain points of
               global shipping. Today, we operate in 150+ countries with a network of trusted partners.
             </p>
-            <p className="text-foreground-700">
+            <p className="text-muted-foreground">
               Our commitment to innovation and customer satisfaction drives everything we do.
             </p>
           </div>
-          <Image src="/company-office-team-logistics.jpg" alt="Mediterranean Shipping Express Team" className="rounded-xl" />
+          <Image src="/company-office-team-logistics.jpg" alt="Mediterranean Shipping Express Team" className="rounded-xl" width={600} height={400} />
         </div>
 
-        <Divider className="my-12" />
+        <Separator className="my-12" />
 
         <div className="mb-12">
           <h2 className="mb-8 text-2xl font-bold text-foreground">Our Values</h2>
@@ -40,16 +42,18 @@ export default function About() {
               const Icon = value.icon
               return (
                 <Card key={i} className="p-6">
-                  <Icon className="mb-4 h-8 w-8 text-[#0066CC]" />
-                  <h3 className="mb-2 font-semibold text-foreground">{value.title}</h3>
-                  <p className="text-sm text-foreground-600">{value.description}</p>
+                  <CardContent className="p-0">
+                    <Icon className="mb-4 h-8 w-8 text-[#0066CC]" />
+                    <h3 className="mb-2 font-semibold text-foreground">{value.title}</h3>
+                    <p className="text-sm text-muted-foreground">{value.description}</p>
+                  </CardContent>
                 </Card>
               )
             })}
           </div>
         </div>
 
-        <Divider className="my-12" />
+        <Separator className="my-12" />
 
         <div>
           <h2 className="mb-8 text-2xl font-bold text-foreground">By The Numbers</h2>
@@ -62,7 +66,7 @@ export default function About() {
             ].map((stat, i) => (
               <div key={i} className="text-center">
                 <div className="text-3xl font-bold text-[#0066CC]">{stat.number}</div>
-                <div className="text-foreground-600">{stat.label}</div>
+                <div className="text-muted-foreground">{stat.label}</div>
               </div>
             ))}
           </div>

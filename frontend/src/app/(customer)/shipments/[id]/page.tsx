@@ -2,14 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { 
-  Card, 
-  CardBody, 
-  Button, 
-  Chip,
-  Spinner,
-  Divider
-} from "@nextui-org/react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 import { ArrowLeft, Package, MapPin, Clock, User, Phone, Mail } from "lucide-react"
 import { SHIPMENT_STATUS_COLORS, SHIPMENT_STATUS_ICONS } from "../../../../../constants"
 
@@ -90,7 +86,7 @@ export default function ShipmentDetailsPage() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Spinner size="lg" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
       </div>
     )
   }
@@ -99,7 +95,7 @@ export default function ShipmentDetailsPage() {
     return (
       <div className="p-8 text-center">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Shipment Not Found</h1>
-        <Button onPress={() => router.back()}>Go Back</Button>
+        <Button onClick={() => router.back()}>Go Back</Button>
       </div>
     )
   }
@@ -108,11 +104,11 @@ export default function ShipmentDetailsPage() {
     <div className="p-8 max-w-6xl mx-auto">
       <div className="mb-8">
         <Button
-          variant="light"
-          startContent={<ArrowLeft className="w-4 h-4" />}
-          onPress={() => router.back()}
+          variant="ghost"
+          onClick={() => router.back()}
           className="mb-4"
         >
+          <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Shipments
         </Button>
         <div className="flex items-center justify-between">
@@ -120,14 +116,15 @@ export default function ShipmentDetailsPage() {
             <h1 className="text-3xl font-bold text-gray-900">Shipment Details</h1>
             <p className="text-gray-600 mt-2">Tracking Number: {shipment.trackingNumber}</p>
           </div>
-          <Chip
-            color={SHIPMENT_STATUS_COLORS[shipment.status] as any}
-            variant="flat"
-            size="lg"
-            startContent={<span>{SHIPMENT_STATUS_ICONS[shipment.status]}</span>}
+          <Badge
+            variant={SHIPMENT_STATUS_COLORS[shipment.status] === "success" ? "default" : 
+                    SHIPMENT_STATUS_COLORS[shipment.status] === "warning" ? "secondary" : 
+                    SHIPMENT_STATUS_COLORS[shipment.status] === "danger" ? "destructive" : "outline"}
+            className="text-lg px-4 py-2"
           >
+            <span className="mr-2">{SHIPMENT_STATUS_ICONS[shipment.status]}</span>
             {shipment.status.replace('_', ' ')}
-          </Chip>
+          </Badge>
         </div>
       </div>
 
@@ -136,7 +133,7 @@ export default function ShipmentDetailsPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Tracking Timeline */}
           <Card>
-            <CardBody className="p-6">
+            <CardContent className="p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
                 <Clock className="w-5 h-5" />
                 Tracking Timeline
@@ -147,7 +144,7 @@ export default function ShipmentDetailsPage() {
                   <div key={event.id} className="flex gap-4">
                     <div className="flex flex-col items-center">
                       <div className={`w-3 h-3 rounded-full ${
-                        index === 0 ? 'bg-msc-yellow' : 'bg-gray-300'
+                        index === 0 ? 'bg-[#FFD700]' : 'bg-gray-300'
                       }`} />
                       {index < shipment.trackingEvents.length - 1 && (
                         <div className="w-px h-8 bg-gray-200 mt-2" />
@@ -171,12 +168,12 @@ export default function ShipmentDetailsPage() {
                   </div>
                 ))}
               </div>
-            </CardBody>
+            </CardContent>
           </Card>
 
           {/* Package Details */}
           <Card>
-            <CardBody className="p-6">
+            <CardContent className="p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
                 <Package className="w-5 h-5" />
                 Package Information
@@ -206,7 +203,7 @@ export default function ShipmentDetailsPage() {
                   <p className="text-gray-600">{shipment.description}</p>
                 </div>
               </div>
-            </CardBody>
+            </CardContent>
           </Card>
         </div>
 
@@ -214,7 +211,7 @@ export default function ShipmentDetailsPage() {
         <div className="space-y-6">
           {/* Sender Information */}
           <Card>
-            <CardBody className="p-6">
+            <CardContent className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <User className="w-5 h-5" />
                 Sender
@@ -231,7 +228,7 @@ export default function ShipmentDetailsPage() {
                     {shipment.senderPhone}
                   </p>
                 </div>
-                <Divider />
+                <Separator />
                 <div>
                   <p className="text-sm text-gray-600">
                     {shipment.senderAddress}<br />
@@ -240,12 +237,12 @@ export default function ShipmentDetailsPage() {
                   </p>
                 </div>
               </div>
-            </CardBody>
+            </CardContent>
           </Card>
 
           {/* Recipient Information */}
           <Card>
-            <CardBody className="p-6">
+            <CardContent className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <MapPin className="w-5 h-5" />
                 Recipient
@@ -262,7 +259,7 @@ export default function ShipmentDetailsPage() {
                     {shipment.recipientPhone}
                   </p>
                 </div>
-                <Divider />
+                <Separator />
                 <div>
                   <p className="text-sm text-gray-600">
                     {shipment.recipientAddress}<br />
@@ -271,12 +268,12 @@ export default function ShipmentDetailsPage() {
                   </p>
                 </div>
               </div>
-            </CardBody>
+            </CardContent>
           </Card>
 
           {/* Cost Breakdown */}
           <Card>
-            <CardBody className="p-6">
+            <CardContent className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Cost Breakdown</h3>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
@@ -289,18 +286,18 @@ export default function ShipmentDetailsPage() {
                     <span className="text-gray-900">${shipment.insuranceCost.toFixed(2)}</span>
                   </div>
                 )}
-                <Divider />
+                <Separator />
                 <div className="flex justify-between font-semibold">
                   <span className="text-gray-900">Total Cost</span>
                   <span className="text-gray-900">${shipment.totalCost.toFixed(2)}</span>
                 </div>
               </div>
-            </CardBody>
+            </CardContent>
           </Card>
 
           {/* Service Information */}
           <Card>
-            <CardBody className="p-6">
+            <CardContent className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Service Details</h3>
               <div className="space-y-3">
                 <div>
@@ -320,7 +317,7 @@ export default function ShipmentDetailsPage() {
                   </div>
                 )}
               </div>
-            </CardBody>
+            </CardContent>
           </Card>
         </div>
       </div>

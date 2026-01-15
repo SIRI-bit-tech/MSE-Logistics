@@ -1,6 +1,12 @@
 "use client"
 
-import { Button, Card, Input, Select, SelectItem, Switch, Divider } from "@nextui-org/react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Separator } from "@/components/ui/separator"
+import { Label } from "@/components/ui/label"
 import { motion } from "framer-motion"
 import { useState } from "react"
 
@@ -29,78 +35,85 @@ export default function AdminSettingsPage() {
           <Card className="p-6 md:p-8">
             <h2 className="text-lg font-bold mb-6 text-foreground">General Settings</h2>
             <div className="space-y-4">
-              <Input
-                label="Company Name"
-                value={settings.companyName}
-                onChange={(e) => setSettings({ ...settings, companyName: e.target.value })}
-              />
-              <Input
-                label="Support Email"
-                type="email"
-                value={settings.supportEmail}
-                onChange={(e) => setSettings({ ...settings, supportEmail: e.target.value })}
-              />
-              <Select
-                label="Default Currency"
-                selectedKeys={[settings.defaultCurrency]}
-                onChange={(e) => setSettings({ ...settings, defaultCurrency: e.target.value })}
-              >
-                <SelectItem key="USD" value="USD">
-                  USD
-                </SelectItem>
-                <SelectItem key="EUR" value="EUR">
-                  EUR
-                </SelectItem>
-                <SelectItem key="GBP" value="GBP">
-                  GBP
-                </SelectItem>
-              </Select>
+              <div className="space-y-2">
+                <Label htmlFor="companyName">Company Name</Label>
+                <Input
+                  id="companyName"
+                  value={settings.companyName}
+                  onChange={(e) => setSettings({ ...settings, companyName: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="supportEmail">Support Email</Label>
+                <Input
+                  id="supportEmail"
+                  type="email"
+                  value={settings.supportEmail}
+                  onChange={(e) => setSettings({ ...settings, supportEmail: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="currency">Default Currency</Label>
+                <Select
+                  value={settings.defaultCurrency}
+                  onValueChange={(value) => setSettings({ ...settings, defaultCurrency: value })}
+                >
+                  <SelectTrigger id="currency">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USD">USD</SelectItem>
+                    <SelectItem value="EUR">EUR</SelectItem>
+                    <SelectItem value="GBP">GBP</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </Card>
 
-          <Divider />
+          <Separator />
 
           <Card className="p-6 md:p-8">
             <h2 className="text-lg font-bold mb-6 text-foreground">Security & Features</h2>
             <div className="space-y-4">
-              <div className="flex justify-between items-center pb-4 border-b border-divider">
+              <div className="flex justify-between items-center pb-4 border-b">
                 <div>
                   <p className="font-semibold text-foreground">Maintenance Mode</p>
-                  <p className="text-sm text-foreground-600">Put platform in maintenance mode</p>
+                  <p className="text-sm text-muted-foreground">Put platform in maintenance mode</p>
                 </div>
                 <Switch
                   checked={settings.maintenanceMode}
-                  onChange={(e) => setSettings({ ...settings, maintenanceMode: e.target.checked })}
+                  onCheckedChange={(checked) => setSettings({ ...settings, maintenanceMode: checked })}
                 />
               </div>
 
-              <div className="flex justify-between items-center pb-4 border-b border-divider">
+              <div className="flex justify-between items-center pb-4 border-b">
                 <div>
                   <p className="font-semibold text-foreground">Enable Registration</p>
-                  <p className="text-sm text-foreground-600">Allow new users to sign up</p>
+                  <p className="text-sm text-muted-foreground">Allow new users to sign up</p>
                 </div>
                 <Switch
                   checked={settings.enableRegistration}
-                  onChange={(e) => setSettings({ ...settings, enableRegistration: e.target.checked })}
+                  onCheckedChange={(checked) => setSettings({ ...settings, enableRegistration: checked })}
                 />
               </div>
 
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-semibold text-foreground">Require Email Verification</p>
-                  <p className="text-sm text-foreground-600">New users must verify email</p>
+                  <p className="text-sm text-muted-foreground">New users must verify email</p>
                 </div>
                 <Switch
                   checked={settings.requireEmailVerification}
-                  onChange={(e) => setSettings({ ...settings, requireEmailVerification: e.target.checked })}
+                  onCheckedChange={(checked) => setSettings({ ...settings, requireEmailVerification: checked })}
                 />
               </div>
             </div>
           </Card>
 
           <div className="flex gap-4">
-            <Button variant="bordered">Reset to Defaults</Button>
-            <Button color="primary" className="bg-[#0066CC]">
+            <Button variant="outline">Reset to Defaults</Button>
+            <Button className="bg-[#0066CC] hover:bg-[#0052A3]">
               Save Settings
             </Button>
           </div>

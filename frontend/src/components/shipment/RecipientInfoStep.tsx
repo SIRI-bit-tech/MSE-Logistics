@@ -1,7 +1,9 @@
 "use client"
 
-import { Card, Input, Button } from "@nextui-org/react"
 import { ArrowRight, ArrowLeft, Mail, Phone, MapPin } from "lucide-react"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 interface RecipientInfoStepProps {
   formData: {
@@ -38,43 +40,37 @@ export default function RecipientInfoStep({ formData, onInputChange, onNext, onP
             id="recipientName"
             placeholder="Jane Smith"
             value={formData.recipientName}
-            onValueChange={(value) => onInputChange('recipientName', value)}
-            classNames={{
-              input: "text-gray-900",
-              inputWrapper: "bg-white border-gray-200"
-            }}
+            onChange={(e) => onInputChange('recipientName', e.target.value)}
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="recipientEmail" className="block text-sm font-medium text-gray-700 mb-2">EMAIL ADDRESS</label>
-            <Input
-              id="recipientEmail"
-              type="email"
-              placeholder="recipient@example.com"
-              value={formData.recipientEmail}
-              onValueChange={(value) => onInputChange('recipientEmail', value)}
-              startContent={<Mail className="w-4 h-4 text-gray-400" />}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
-            />
+            <div className="relative">
+              <Input
+                id="recipientEmail"
+                type="email"
+                placeholder="recipient@example.com"
+                value={formData.recipientEmail}
+                onChange={(e) => onInputChange('recipientEmail', e.target.value)}
+                className="pl-10"
+              />
+              <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            </div>
           </div>
           <div>
             <label htmlFor="recipientPhone" className="block text-sm font-medium text-gray-700 mb-2">PHONE NUMBER</label>
-            <Input
-              id="recipientPhone"
-              placeholder="+44 20 1234 5678"
-              value={formData.recipientPhone}
-              onValueChange={(value) => onInputChange('recipientPhone', value)}
-              startContent={<Phone className="w-4 h-4 text-gray-400" />}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
-            />
+            <div className="relative">
+              <Input
+                id="recipientPhone"
+                placeholder="+44 20 1234 5678"
+                value={formData.recipientPhone}
+                onChange={(e) => onInputChange('recipientPhone', e.target.value)}
+                className="pl-10"
+              />
+              <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            </div>
           </div>
         </div>
 
@@ -84,11 +80,7 @@ export default function RecipientInfoStep({ formData, onInputChange, onNext, onP
             id="recipientAddress"
             placeholder="456 High Street, Suite 200"
             value={formData.recipientAddress}
-            onValueChange={(value) => onInputChange('recipientAddress', value)}
-            classNames={{
-              input: "text-gray-900",
-              inputWrapper: "bg-white border-gray-200"
-            }}
+            onChange={(e) => onInputChange('recipientAddress', e.target.value)}
           />
         </div>
 
@@ -99,11 +91,7 @@ export default function RecipientInfoStep({ formData, onInputChange, onNext, onP
               id="recipientCity"
               placeholder="London"
               value={formData.recipientCity}
-              onValueChange={(value) => onInputChange('recipientCity', value)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
+              onChange={(e) => onInputChange('recipientCity', e.target.value)}
             />
           </div>
           <div>
@@ -112,11 +100,7 @@ export default function RecipientInfoStep({ formData, onInputChange, onNext, onP
               id="recipientCountry"
               placeholder="United Kingdom"
               value={formData.recipientCountry}
-              onValueChange={(value) => onInputChange('recipientCountry', value)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
+              onChange={(e) => onInputChange('recipientCountry', e.target.value)}
             />
           </div>
           <div>
@@ -125,11 +109,7 @@ export default function RecipientInfoStep({ formData, onInputChange, onNext, onP
               id="recipientPostalCode"
               placeholder="SW1A 1AA"
               value={formData.recipientPostalCode}
-              onValueChange={(value) => onInputChange('recipientPostalCode', value)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
+              onChange={(e) => onInputChange('recipientPostalCode', e.target.value)}
             />
           </div>
         </div>
@@ -137,20 +117,20 @@ export default function RecipientInfoStep({ formData, onInputChange, onNext, onP
         <div className="pt-6 flex justify-between">
           <Button
             size="lg"
-            variant="bordered"
+            variant="outline"
             className="px-8"
-            startContent={<ArrowLeft className="w-5 h-5" />}
-            onPress={onPrevious}
+            onClick={onPrevious}
           >
+            <ArrowLeft className="w-5 h-5 mr-2" />
             Previous
           </Button>
           <Button
             size="lg"
             className="bg-black text-white hover:bg-gray-800 px-8"
-            endContent={<ArrowRight className="w-5 h-5" />}
-            onPress={onNext}
+            onClick={onNext}
           >
             Next: Package Details
+            <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </div>
       </div>

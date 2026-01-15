@@ -1,22 +1,22 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
 import {
-  Navbar as NextUINavbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  Button,
-  Dropdown,
-  DropdownTrigger,
   DropdownMenu,
-  DropdownItem,
-  Link,
-  NavbarMenuToggle,
-  NavbarMenu,
-  NavbarMenuItem,
-} from "@nextui-org/react"
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { useAuth } from "@/hooks/use-auth"
 import { useState } from "react"
+import Link from "next/link"
+import { Menu } from "lucide-react"
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth()
@@ -71,110 +71,128 @@ export default function Navbar() {
   const menuItems = isAuthenticated ? getAuthenticatedMenuItems() : publicMenuItems
 
   return (
-    <NextUINavbar
-      className="bg-white shadow-sm border-b"
-      classNames={{ wrapper: "px-4 md:px-6" }}
-      isMenuOpen={isMenuOpen}
-      onMenuOpenChange={setIsMenuOpen}
-    >
-      <NavbarContent>
-        <NavbarMenuToggle aria-label="toggle navigation" className="md:hidden" />
-        <NavbarBrand>
-          <Link href={isAuthenticated ? (user?.role === "DRIVER" ? "/dashboard" : "/shipments") : "/"} className="font-bold text-gray-800 text-lg md:text-xl flex items-center gap-2">
-            <span className="bg-msc-yellow text-black rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
-              M
-            </span>
-            <span className="hidden sm:inline font-bold">MSE</span>
-          </Link>
-        </NavbarBrand>
-      </NavbarContent>
+    <nav className="bg-white shadow-sm border-b">
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex items-center gap-4">
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left">
+                <div className="flex flex-col gap-4 mt-8">
+                  {menuItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="text-gray-700 hover:text-[#D4AF37] font-medium text-lg"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                  {isAuthenticated && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <Button variant="destructive" onClick={logout} className="w-full justify-start">
+                        Sign Out
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
 
-      <NavbarContent className="hidden md:flex gap-4" justify="center">
-        {menuItems.map((item) => (
-          <NavbarItem key={item.href}>
-            <Link color="foreground" href={item.href} className="text-gray-700 hover:text-msc-yellow font-medium">
-              {item.label}
+            <Link
+              href={isAuthenticated ? (user?.role === "DRIVER" ? "/dashboard" : "/shipments") : "/"}
+              className="font-bold text-gray-800 text-lg md:text-xl flex items-center gap-2"
+            >
+              <span className="bg-[#FFD700] text-black rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
+                M
+              </span>
+              <span className="hidden sm:inline font-bold">MSE</span>
             </Link>
-          </NavbarItem>
-        ))}
-      </NavbarContent>
-
-      <NavbarContent justify="end" className="gap-2 md:gap-3">
-        {isAuthenticated && user ? (
-          <Dropdown>
-            <DropdownTrigger>
-              <Button variant="flat" className="bg-[#FFD700] text-[#003873] font-semibold text-xs md:text-sm">
-                <span className="hidden sm:inline">
-                  {user.firstName} {user.lastName}
-                </span>
-                <span className="sm:hidden">{user.firstName}</span>
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu aria-label="User menu actions">
-              <DropdownItem key="profile" href={user.role === "DRIVER" ? "/driver-profile" : "/profile"}>
-                My Profile
-              </DropdownItem>
-              <DropdownItem key="dashboard" href={user.role === "DRIVER" ? "/dashboard" : "/shipments"}>
-                {user.role === "DRIVER" ? "Dashboard" : "My Shipments"}
-              </DropdownItem>
-              {user.role === "CUSTOMER" ? (
-                <DropdownItem key="new-shipment" href="/shipments/new">
-                  New Shipment
-                </DropdownItem>
-              ) : null}
-              {(user.role === "ADMIN" || user.role === "SUPER_ADMIN") ? (
-                <DropdownItem key="admin" href="/admin/dashboard">
-                  Admin Panel
-                </DropdownItem>
-              ) : null}
-              <DropdownItem key="settings" href="/settings">
-                Settings
-              </DropdownItem>
-              <DropdownItem key="logout" color="danger" onPress={logout}>
-                Sign Out
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        ) : (
-          <div className="flex gap-2">
-            <Button
-              as={Link}
-              color="default"
-              href="/auth/login"
-              variant="flat"
-              className="bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs md:text-sm"
-            >
-              Sign In
-            </Button>
-            <Button
-              as={Link}
-              color="primary"
-              href="/auth/signup"
-              variant="flat"
-              className="bg-msc-yellow hover:bg-msc-gold text-black text-xs md:text-sm font-semibold"
-            >
-              Get Started
-            </Button>
           </div>
-        )}
-      </NavbarContent>
 
-      <NavbarMenu>
-        {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item.href}-${index}`}>
-            <Link color="foreground" href={item.href} className="w-full text-gray-700" size="lg">
-              {item.label}
-            </Link>
-          </NavbarMenuItem>
-        ))}
-        {isAuthenticated && (
-          <NavbarMenuItem key="logout">
-            <Button color="danger" variant="flat" onPress={logout} className="w-full justify-start">
-              Sign Out
-            </Button>
-          </NavbarMenuItem>
-        )}
-      </NavbarMenu>
-    </NextUINavbar>
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-4">
+            {menuItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-gray-700 hover:text-[#D4AF37] font-medium"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Auth Buttons */}
+          <div className="flex items-center gap-2 md:gap-3">
+            {isAuthenticated && user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="bg-[#FFD700] text-[#003873] font-semibold text-xs md:text-sm border-[#FFD700] hover:bg-[#FFD700]/90 hover:text-[#003873]">
+                    <span className="hidden sm:inline">
+                      {user.firstName} {user.lastName}
+                    </span>
+                    <span className="sm:hidden">{user.firstName}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link href={user.role === "DRIVER" ? "/driver-profile" : "/profile"}>
+                      My Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href={user.role === "DRIVER" ? "/dashboard" : "/shipments"}>
+                      {user.role === "DRIVER" ? "Dashboard" : "My Shipments"}
+                    </Link>
+                  </DropdownMenuItem>
+                  {user.role === "CUSTOMER" && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/shipments/new">New Shipment</Link>
+                    </DropdownMenuItem>
+                  )}
+                  {(user.role === "ADMIN" || user.role === "SUPER_ADMIN") && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/dashboard">Admin Panel</Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings">Settings</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="text-red-600">
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex gap-2">
+                <Button
+                  asChild
+                  variant="ghost"
+                  className="bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs md:text-sm"
+                >
+                  <Link href="/auth/login">Sign In</Link>
+                </Button>
+                <Button
+                  asChild
+                  className="bg-[#FFD700] hover:bg-[#D4AF37] text-black text-xs md:text-sm font-semibold"
+                >
+                  <Link href="/auth/signup">Get Started</Link>
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </nav>
   )
 }

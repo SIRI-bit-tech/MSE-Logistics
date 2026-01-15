@@ -1,6 +1,8 @@
 "use client"
 
-import { Card, CardBody, CardHeader, Divider, Chip } from "@nextui-org/react"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 import type { Shipment } from "../../../global"
 
 interface ShipmentDetailsProps {
@@ -12,16 +14,16 @@ export default function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
     <div className="space-y-4">
       {/* Package Information */}
       <Card className="shadow-lg">
-        <CardHeader className="flex flex-col items-start px-4 py-3 bg-gray-50">
+        <CardHeader className="px-4 py-3 bg-gray-50">
           <h4 className="text-lg font-bold text-[#003873]">Package Information</h4>
         </CardHeader>
-        <Divider />
-        <CardBody className="gap-3 p-4">
+        <Separator />
+        <CardContent className="p-4 space-y-3">
           <div>
             <p className="text-sm text-gray-600">Package Type</p>
-            <Chip variant="flat" size="sm" className="mt-1">
+            <Badge variant="secondary" className="mt-1">
               {shipment.packageType}
-            </Chip>
+            </Badge>
           </div>
 
           <div>
@@ -49,26 +51,24 @@ export default function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
               <p className="text-sm">{shipment.description}</p>
             </div>
           )}
-        </CardBody>
+        </CardContent>
       </Card>
 
       {/* Service Details */}
       <Card className="shadow-lg">
-        <CardHeader className="flex flex-col items-start px-4 py-3 bg-gray-50">
+        <CardHeader className="px-4 py-3 bg-gray-50">
           <h4 className="text-lg font-bold text-[#003873]">Service Details</h4>
         </CardHeader>
-        <Divider />
-        <CardBody className="gap-3 p-4">
+        <Separator />
+        <CardContent className="p-4 space-y-3">
           <div>
             <p className="text-sm text-gray-600">Service Type</p>
-            <Chip 
-              variant="flat" 
-              size="sm" 
-              color={shipment.serviceType === "EXPRESS" ? "warning" : "default"}
-              className="mt-1"
+            <Badge 
+              variant={shipment.serviceType === "EXPRESS" ? "default" : "secondary"}
+              className={shipment.serviceType === "EXPRESS" ? "bg-yellow-100 text-yellow-800 mt-1" : "mt-1"}
             >
               {shipment.serviceType}
-            </Chip>
+            </Badge>
           </div>
 
           <div>
@@ -103,51 +103,51 @@ export default function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
               </p>
             </div>
           )}
-        </CardBody>
+        </CardContent>
       </Card>
 
       {/* Cost Breakdown */}
       <Card className="shadow-lg">
-        <CardHeader className="flex flex-col items-start px-4 py-3 bg-gray-50">
+        <CardHeader className="px-4 py-3 bg-gray-50">
           <h4 className="text-lg font-bold text-[#003873]">Cost Breakdown</h4>
         </CardHeader>
-        <Divider />
-        <CardBody className="gap-3 p-4">
+        <Separator />
+        <CardContent className="p-4 space-y-3">
           <div className="flex justify-between">
             <p className="text-gray-600">Shipping Cost</p>
-            <p className="font-semibold">{shipment.currency || '$'}{shipment.shippingCost.toFixed(2)}</p>
+            <p className="font-semibold">{shipment.currency || 'USD'} {shipment.shippingCost.toFixed(2)}</p>
           </div>
 
           {shipment.insuranceCost && shipment.insuranceCost > 0 && (
             <div className="flex justify-between">
               <p className="text-gray-600">Insurance</p>
-              <p className="font-semibold">{shipment.currency || '$'}{shipment.insuranceCost.toFixed(2)}</p>
+              <p className="font-semibold">{shipment.currency || 'USD'} {shipment.insuranceCost.toFixed(2)}</p>
             </div>
           )}
 
-          <Divider />
+          <Separator />
 
           <div className="flex justify-between">
             <p className="font-bold text-[#003873]">Total Cost</p>
-            <p className="font-bold text-lg text-[#D4AF37]">{shipment.currency || '$'}{shipment.totalCost.toFixed(2)}</p>
+            <p className="font-bold text-lg text-[#D4AF37]">{shipment.currency || 'USD'} {shipment.totalCost.toFixed(2)}</p>
           </div>
-        </CardBody>
+        </CardContent>
       </Card>
 
       {/* Sender Information */}
       <Card className="shadow-lg">
-        <CardHeader className="flex flex-col items-start px-4 py-3 bg-gray-50">
+        <CardHeader className="px-4 py-3 bg-gray-50">
           <h4 className="text-lg font-bold text-[#003873]">Sender Information</h4>
         </CardHeader>
-        <Divider />
-        <CardBody className="gap-2 p-4 text-sm">
+        <Separator />
+        <CardContent className="p-4 text-sm space-y-2">
           <p className="font-semibold text-[#003873]">{shipment.senderName}</p>
           <p className="text-gray-600">{shipment.senderAddress}</p>
           <p className="text-gray-600">
             {shipment.senderCity}, {shipment.senderPostalCode}
           </p>
           <p className="text-gray-600">{shipment.senderCountry}</p>
-          <Divider className="my-2" />
+          <Separator className="my-2" />
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -160,23 +160,23 @@ export default function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
             </svg>
             <p className="text-gray-600">{shipment.senderPhone}</p>
           </div>
-        </CardBody>
+        </CardContent>
       </Card>
 
       {/* Recipient Information */}
       <Card className="shadow-lg">
-        <CardHeader className="flex flex-col items-start px-4 py-3 bg-gray-50">
+        <CardHeader className="px-4 py-3 bg-gray-50">
           <h4 className="text-lg font-bold text-[#003873]">Recipient Information</h4>
         </CardHeader>
-        <Divider />
-        <CardBody className="gap-2 p-4 text-sm">
+        <Separator />
+        <CardContent className="p-4 text-sm space-y-2">
           <p className="font-semibold text-[#003873]">{shipment.recipientName}</p>
           <p className="text-gray-600">{shipment.recipientAddress}</p>
           <p className="text-gray-600">
             {shipment.recipientCity}, {shipment.recipientPostalCode}
           </p>
           <p className="text-gray-600">{shipment.recipientCountry}</p>
-          <Divider className="my-2" />
+          <Separator className="my-2" />
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -189,17 +189,17 @@ export default function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
             </svg>
             <p className="text-gray-600">{shipment.recipientPhone}</p>
           </div>
-        </CardBody>
+        </CardContent>
       </Card>
 
       {/* Current Location (if available) */}
       {shipment.currentLocation && (
         <Card className="shadow-lg border-2 border-[#D4AF37]">
-          <CardHeader className="flex flex-col items-start px-4 py-3 bg-yellow-50">
+          <CardHeader className="px-4 py-3 bg-yellow-50">
             <h4 className="text-lg font-bold text-[#003873]">Current Location</h4>
           </CardHeader>
-          <Divider />
-          <CardBody className="gap-2 p-4">
+          <Separator />
+          <CardContent className="p-4 space-y-2">
             <p className="font-semibold text-[#D4AF37]">{shipment.currentLocation}</p>
             {shipment.lastLocationUpdate && (
               <p className="text-xs text-gray-500">
@@ -212,7 +212,7 @@ export default function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
                 })}
               </p>
             )}
-          </CardBody>
+          </CardContent>
         </Card>
       )}
     </div>

@@ -1,6 +1,8 @@
 "use client"
 
-import { Card, CardBody, CardHeader, Button, Link, Spinner } from "@nextui-org/react"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import { AlertCircle, FileText, Wrench } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -32,7 +34,7 @@ const getColor = (type: string) => {
     case "alert":
       return "text-red-500"
     case "document":
-      return "text-msc-yellow"
+      return "text-[#FFD700]"
     case "maintenance":
       return "text-blue-500"
     default:
@@ -90,26 +92,26 @@ export default function NotificationCard() {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="bg-white">
         <CardHeader>
-          <h3 className="text-lg font-semibold">Notifications</h3>
+          <h3 className="text-xl font-bold text-gray-900">Notifications</h3>
         </CardHeader>
-        <CardBody className="flex items-center justify-center py-8">
-          <Spinner size="lg" />
-        </CardBody>
+        <CardContent className="flex items-center justify-center py-8">
+          <div className="text-gray-500">Loading...</div>
+        </CardContent>
       </Card>
     )
   }
 
   return (
-    <Card>
-      <CardHeader className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Notifications</h3>
-        <Link href="/notifications" className="text-sm text-msc-yellow hover:underline">
+    <Card className="bg-white">
+      <CardHeader className="flex flex-row justify-between items-center">
+        <h3 className="text-xl font-bold text-gray-900">Notifications</h3>
+        <Link href="/notifications" className="text-sm text-[#FFD700] hover:text-[#D4AF37] hover:underline">
           Mark all read
         </Link>
       </CardHeader>
-      <CardBody className="space-y-4">
+      <CardContent className="space-y-4">
         {notifications.length === 0 ? (
           <div className="text-center py-4 text-gray-500">
             <p>No new notifications</p>
@@ -129,12 +131,13 @@ export default function NotificationCard() {
                     <span className="text-gray-500 text-xs">{notification.time}</span>
                     {notification.actionText && notification.actionHref && (
                       <Button 
-                        as={Link}
-                        href={notification.actionHref}
+                        asChild
                         size="sm" 
-                        className="bg-msc-yellow text-black text-xs"
+                        className="bg-[#FFD700] text-black hover:bg-[#D4AF37] text-xs h-7"
                       >
-                        {notification.actionText}
+                        <Link href={notification.actionHref}>
+                          {notification.actionText}
+                        </Link>
                       </Button>
                     )}
                   </div>
@@ -143,7 +146,7 @@ export default function NotificationCard() {
             )
           })
         )}
-      </CardBody>
+      </CardContent>
     </Card>
   )
 }

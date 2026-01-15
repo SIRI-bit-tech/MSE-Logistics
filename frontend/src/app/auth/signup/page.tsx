@@ -2,14 +2,23 @@
 
 import type React from "react"
 import { useState } from "react"
-import { Input, Button, Checkbox, Select, SelectItem } from "@nextui-org/react"
 import { useRouter } from "next/navigation"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 import Link from "next/link"
 import { User, Mail, Phone, Globe, Lock, Eye, EyeOff } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import countryList from "react-select-country-list"
 import ReactCountryFlag from "react-country-flag"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export default function SignupPage() {
   const router = useRouter()
@@ -62,7 +71,7 @@ export default function SignupPage() {
       
       if (result.success) {
         toast.success("Account created successfully!")
-        router.push("/shipments") // Customer main page
+        router.push("/shipments")
       } else {
         toast.error(result.error || "Registration failed. Please try again.")
       }
@@ -138,37 +147,31 @@ export default function SignupPage() {
                 <label className="block text-base font-semibold text-gray-800 mb-3">
                   First Name
                 </label>
-                <Input
-                  placeholder="John"
-                  value={formData.firstName}
-                  onChange={(e) => handleChange("firstName", e.target.value)}
-                  startContent={<User className="w-4 h-4 text-gray-400" />}
-                  size="lg"
-                  classNames={{
-                    input: "text-gray-900 text-base",
-                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white shadow-none",
-                    base: "shadow-none"
-                  }}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    placeholder="John"
+                    value={formData.firstName}
+                    onChange={(e) => handleChange("firstName", e.target.value)}
+                    className="h-12 pl-10"
+                    required
+                  />
+                  <User className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                </div>
               </div>
               <div>
                 <label className="block text-base font-semibold text-gray-800 mb-3">
                   Last Name
                 </label>
-                <Input
-                  placeholder="Doe"
-                  value={formData.lastName}
-                  onChange={(e) => handleChange("lastName", e.target.value)}
-                  startContent={<User className="w-4 h-4 text-gray-400" />}
-                  size="lg"
-                  classNames={{
-                    input: "text-gray-900 text-base",
-                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white shadow-none",
-                    base: "shadow-none"
-                  }}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    placeholder="Doe"
+                    value={formData.lastName}
+                    onChange={(e) => handleChange("lastName", e.target.value)}
+                    className="h-12 pl-10"
+                    required
+                  />
+                  <User className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                </div>
               </div>
             </div>
 
@@ -178,38 +181,32 @@ export default function SignupPage() {
                 <label className="block text-base font-semibold text-gray-800 mb-3">
                   Business Email
                 </label>
-                <Input
-                  type="email"
-                  placeholder="john@example.com"
-                  value={formData.businessEmail}
-                  onChange={(e) => handleChange("businessEmail", e.target.value)}
-                  startContent={<Mail className="w-4 h-4 text-gray-400" />}
-                  size="lg"
-                  classNames={{
-                    input: "text-gray-900 text-base",
-                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white shadow-none",
-                    base: "shadow-none"
-                  }}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    type="email"
+                    placeholder="john@example.com"
+                    value={formData.businessEmail}
+                    onChange={(e) => handleChange("businessEmail", e.target.value)}
+                    className="h-12 pl-10"
+                    required
+                  />
+                  <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                </div>
               </div>
               <div>
                 <label className="block text-base font-semibold text-gray-800 mb-3">
                   Phone Number
                 </label>
-                <Input
-                  type="tel"
-                  placeholder="+1 234 567 8900"
-                  value={formData.phoneNumber}
-                  onChange={(e) => handleChange("phoneNumber", e.target.value)}
-                  startContent={<Phone className="w-4 h-4 text-gray-400" />}
-                  size="lg"
-                  classNames={{
-                    input: "text-gray-900 text-base",
-                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white shadow-none",
-                    base: "shadow-none"
-                  }}
-                />
+                <div className="relative">
+                  <Input
+                    type="tel"
+                    placeholder="+1 234 567 8900"
+                    value={formData.phoneNumber}
+                    onChange={(e) => handleChange("phoneNumber", e.target.value)}
+                    className="h-12 pl-10"
+                  />
+                  <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                </div>
               </div>
             </div>
 
@@ -218,60 +215,34 @@ export default function SignupPage() {
               <label className="block text-base font-semibold text-gray-800 mb-3">
                 Country/Region
               </label>
-              <Select
-                placeholder="Select Country"
-                selectedKeys={formData.country ? [formData.country] : []}
-                onSelectionChange={(keys) => {
-                  const selectedKey = Array.from(keys)[0] as string
-                  handleChange("country", selectedKey)
-                }}
-                startContent={<Globe className="w-4 h-4 text-gray-400" />}
-                size="lg"
-                classNames={{
-                  trigger: "h-12 border-2 border-gray-200 hover:border-gray-300 data-[focus=true]:border-msc-yellow bg-white shadow-none",
-                  value: "text-gray-900 text-base",
-                  popoverContent: "bg-white shadow-lg",
-                  base: "shadow-none"
-                }}
-                renderValue={(items) => {
-                  return items.map((item) => {
-                    const country = countries.getData().find(c => c.value === item.key)
-                    return (
-                      <div key={item.key} className="flex items-center gap-2">
-                        <ReactCountryFlag 
-                          countryCode={item.key as string} 
-                          svg 
-                          style={{
-                            width: '1.2em',
-                            height: '1.2em',
-                          }}
-                        />
-                        <span>{country?.label}</span>
-                      </div>
-                    )
-                  })
-                }}
-              >
-                {countries.getData().map((country) => (
-                  <SelectItem 
-                    key={country.value} 
-                    value={country.value}
-                    className="text-gray-900"
-                    startContent={
-                      <ReactCountryFlag 
-                        countryCode={country.value} 
-                        svg 
-                        style={{
-                          width: '1.2em',
-                          height: '1.2em',
-                        }}
-                      />
-                    }
-                  >
-                    {country.label}
-                  </SelectItem>
-                ))}
-              </Select>
+              <div className="relative">
+                <Select
+                  value={formData.country}
+                  onValueChange={(value) => handleChange("country", value)}
+                >
+                  <SelectTrigger className="h-12 pl-10">
+                    <SelectValue placeholder="Select Country" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[300px]">
+                    {countries.getData().map((country) => (
+                      <SelectItem key={country.value} value={country.value}>
+                        <div className="flex items-center gap-2">
+                          <ReactCountryFlag 
+                            countryCode={country.value} 
+                            svg 
+                            style={{
+                              width: '1.2em',
+                              height: '1.2em',
+                            }}
+                          />
+                          <span>{country.label}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Globe className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
             {/* Password and Confirm Password */}
@@ -280,71 +251,58 @@ export default function SignupPage() {
                 <label className="block text-base font-semibold text-gray-800 mb-3">
                   Password
                 </label>
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) => handleChange("password", e.target.value)}
-                  startContent={<Lock className="w-4 h-4 text-gray-400" />}
-                  endContent={
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="text-gray-400 hover:text-gray-600 p-1"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  }
-                  size="lg"
-                  classNames={{
-                    input: "text-gray-900 text-base",
-                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white shadow-none",
-                    base: "shadow-none"
-                  }}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={(e) => handleChange("password", e.target.value)}
+                    className="h-12 pl-10 pr-10"
+                    required
+                  />
+                  <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-gray-400 hover:text-gray-600 absolute right-3 top-1/2 -translate-y-1/2"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
               <div>
                 <label className="block text-base font-semibold text-gray-800 mb-3">
                   Confirm Password
                 </label>
-                <Input
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={(e) => handleChange("confirmPassword", e.target.value)}
-                  startContent={<Lock className="w-4 h-4 text-gray-400" />}
-                  endContent={
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="text-gray-400 hover:text-gray-600 p-1"
-                    >
-                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  }
-                  size="lg"
-                  classNames={{
-                    input: "text-gray-900 text-base",
-                    inputWrapper: "h-12 border-2 border-gray-200 hover:border-gray-300 focus-within:border-msc-yellow bg-white shadow-none",
-                    base: "shadow-none"
-                  }}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={formData.confirmPassword}
+                    onChange={(e) => handleChange("confirmPassword", e.target.value)}
+                    className="h-12 pl-10 pr-10"
+                    required
+                  />
+                  <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="text-gray-400 hover:text-gray-600 absolute right-3 top-1/2 -translate-y-1/2"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Terms Agreement */}
             <div className="flex items-start gap-3 py-2">
               <Checkbox
-                isSelected={formData.agreeTerms}
-                onValueChange={(checked) => handleChange("agreeTerms", checked)}
-                size="md"
-                classNames={{
-                  wrapper: "before:border-gray-400"
-                }}
+                id="agreeTerms"
+                checked={formData.agreeTerms}
+                onCheckedChange={(checked) => handleChange("agreeTerms", checked as boolean)}
               />
-              <span className="text-base text-gray-700 leading-relaxed">
+              <label htmlFor="agreeTerms" className="text-base text-gray-700 leading-relaxed cursor-pointer">
                 I agree to the{" "}
                 <Link href="/terms" className="text-msc-yellow hover:text-msc-gold transition-colors font-medium">
                   Terms of Service
@@ -354,16 +312,15 @@ export default function SignupPage() {
                   Privacy Policy
                 </Link>
                 .
-              </span>
+              </label>
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-msc-yellow hover:bg-msc-gold text-black font-bold text-lg h-14 rounded-lg"
+              className="w-full bg-msc-yellow hover:bg-msc-gold text-black font-bold text-lg h-14"
               disabled={loading}
-              isLoading={loading}
             >
-              Create Account →
+              {loading ? "Creating Account..." : "Create Account →"}
             </Button>
 
             <div className="text-center pt-6">

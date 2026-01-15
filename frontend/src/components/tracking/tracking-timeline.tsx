@@ -1,6 +1,7 @@
 "use client"
 
-import { Card, CardBody, Chip } from "@nextui-org/react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import type { TrackingEvent, ShipmentStatus } from "../../../global"
 
 interface TrackingTimelineProps {
@@ -105,7 +106,7 @@ export default function TrackingTimeline({ events, status }: TrackingTimelinePro
 
   return (
     <Card className="shadow-lg">
-      <CardBody className="p-6">
+      <CardContent className="p-6">
         <h3 className="text-2xl font-bold text-[#003873] mb-6">Shipment Updates</h3>
 
         <div className="space-y-4">
@@ -140,9 +141,9 @@ export default function TrackingTimeline({ events, status }: TrackingTimelinePro
                           {formatStatus(item.status)}
                         </p>
                         {item.isCurrent && (
-                          <Chip size="sm" color="warning" variant="flat">
+                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
                             Current
-                          </Chip>
+                          </Badge>
                         )}
                       </div>
                       
@@ -174,13 +175,13 @@ export default function TrackingTimeline({ events, status }: TrackingTimelinePro
                     
                     {event && (
                       <div className="text-right">
-                        <Chip variant="flat" size="sm" className="mb-1">
+                        <Badge variant="outline" className="mb-1">
                           {new Date(event.createdAt).toLocaleDateString('en-US', {
                             month: 'short',
                             day: 'numeric',
                             year: 'numeric'
                           })}
-                        </Chip>
+                        </Badge>
                         <p className="text-xs text-gray-500">
                           {new Date(event.createdAt).toLocaleTimeString('en-US', {
                             hour: '2-digit',
@@ -206,7 +207,7 @@ export default function TrackingTimeline({ events, status }: TrackingTimelinePro
             </p>
           </div>
         )}
-      </CardBody>
+      </CardContent>
     </Card>
   )
 }

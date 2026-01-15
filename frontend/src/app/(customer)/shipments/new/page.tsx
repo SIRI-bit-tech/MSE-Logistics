@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card } from "@nextui-org/react"
+import { Card } from "@/components/ui/card"
 import { Globe } from "lucide-react"
 import Sidebar from "@/components/dashboard/sidebar"
 import SenderInfoStep from "@/components/shipment/SenderInfoStep"
@@ -150,12 +150,12 @@ export default function CreateShipmentPage() {
               <div className="flex items-center flex-1">
                 <div className="flex flex-col items-center">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
-                    currentStep === 1 ? 'bg-msc-yellow text-black' : currentStep > 1 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                    currentStep === 1 ? 'bg-[#FFD700] text-black' : currentStep > 1 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
                   }`}>
                     {currentStep > 1 ? '✓' : '1'}
                   </div>
                   <div className="mt-2 text-center">
-                    <div className={`text-xs font-medium ${currentStep === 1 ? 'text-msc-yellow' : 'text-gray-500'}`}>
+                    <div className={`text-xs font-medium ${currentStep === 1 ? 'text-[#FFD700]' : 'text-gray-500'}`}>
                       {currentStep === 1 ? 'CURRENT STEP' : 'STEP 1'}
                     </div>
                     <div className="text-sm font-semibold text-gray-900">Sender Info</div>
@@ -168,12 +168,12 @@ export default function CreateShipmentPage() {
               <div className="flex items-center flex-1">
                 <div className="flex flex-col items-center">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
-                    currentStep === 2 ? 'bg-msc-yellow text-black' : currentStep > 2 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                    currentStep === 2 ? 'bg-[#FFD700] text-black' : currentStep > 2 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
                   }`}>
                     {currentStep > 2 ? '✓' : '2'}
                   </div>
                   <div className="mt-2 text-center">
-                    <div className={`text-xs font-medium ${currentStep === 2 ? 'text-msc-yellow' : 'text-gray-500'}`}>
+                    <div className={`text-xs font-medium ${currentStep === 2 ? 'text-[#FFD700]' : 'text-gray-500'}`}>
                       {currentStep === 2 ? 'CURRENT STEP' : 'STEP 2'}
                     </div>
                     <div className="text-sm font-semibold text-gray-900">Recipient Info</div>
@@ -186,12 +186,12 @@ export default function CreateShipmentPage() {
               <div className="flex items-center flex-1">
                 <div className="flex flex-col items-center">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
-                    currentStep === 3 ? 'bg-msc-yellow text-black' : currentStep > 3 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                    currentStep === 3 ? 'bg-[#FFD700] text-black' : currentStep > 3 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
                   }`}>
                     {currentStep > 3 ? '✓' : '3'}
                   </div>
                   <div className="mt-2 text-center">
-                    <div className={`text-xs font-medium ${currentStep === 3 ? 'text-msc-yellow' : 'text-gray-500'}`}>
+                    <div className={`text-xs font-medium ${currentStep === 3 ? 'text-[#FFD700]' : 'text-gray-500'}`}>
                       {currentStep === 3 ? 'CURRENT STEP' : 'STEP 3'}
                     </div>
                     <div className="text-sm font-semibold text-gray-900">Package Details</div>
@@ -204,12 +204,12 @@ export default function CreateShipmentPage() {
               <div className="flex items-center">
                 <div className="flex flex-col items-center">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
-                    currentStep === 4 ? 'bg-msc-yellow text-black' : 'bg-gray-200 text-gray-600'
+                    currentStep === 4 ? 'bg-[#FFD700] text-black' : 'bg-gray-200 text-gray-600'
                   }`}>
                     4
                   </div>
                   <div className="mt-2 text-center">
-                    <div className={`text-xs font-medium ${currentStep === 4 ? 'text-msc-yellow' : 'text-gray-500'}`}>
+                    <div className={`text-xs font-medium ${currentStep === 4 ? 'text-[#FFD700]' : 'text-gray-500'}`}>
                       {currentStep === 4 ? 'CURRENT STEP' : 'STEP 4'}
                     </div>
                     <div className="text-sm font-semibold text-gray-900">Service & Review</div>
@@ -261,7 +261,7 @@ export default function CreateShipmentPage() {
               {/* Shipment Summary Card */}
               <Card className="p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-6 h-6 bg-msc-yellow rounded flex items-center justify-center">
+                  <div className="w-6 h-6 bg-[#FFD700] rounded flex items-center justify-center">
                     <span className="text-xs font-bold text-black">📦</span>
                   </div>
                   <h3 className="font-semibold text-gray-900">SHIPMENT SUMMARY</h3>
@@ -290,14 +290,14 @@ export default function CreateShipmentPage() {
                   </div>
 
                   <div className="border-t pt-3 mt-3">
-                    <div className="text-xs text-gray-500 mb-1">TOTAL QUOTE</div>
+                    <div className="text-xs text-muted-foreground mb-1">TOTAL QUOTE</div>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-msc-yellow">$0.00</span>
-                      <span className="text-sm text-gray-500">USD</span>
+                      <span className="text-3xl font-bold text-[#FFD700]">$0.00</span>
+                      <span className="text-sm text-muted-foreground">USD</span>
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-500 italic pt-2">
+                  <p className="text-xs text-muted-foreground italic pt-2">
                     Quotes are finalized in Step 4 after service selection and dimensions verification.
                   </p>
                 </div>
@@ -310,7 +310,7 @@ export default function CreateShipmentPage() {
                     <div className="text-xs text-gray-400 mb-1">SERVICE COVERAGE</div>
                     <h3 className="text-lg font-semibold">Global Sea-Port Network</h3>
                   </div>
-                  <Globe className="w-8 h-8 text-msc-yellow" />
+                  <Globe className="w-8 h-8 text-[#FFD700]" />
                 </div>
                 <p className="text-sm text-gray-300">
                   Access to 500+ ports worldwide with reliable Mediterranean shipping routes.

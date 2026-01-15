@@ -1,8 +1,12 @@
 "use client"
 
-import { Button, Card, Input, Link as NextUILink } from "@nextui-org/react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Mail, Lock } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 
@@ -38,52 +42,71 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white dark:from-slate-950 dark:to-slate-900 px-4">
-      <Card className="w-full max-w-md p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
-          <p className="text-foreground-600">Sign in to your Mediterranean Shipping Express account</p>
-        </div>
-
-        {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">{error}</div>}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Email"
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            required
-            startContent={<Mail className="h-4 w-4" />}
-          />
-
-          <Input
-            label="Password"
-            type="password"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            required
-            startContent={<Lock className="h-4 w-4" />}
-          />
-
-          <div className="flex justify-end">
-            <NextUILink href="/user/forgot-password" className="text-sm text-[#0066CC]">
-              Forgot password?
-            </NextUILink>
+      <Card className="w-full max-w-md">
+        <CardContent className="p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
+            <p className="text-muted-foreground">Sign in to your Mediterranean Shipping Express account</p>
           </div>
 
-          <Button type="submit" color="primary" className="w-full bg-[#0066CC]" size="lg" isLoading={loading}>
-            Sign In
-          </Button>
-        </form>
+          {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">{error}</div>}
 
-        <div className="mt-6 text-center">
-          <p className="text-foreground-600">
-            Don't have an account?{" "}
-            <NextUILink href="/user/register" className="text-[#0066CC] font-semibold">
-              Sign up
-            </NextUILink>
-          </p>
-        </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Link href="/user/forgot-password" className="text-sm text-[#0066CC] hover:underline">
+                Forgot password?
+              </Link>
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full bg-[#0066CC] hover:bg-[#0052A3]" 
+              size="lg" 
+              disabled={loading}
+            >
+              {loading ? "Signing In..." : "Sign In"}
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-muted-foreground">
+              Don't have an account?{" "}
+              <Link href="/user/register" className="text-[#0066CC] font-semibold hover:underline">
+                Sign up
+              </Link>
+            </p>
+          </div>
+        </CardContent>
       </Card>
     </div>
   )

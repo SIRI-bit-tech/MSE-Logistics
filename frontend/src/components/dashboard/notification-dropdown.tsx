@@ -1,13 +1,12 @@
 "use client"
 
 import { 
-  Dropdown, 
-  DropdownTrigger, 
-  DropdownMenu, 
-  DropdownItem, 
-  Button,
-  Spinner
-} from "@nextui-org/react"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
 import { Bell, AlertCircle, FileText, Wrench } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -38,7 +37,7 @@ const getColor = (type: string) => {
     case "alert":
       return "text-red-500"
     case "document":
-      return "text-msc-yellow"
+      return "text-[#FFD700]"
     case "maintenance":
       return "text-blue-500"
     default:
@@ -95,11 +94,11 @@ export default function NotificationDropdown() {
   }, [])
 
   return (
-    <Dropdown placement="bottom-end">
-      <DropdownTrigger>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <Button
-          isIconOnly
-          variant="light"
+          variant="ghost"
+          size="icon"
           className="relative"
         >
           <Bell className="w-5 h-5 text-gray-600 hover:text-gray-800" />
@@ -109,36 +108,26 @@ export default function NotificationDropdown() {
             </span>
           )}
         </Button>
-      </DropdownTrigger>
-      <DropdownMenu 
-        aria-label="Notifications"
-        className="w-80"
-        closeOnSelect={false}
-      >
-        <DropdownItem key="header" className="h-14 gap-2" textValue="Notifications">
-          <div className="flex justify-between items-center w-full">
-            <span className="font-semibold">Notifications</span>
-            {unreadCount > 0 && (
-              <Button size="sm" variant="light" className="text-msc-yellow">
-                Mark all read
-              </Button>
-            )}
-          </div>
-        </DropdownItem>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-80">
+        <div className="flex justify-between items-center px-2 py-3 border-b">
+          <span className="font-semibold">Notifications</span>
+          {unreadCount > 0 && (
+            <Button size="sm" variant="ghost" className="text-[#FFD700] h-auto p-1">
+              Mark all read
+            </Button>
+          )}
+        </div>
         
         {loading ? (
-          <DropdownItem key="loading" textValue="Loading">
-            <div className="flex justify-center py-4">
-              <Spinner size="sm" />
-            </div>
-          </DropdownItem>
+          <div className="flex justify-center py-4">
+            <div className="text-gray-500">Loading...</div>
+          </div>
         ) : notifications.length === 0 ? (
-          <DropdownItem key="empty" textValue="No notifications">
-            <div className="text-center py-4 text-gray-500">
-              <Bell className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-              <p className="text-sm">No new notifications</p>
-            </div>
-          </DropdownItem>
+          <div className="text-center py-4 text-gray-500">
+            <Bell className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+            <p className="text-sm">No new notifications</p>
+          </div>
         ) : (
           <>
             {notifications.map((notification) => {
@@ -146,12 +135,11 @@ export default function NotificationDropdown() {
               const colorClass = getColor(notification.type)
               
               return (
-                <DropdownItem 
+                <DropdownMenuItem 
                   key={notification.id} 
-                  className={`h-auto py-3 ${!notification.isRead ? 'bg-blue-50' : ''}`}
-                  textValue={notification.title}
+                  className={`py-3 cursor-pointer ${!notification.isRead ? 'bg-blue-50' : ''}`}
                 >
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 w-full">
                     <Icon className={`w-4 h-4 mt-1 ${colorClass} flex-shrink-0`} />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{notification.title}</p>
@@ -162,24 +150,22 @@ export default function NotificationDropdown() {
                       <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
                     )}
                   </div>
-                </DropdownItem>
+                </DropdownMenuItem>
               )
             })}
             
-            <DropdownItem key="view-all" textValue="View all notifications">
-              <div className="text-center">
-                <Button 
-                  variant="light" 
-                  size="sm" 
-                  className="text-msc-yellow w-full"
-                >
-                  View all notifications
-                </Button>
-              </div>
-            </DropdownItem>
+            <div className="text-center border-t pt-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-[#FFD700] w-full"
+              >
+                View all notifications
+              </Button>
+            </div>
           </>
         )}
-      </DropdownMenu>
-    </Dropdown>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
