@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import { getUserFromToken } from '@/lib/jwt-config'
 import { z } from 'zod'
 import { geocodeShipmentAddresses } from '@/lib/geocoding'
@@ -35,7 +36,6 @@ async function createShipmentWithRetry(
   shipmentData: any,
   maxRetries: number = 5
 ): Promise<any> {
-  let lastError: Error | null = null
   
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -58,15 +58,19 @@ async function createShipmentWithRetry(
       
       return shipment
     } catch (error: any) {
-      // Check if it's a unique constraint violation on trackingNumber
-      if (
-        error.code === 'P2002' &&
-        error.meta?.target?.includes('trackingNumber')
-      ) {
-        lastError = error
-        // Collision detected, retry with new tracking number
-        console.warn(`Tracking number collision on attempt ${attempt + 1}, retrying...`)
-        continue
+      // Check if it's a Prisma unique constraint violation
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        // Normalize target to array for consistent checking
+        const target = Array.isArray(error.meta?.target) 
+          ? error.meta.target 
+          : [error.meta?.target]
+        
+        // Check if the collision is on trackingNumber field
+        if (target.includes('trackingNumber')) {
+          // Collision detected, retry with new tracking number
+          console.warn(`Tracking number collision on attempt ${attempt + 1}, retrying...`)
+          continue
+        }
       }
       
       // If it's a different error, throw immediately
