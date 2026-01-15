@@ -132,7 +132,8 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
             minRows={3}
             classNames={{
               input: "text-gray-900",
-              inputWrapper: "bg-white border-gray-200"
+              inputWrapper: "bg-white border-gray-200 shadow-none",
+              base: "shadow-none"
             }}
           />
         </div>

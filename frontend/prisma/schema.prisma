@@ -154,6 +154,12 @@ model Shipment {
   deliveryPhoto         String?
   recipientNameConfirm  String?
 
+  // Current location (updated by admin/tracking system)
+  currentLatitude  Float?
+  currentLongitude Float?
+  currentLocation  String?
+  lastLocationUpdate DateTime?
+
   // Customs information
   customsStatus    CustomsStatus?
   customsDocuments String[]
