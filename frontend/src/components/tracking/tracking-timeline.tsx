@@ -18,25 +18,71 @@ const ALL_STATUSES: ShipmentStatus[] = [
   "CUSTOMS_CLEARED",
   "ARRIVED_AT_FACILITY",
   "OUT_FOR_DELIVERY",
-  "DELIVERED"
+  "DELIVERY_ATTEMPTED",
+  "DELIVERED",
+  "ON_HOLD",
+  "CANCELLED",
+  "RETURNED"
 ]
+
+// Terminal statuses that can occur at any point
+const TERMINAL_STATUSES: ShipmentStatus[] = ["CANCELLED", "RETURNED", "ON_HOLD", "DELIVERY_ATTEMPTED"]
 
 export default function TrackingTimeline({ events, status }: TrackingTimelineProps) {
   // Get the index of current status
   const currentStatusIndex = ALL_STATUSES.indexOf(status)
   
   // Create timeline items showing all statuses up to current one
-  const timelineItems = ALL_STATUSES.slice(0, currentStatusIndex + 1).map((statusName) => {
-    // Find the actual event for this status
-    const event = events.find(e => e.status === statusName)
+  let timelineItems
+  
+  if (currentStatusIndex === -1 || TERMINAL_STATUSES.includes(status)) {
+    // Handle terminal statuses or unknown statuses
+    // Show all events that actually occurred, plus the current terminal status
+    const eventStatuses = events.map(e => e.status)
+    const uniqueStatuses = Array.from(new Set(eventStatuses))
     
-    return {
-      status: statusName,
-      event: event,
-      isCompleted: event !== undefined,
-      isCurrent: statusName === status
+    timelineItems = uniqueStatuses.map((statusName) => {
+      const event = events.find(e => e.status === statusName)
+      return {
+        status: statusName,
+        event: event,
+        isCompleted: true,
+        isCurrent: false
+      }
+    })
+    
+    // Add current terminal status if not already in events
+    if (!uniqueStatuses.includes(status)) {
+      const terminalEvent = events.find(e => e.status === status)
+      timelineItems.push({
+        status: status,
+        event: terminalEvent,
+        isCompleted: terminalEvent !== undefined,
+        isCurrent: true
+      })
+    } else {
+      // Mark the terminal status as current
+      const terminalItem = timelineItems.find(item => item.status === status)
+      if (terminalItem) {
+        terminalItem.isCurrent = true
+      }
     }
-  }).reverse() // Show most recent first
+    
+    timelineItems.reverse() // Show most recent first
+  } else {
+    // Normal flow: show all statuses up to current one
+    timelineItems = ALL_STATUSES.slice(0, currentStatusIndex + 1).map((statusName) => {
+      // Find the actual event for this status
+      const event = events.find(e => e.status === statusName)
+      
+      return {
+        status: statusName,
+        event: event,
+        isCompleted: event !== undefined,
+        isCurrent: statusName === status
+      }
+    }).reverse() // Show most recent first
+  }
 
   const getStatusColor = (statusName: ShipmentStatus) => {
     switch (statusName) {

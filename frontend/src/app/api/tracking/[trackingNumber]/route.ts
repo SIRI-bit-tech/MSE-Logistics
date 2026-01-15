@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getUserFromToken } from '@/lib/jwt-config'
 
-// GET /api/tracking/[trackingNumber] - Get shipment by tracking number (public endpoint)
+// GET /api/tracking/[trackingNumber] - Get shipment by tracking number (public endpoint with limited PII)
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ trackingNumber: string }> }
 ) {
   try {
     const { trackingNumber } = await params
+
+    // Check if user is authenticated
+    const userId = await getUserFromToken(request).catch(() => null)
+    const isAuthenticated = !!userId
 
     const shipment = await prisma.shipment.findUnique({
       where: { trackingNumber },
@@ -18,10 +23,10 @@ export async function GET(
         estimatedDeliveryDate: true,
         actualDeliveryDate: true,
         
-        // Sender info
+        // Sender info (limited for public, full for authenticated)
         senderName: true,
-        senderEmail: true,
-        senderPhone: true,
+        senderEmail: isAuthenticated,
+        senderPhone: isAuthenticated,
         senderAddress: true,
         senderCity: true,
         senderCountry: true,
@@ -29,10 +34,10 @@ export async function GET(
         senderLatitude: true,
         senderLongitude: true,
         
-        // Recipient info
+        // Recipient info (limited for public, full for authenticated)
         recipientName: true,
-        recipientEmail: true,
-        recipientPhone: true,
+        recipientEmail: isAuthenticated,
+        recipientPhone: isAuthenticated,
         recipientAddress: true,
         recipientCity: true,
         recipientCountry: true,
@@ -47,17 +52,17 @@ export async function GET(
         width: true,
         height: true,
         description: true,
-        value: true,
+        value: isAuthenticated, // Hide value from public
         currency: true,
         
         // Service info
         serviceType: true,
         transportMode: true,
         
-        // Costs
-        shippingCost: true,
-        insuranceCost: true,
-        totalCost: true,
+        // Costs (hide from public)
+        shippingCost: isAuthenticated,
+        insuranceCost: isAuthenticated,
+        totalCost: isAuthenticated,
         
         // Current location
         currentLatitude: true,

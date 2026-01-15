@@ -115,13 +115,13 @@ export default function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
         <CardBody className="gap-3 p-4">
           <div className="flex justify-between">
             <p className="text-gray-600">Shipping Cost</p>
-            <p className="font-semibold">${shipment.shippingCost.toFixed(2)}</p>
+            <p className="font-semibold">{shipment.currency || '$'}{shipment.shippingCost.toFixed(2)}</p>
           </div>
 
           {shipment.insuranceCost && shipment.insuranceCost > 0 && (
             <div className="flex justify-between">
               <p className="text-gray-600">Insurance</p>
-              <p className="font-semibold">${shipment.insuranceCost.toFixed(2)}</p>
+              <p className="font-semibold">{shipment.currency || '$'}{shipment.insuranceCost.toFixed(2)}</p>
             </div>
           )}
 
@@ -129,7 +129,7 @@ export default function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
 
           <div className="flex justify-between">
             <p className="font-bold text-[#003873]">Total Cost</p>
-            <p className="font-bold text-lg text-[#D4AF37]">${shipment.totalCost.toFixed(2)}</p>
+            <p className="font-bold text-lg text-[#D4AF37]">{shipment.currency || '$'}{shipment.totalCost.toFixed(2)}</p>
           </div>
         </CardBody>
       </Card>
