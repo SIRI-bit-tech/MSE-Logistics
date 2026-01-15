@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Bell, AlertCircle, FileText, Wrench } from "lucide-react"
 import { useEffect, useState } from "react"
+import Link from "next/link"
 
 interface NotificationItem {
   id: string
@@ -49,6 +50,7 @@ export default function NotificationDropdown() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [loading, setLoading] = useState(true)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [isMarkingRead, setIsMarkingRead] = useState(false)
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString)
@@ -93,6 +95,32 @@ export default function NotificationDropdown() {
     fetchNotifications()
   }, [])
 
+  const handleMarkAllRead = async () => {
+    if (isMarkingRead) return
+    
+    try {
+      setIsMarkingRead(true)
+      const response = await fetch('/api/notifications', {
+        method: 'PATCH',
+        credentials: 'include',
+      })
+
+      if (response.ok) {
+        // Update local state to mark all as read
+        setNotifications(prev => 
+          prev.map(notification => ({ ...notification, isRead: true }))
+        )
+        setUnreadCount(0)
+      } else {
+        console.error('Failed to mark notifications as read')
+      }
+    } catch (error) {
+      console.error('Error marking notifications as read:', error)
+    } finally {
+      setIsMarkingRead(false)
+    }
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -113,8 +141,14 @@ export default function NotificationDropdown() {
         <div className="flex justify-between items-center px-2 py-3 border-b">
           <span className="font-semibold">Notifications</span>
           {unreadCount > 0 && (
-            <Button size="sm" variant="ghost" className="text-[#FFD700] h-auto p-1">
-              Mark all read
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              className="text-[#FFD700] h-auto p-1"
+              onClick={handleMarkAllRead}
+              disabled={isMarkingRead}
+            >
+              {isMarkingRead ? 'Marking...' : 'Mark all read'}
             </Button>
           )}
         </div>
@@ -159,8 +193,11 @@ export default function NotificationDropdown() {
                 variant="ghost" 
                 size="sm" 
                 className="text-[#FFD700] w-full"
+                asChild
               >
-                View all notifications
+                <Link href="/notifications">
+                  View all notifications
+                </Link>
               </Button>
             </div>
           </>

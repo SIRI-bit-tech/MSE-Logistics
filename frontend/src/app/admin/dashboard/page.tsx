@@ -10,6 +10,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Separator } from "@/components/ui/separator"
 import { Label } from "@/components/ui/label"
 import { useAuth } from "@/hooks/use-auth"
+import { toast } from "sonner"
 import AdminHeader from "@/components/admin/admin-header"
 import AdminStatsCard from "@/components/admin/admin-stats-card"
 
@@ -22,33 +23,114 @@ interface ShipmentForAdmin {
   createdAt: string
 }
 
-const mockShipments: ShipmentForAdmin[] = [
-  {
-    id: "1",
-    trackingNumber: "SG123456789",
-    status: "IN_TRANSIT",
-    recipientCity: "New York",
-    recipientCountry: "USA",
-    createdAt: "2024-01-01",
-  },
-  {
-    id: "2",
-    trackingNumber: "SG987654321",
-    status: "OUT_FOR_DELIVERY",
-    recipientCity: "London",
-    recipientCountry: "UK",
-    createdAt: "2024-01-02",
-  },
-]
+interface FormData {
+  trackingNumber: string
+  recipientName: string
+  recipientAddress: string
+  status: string
+}
 
 export default function AdminDashboardPage() {
   const { user, isAuthenticated } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
-  const [shipments, setShipments] = useState(mockShipments)
+  const [shipments, setShipments] = useState<ShipmentForAdmin[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formData, setFormData] = useState<FormData>({
+    trackingNumber: "",
+    recipientName: "",
+    recipientAddress: "",
+    status: "PENDING",
+  })
   
   useEffect(() => {
-    // Fetch admin dashboard data
-  }, [])
+    if (isAuthenticated && (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN")) {
+      fetchShipments()
+    }
+  }, [isAuthenticated, user])
+  
+  const fetchShipments = async () => {
+    try {
+      setIsLoading(true)
+      const response = await fetch('/api/admin/shipments?limit=50')
+      
+      if (response.ok) {
+        const data = await response.json()
+        const formattedShipments = data.shipments.map((s: any) => ({
+          id: s.id,
+          trackingNumber: s.trackingNumber,
+          status: s.status,
+          recipientCity: s.recipientCity,
+          recipientCountry: s.recipientCountry,
+          createdAt: new Date(s.createdAt).toLocaleDateString(),
+        }))
+        setShipments(formattedShipments)
+      } else {
+        toast.error('Failed to load shipments')
+      }
+    } catch (error) {
+      console.error('Error fetching shipments:', error)
+      toast.error('An error occurred while loading shipments')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleCreateShipment = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!formData.trackingNumber || !formData.recipientName || !formData.recipientAddress) {
+      toast.error('Please fill in all required fields')
+      return
+    }
+
+    setIsSubmitting(true)
+    
+    try {
+      // Note: This is a simplified version. In production, you'd need a proper admin endpoint
+      // that accepts minimal data or use the full shipment creation endpoint
+      toast.info('Admin shipment creation not yet implemented')
+      setIsOpen(false)
+      
+      // Reset form
+      setFormData({
+        trackingNumber: "",
+        recipientName: "",
+        recipientAddress: "",
+        status: "PENDING",
+      })
+    } catch (error) {
+      console.error('Error creating shipment:', error)
+      toast.error('Failed to create shipment')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleStatusChange = async (shipmentId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/admin/shipments/${shipmentId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
+
+      if (response.ok) {
+        // Update local state
+        setShipments(prev => 
+          prev.map(s => s.id === shipmentId ? { ...s, status: newStatus } : s)
+        )
+        toast.success('Status updated successfully')
+      } else {
+        toast.error('Failed to update status')
+      }
+    } catch (error) {
+      console.error('Error updating status:', error)
+      toast.error('An error occurred while updating status')
+    }
+  }
 
   if (!isAuthenticated || (user?.role !== "ADMIN" && user?.role !== "SUPER_ADMIN")) {
     return (
@@ -84,22 +166,43 @@ export default function AdminDashboardPage() {
               <DialogHeader>
                 <DialogTitle>Add New Shipment</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-4">
+              <form onSubmit={handleCreateShipment} className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label htmlFor="tracking">Tracking Number</Label>
-                  <Input id="tracking" placeholder="Enter tracking number" />
+                  <Input 
+                    id="tracking" 
+                    placeholder="Enter tracking number"
+                    value={formData.trackingNumber}
+                    onChange={(e) => setFormData({ ...formData, trackingNumber: e.target.value })}
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="recipient">Recipient Name</Label>
-                  <Input id="recipient" placeholder="Enter recipient name" />
+                  <Input 
+                    id="recipient" 
+                    placeholder="Enter recipient name"
+                    value={formData.recipientName}
+                    onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="address">Recipient Address</Label>
-                  <Input id="address" placeholder="Enter address" />
+                  <Input 
+                    id="address" 
+                    placeholder="Enter address"
+                    value={formData.recipientAddress}
+                    onChange={(e) => setFormData({ ...formData, recipientAddress: e.target.value })}
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
-                  <Select>
+                  <Select 
+                    value={formData.status}
+                    onValueChange={(value) => setFormData({ ...formData, status: value })}
+                  >
                     <SelectTrigger id="status">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
@@ -110,61 +213,83 @@ export default function AdminDashboardPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <Button onClick={() => setIsOpen(false)} className="w-full">
-                  Create Shipment
+                <Button 
+                  type="submit" 
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Creating...' : 'Create Shipment'}
                 </Button>
-              </div>
+              </form>
             </DialogContent>
           </Dialog>
         </CardHeader>
         <Separator />
         <CardContent className="pt-6">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Tracking</TableHead>
-                <TableHead>Destination</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {mockShipments.length === 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">No shipments</TableCell>
+                  <TableHead>Tracking</TableHead>
+                  <TableHead>Destination</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ) : (
-                mockShipments.map((shipment) => (
-                  <TableRow key={shipment.id}>
-                    <TableCell>{shipment.trackingNumber}</TableCell>
-                    <TableCell>
-                      {shipment.recipientCity}, {shipment.recipientCountry}
-                    </TableCell>
-                    <TableCell>
-                      <Select defaultValue={shipment.status}>
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="PENDING">Pending</SelectItem>
-                          <SelectItem value="IN_TRANSIT">In Transit</SelectItem>
-                          <SelectItem value="OUT_FOR_DELIVERY">Out for Delivery</SelectItem>
-                          <SelectItem value="DELIVERED">Delivered</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>{shipment.createdAt}</TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="sm">
-                        Edit
-                      </Button>
-                    </TableCell>
+              </TableHeader>
+              <TableBody>
+                {shipments.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center">No shipments</TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  shipments.map((shipment) => (
+                    <TableRow key={shipment.id}>
+                      <TableCell>{shipment.trackingNumber}</TableCell>
+                      <TableCell>
+                        {shipment.recipientCity}, {shipment.recipientCountry}
+                      </TableCell>
+                      <TableCell>
+                        <Select 
+                          value={shipment.status}
+                          onValueChange={(value) => handleStatusChange(shipment.id, value)}
+                        >
+                          <SelectTrigger className="w-40">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="PENDING">Pending</SelectItem>
+                            <SelectItem value="PROCESSING">Processing</SelectItem>
+                            <SelectItem value="ON_HOLD">On Hold</SelectItem>
+                            <SelectItem value="PICKED_UP">Picked Up</SelectItem>
+                            <SelectItem value="IN_TRANSIT">In Transit</SelectItem>
+                            <SelectItem value="IN_CUSTOMS">In Customs</SelectItem>
+                            <SelectItem value="CUSTOMS_CLEARED">Customs Cleared</SelectItem>
+                            <SelectItem value="ARRIVED_AT_FACILITY">At Facility</SelectItem>
+                            <SelectItem value="OUT_FOR_DELIVERY">Out for Delivery</SelectItem>
+                            <SelectItem value="DELIVERY_ATTEMPTED">Delivery Attempted</SelectItem>
+                            <SelectItem value="DELIVERED">Delivered</SelectItem>
+                            <SelectItem value="RETURNED">Returned</SelectItem>
+                            <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>{shipment.createdAt}</TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="sm">
+                          Edit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 

@@ -6,7 +6,6 @@ import { useShipment } from "@/hooks/use-shipment"
 import { useAuthStore } from "@/store/auth-store"
 import { Plane, Truck, Ship, Zap, XCircle, RotateCcw, PauseCircle } from "lucide-react"
 import { getStatusIcon } from "@/lib/status-icons"
-import Navbar from "@/components/navbar"
 import Sidebar from "@/components/dashboard/sidebar"
 import TrackingMap from "@/components/tracking/tracking-map"
 import TrackingStatusUpdates from "@/components/tracking/tracking-status-updates"
@@ -224,11 +223,6 @@ export default function TrackingPage() {
     )
   }
 
-  // Unauthenticated users see navbar
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      {content}
-    </div>
-  )
+  // Unauthenticated users - LayoutWrapper handles navbar/footer
+  return content
 }

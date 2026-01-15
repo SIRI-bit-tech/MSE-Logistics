@@ -99,7 +99,7 @@ export default function Home() {
                     <CardContent className="p-0">
                       <Icon className="mb-4 h-10 w-10 text-[#0066CC]" />
                       <h3 className="mb-2 font-semibold text-lg text-foreground">{feature.title}</h3>
-                      <p className="text-sm text-foreground-600">{feature.description}</p>
+                      <p className="text-sm text-muted-foreground">{feature.description}</p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -133,7 +133,7 @@ export default function Home() {
                   {item.step}
                 </div>
                 <h3 className="mb-2 font-semibold text-foreground text-lg">{item.title}</h3>
-                <p className="text-sm text-foreground-600">{item.description}</p>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
               </motion.div>
             ))}
           </div>
