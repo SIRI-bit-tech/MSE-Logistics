@@ -1,39 +1,14 @@
 "use client"
 
-import { useEffect } from "react"
 import { useAuthStore } from "@/store/auth-store"
 import { useRouter } from "next/navigation"
 
 export function useAuth() {
   const router = useRouter()
-  const { user, isAuthenticated, isLoading, setUser, setLoading, logout } = useAuthStore()
+  const { user, isAuthenticated, isLoading, setUser, logout } = useAuthStore()
 
-  useEffect(() => {
-    // Fetch user data on mount
-    const fetchUserData = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch('/api/auth/me', {
-          credentials: 'include',
-        })
-        
-        if (response.ok) {
-          const userData = await response.json()
-          setUser(userData.user)
-        } else {
-          // No valid session
-          setUser(null)
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error)
-        setUser(null)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchUserData()
-  }, [setUser, setLoading])
+  // Auth is initialized globally in Providers component
+  // No need to fetch on every hook call
 
   const loginWithCredentials = async (email: string, password: string) => {
     try {

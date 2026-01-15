@@ -1,6 +1,7 @@
 "use client"
 
-import { Card, CardBody, CardHeader, Link, Spinner } from "@nextui-org/react"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import Link from "next/link"
 import { Ship, FileText, CheckCircle, Package } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -77,23 +78,23 @@ export default function RecentActivity() {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="bg-white">
         <CardHeader>
-          <h3 className="text-lg font-semibold">Recent Activity</h3>
+          <h3 className="text-xl font-bold text-gray-900">Recent Activity</h3>
         </CardHeader>
-        <CardBody className="flex items-center justify-center py-8">
-          <Spinner size="lg" />
-        </CardBody>
+        <CardContent className="flex items-center justify-center py-8">
+          <div className="text-gray-500">Loading...</div>
+        </CardContent>
       </Card>
     )
   }
 
   return (
-    <Card>
+    <Card className="bg-white">
       <CardHeader>
-        <h3 className="text-lg font-semibold">Recent Activity</h3>
+        <h3 className="text-xl font-bold text-gray-900">Recent Activity</h3>
       </CardHeader>
-      <CardBody className="space-y-4">
+      <CardContent className="space-y-4">
         {activities.length === 0 ? (
           <div className="text-center py-4 text-gray-500">
             <p>No recent activity</p>
@@ -104,7 +105,7 @@ export default function RecentActivity() {
             
             return (
               <div key={activity.id} className="flex gap-3 items-start">
-                <div className="w-2 h-2 bg-msc-yellow rounded-full mt-2"></div>
+                <div className="w-2 h-2 bg-[#FFD700] rounded-full mt-2"></div>
                 <div className="flex-1">
                   <div className="flex items-start gap-2">
                     <Icon className="w-4 h-4 mt-0.5 text-gray-600" />
@@ -115,7 +116,7 @@ export default function RecentActivity() {
                         {activity.actionText && activity.actionHref && (
                           <Link 
                             href={activity.actionHref}
-                            className="text-xs text-msc-yellow hover:underline"
+                            className="text-xs text-[#FFD700] hover:text-[#D4AF37] hover:underline"
                           >
                             {activity.actionText}
                           </Link>
@@ -128,7 +129,7 @@ export default function RecentActivity() {
             )
           })
         )}
-      </CardBody>
+      </CardContent>
     </Card>
   )
 }

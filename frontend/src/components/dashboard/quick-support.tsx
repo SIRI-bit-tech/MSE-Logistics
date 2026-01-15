@@ -1,8 +1,9 @@
 "use client"
 
-import { Card, CardBody, CardHeader, Button } from "@nextui-org/react"
 import { Headphones, Calculator } from "lucide-react"
 import Link from "next/link"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
 export default function QuickSupport() {
   const handleChatNow = () => {
@@ -15,7 +16,7 @@ export default function QuickSupport() {
       <CardHeader>
         <h3 className="text-xl font-bold text-gray-900">Quick Support</h3>
       </CardHeader>
-      <CardBody className="pt-0 space-y-4">
+      <CardContent className="pt-0 space-y-4">
         {/* 24/7 Logistics Support */}
         <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
           <div className="p-2 bg-msc-yellow rounded-lg">
@@ -46,18 +47,19 @@ export default function QuickSupport() {
             <p className="text-sm text-gray-600 mb-3">
               Estimate costs for your next Mediterranean freight.
             </p>
-            <Link href="/quotes">
-              <Button 
-                size="sm" 
-                variant="bordered"
-                className="border-msc-yellow text-msc-yellow hover:bg-msc-yellow hover:text-black"
-              >
+            <Button 
+              size="sm" 
+              variant="outline"
+              className="border-msc-yellow text-msc-yellow hover:bg-msc-yellow hover:text-black"
+              asChild
+            >
+              <Link href="/quotes">
                 Open
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
-      </CardBody>
+      </CardContent>
     </Card>
   )
 }

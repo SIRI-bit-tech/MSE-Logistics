@@ -1,6 +1,7 @@
 "use client"
 
-import { Button, Input } from "@nextui-org/react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { motion } from "framer-motion"
 import { useState } from "react"
 import { Search } from "lucide-react"
@@ -52,13 +53,13 @@ export default function HeroSection() {
           >
             <Button 
               size="lg" 
-              className="bg-msc-yellow hover:bg-msc-gold text-black font-bold px-8 py-3"
+              className="bg-[#FFD700] hover:bg-[#D4AF37] text-black font-bold px-8 py-3"
             >
               Get Quote
             </Button>
             <Button 
               size="lg" 
-              variant="bordered" 
+              variant="outline" 
               className="text-white border-white hover:bg-white/10 font-semibold px-8 py-3"
             >
               Track Shipment
@@ -75,17 +76,13 @@ export default function HeroSection() {
               placeholder="Enter tracking number..."
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
-              className="flex-1"
+              className="flex-1 bg-white text-gray-700"
               aria-label="Enter tracking number"
-              classNames={{
-                input: "text-gray-700",
-                inputWrapper: "bg-white border-white"
-              }}
             />
             <Button 
-              className="bg-msc-yellow hover:bg-msc-gold text-black px-6 font-semibold"
-              startContent={<Search size={18} />}
+              className="bg-[#FFD700] hover:bg-[#D4AF37] text-black px-6 font-semibold"
             >
+              <Search size={18} className="mr-2" />
               Track
             </Button>
           </motion.div>

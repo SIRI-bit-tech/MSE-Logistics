@@ -1,7 +1,9 @@
 "use client"
 
-import { Card, Input, Button } from "@nextui-org/react"
 import { ArrowRight, Mail, Phone, MapPin } from "lucide-react"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 interface SenderInfoStepProps {
   formData: {
@@ -36,41 +38,35 @@ export default function SenderInfoStep({ formData, onInputChange, onNext }: Send
           <Input
             placeholder="John Doe"
             value={formData.senderName}
-            onValueChange={(value) => onInputChange('senderName', value)}
-            classNames={{
-              input: "text-gray-900",
-              inputWrapper: "bg-white border-gray-200"
-            }}
+            onChange={(e) => onInputChange('senderName', e.target.value)}
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">EMAIL ADDRESS</label>
-            <Input
-              type="email"
-              placeholder="sender@example.com"
-              value={formData.senderEmail}
-              onValueChange={(value) => onInputChange('senderEmail', value)}
-              startContent={<Mail className="w-4 h-4 text-gray-400" />}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
-            />
+            <div className="relative">
+              <Input
+                type="email"
+                placeholder="sender@example.com"
+                value={formData.senderEmail}
+                onChange={(e) => onInputChange('senderEmail', e.target.value)}
+                className="pl-10"
+              />
+              <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">PHONE NUMBER</label>
-            <Input
-              placeholder="+1 (555) 000-0000"
-              value={formData.senderPhone}
-              onValueChange={(value) => onInputChange('senderPhone', value)}
-              startContent={<Phone className="w-4 h-4 text-gray-400" />}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
-            />
+            <div className="relative">
+              <Input
+                placeholder="+1 (555) 000-0000"
+                value={formData.senderPhone}
+                onChange={(e) => onInputChange('senderPhone', e.target.value)}
+                className="pl-10"
+              />
+              <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            </div>
           </div>
         </div>
 
@@ -79,11 +75,7 @@ export default function SenderInfoStep({ formData, onInputChange, onNext }: Send
           <Input
             placeholder="123 Main Street, Building A"
             value={formData.senderAddress}
-            onValueChange={(value) => onInputChange('senderAddress', value)}
-            classNames={{
-              input: "text-gray-900",
-              inputWrapper: "bg-white border-gray-200"
-            }}
+            onChange={(e) => onInputChange('senderAddress', e.target.value)}
           />
         </div>
 
@@ -93,11 +85,7 @@ export default function SenderInfoStep({ formData, onInputChange, onNext }: Send
             <Input
               placeholder="New York"
               value={formData.senderCity}
-              onValueChange={(value) => onInputChange('senderCity', value)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
+              onChange={(e) => onInputChange('senderCity', e.target.value)}
             />
           </div>
           <div>
@@ -105,11 +93,7 @@ export default function SenderInfoStep({ formData, onInputChange, onNext }: Send
             <Input
               placeholder="United States"
               value={formData.senderCountry}
-              onValueChange={(value) => onInputChange('senderCountry', value)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
+              onChange={(e) => onInputChange('senderCountry', e.target.value)}
             />
           </div>
           <div>
@@ -117,11 +101,7 @@ export default function SenderInfoStep({ formData, onInputChange, onNext }: Send
             <Input
               placeholder="10001"
               value={formData.senderPostalCode}
-              onValueChange={(value) => onInputChange('senderPostalCode', value)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
+              onChange={(e) => onInputChange('senderPostalCode', e.target.value)}
             />
           </div>
         </div>
@@ -130,10 +110,10 @@ export default function SenderInfoStep({ formData, onInputChange, onNext }: Send
           <Button
             size="lg"
             className="bg-black text-white hover:bg-gray-800 px-8"
-            endContent={<ArrowRight className="w-5 h-5" />}
-            onPress={onNext}
+            onClick={onNext}
           >
             Next: Recipient Info
+            <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </div>
       </div>

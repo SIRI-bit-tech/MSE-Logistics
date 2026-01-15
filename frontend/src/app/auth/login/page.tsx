@@ -1,11 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { Input, Button, Checkbox, Link } from "@nextui-org/react"
 import { useRouter } from "next/navigation"
 import { Eye, EyeOff, User as UserIcon } from "lucide-react"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 import { useAuth } from "@/hooks/use-auth"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
+import Link from "next/link"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -19,10 +22,10 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target
+    const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: value
     }))
   }
 
@@ -35,7 +38,7 @@ export default function LoginPage() {
       
       if (result.success) {
         toast.success("Login successful!")
-        router.push("/shipments") // Redirect to main dashboard
+        router.push("/shipments")
       } else {
         toast.error(result.error || "Login failed. Please try again.")
       }
@@ -106,61 +109,58 @@ export default function LoginPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email
               </label>
-              <Input
-                name="email"
-                type="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleChange}
-                endContent={<UserIcon className="w-4 h-4 text-gray-400" />}
-                classNames={{
-                  input: "text-gray-700",
-                  inputWrapper: "border border-gray-300 hover:border-gray-400 focus-within:border-msc-yellow shadow-none",
-                  base: "shadow-none"
-                }}
-                required
-              />
+              <div className="relative">
+                <Input
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="pr-10"
+                  required
+                />
+                <UserIcon className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
+              </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Password
               </label>
-              <Input
-                name="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-                endContent={
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                }
-                classNames={{
-                  input: "text-gray-700",
-                  inputWrapper: "border border-gray-300 hover:border-gray-400 focus-within:border-msc-yellow shadow-none",
-                  base: "shadow-none"
-                }}
-                required
-              />
+              <div className="relative">
+                <Input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-gray-400 hover:text-gray-600 absolute right-3 top-1/2 -translate-y-1/2"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             <div className="flex items-center justify-between">
-              <Checkbox
-                name="rememberMe"
-                isSelected={formData.rememberMe}
-                onValueChange={(val) => setFormData(prev => ({ ...prev, rememberMe: val }))}
-                classNames={{
-                  wrapper: "before:border-gray-300"
-                }}
-              >
-                <span className="text-sm text-gray-600">Remember me</span>
-              </Checkbox>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="rememberMe"
+                  checked={formData.rememberMe}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, rememberMe: checked as boolean }))}
+                />
+                <label
+                  htmlFor="rememberMe"
+                  className="text-sm text-gray-600 cursor-pointer"
+                >
+                  Remember me
+                </label>
+              </div>
               <Link href="/auth/forgot-password" className="text-sm text-msc-yellow hover:text-msc-gold">
                 Forgot Password?
               </Link>
@@ -168,11 +168,10 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              className="w-full bg-msc-yellow hover:bg-msc-gold text-black font-semibold py-3 text-base"
+              className="w-full bg-msc-yellow hover:bg-msc-gold text-black font-semibold"
               disabled={loading}
-              isLoading={loading}
             >
-              LOG IN →
+              {loading ? "Logging in..." : "LOG IN →"}
             </Button>
 
             <div className="text-center">
@@ -180,8 +179,9 @@ export default function LoginPage() {
             </div>
 
             <Button
-              variant="bordered"
-              className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-3"
+              type="button"
+              variant="outline"
+              className="w-full"
               onClick={() => router.push("/auth/signup")}
             >
               Register New Account

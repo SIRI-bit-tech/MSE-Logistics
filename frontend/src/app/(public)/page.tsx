@@ -1,11 +1,14 @@
 "use client"
 
-import { Button, Card, Divider, Link } from "@nextui-org/react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 import { ChevronRight, Globe, Zap, Shield, MapPin, Clock, BarChart3, Truck } from "lucide-react"
 import CarouselSection from "@/components/carousel-section"
 import StatsBanner from "@/components/stats-banner"
 import TestimonialsCarousel from "@/components/testimonials-carousel"
 import { motion } from "framer-motion"
+import Link from "next/link"
 
 export default function Home() {
   return (
@@ -30,15 +33,16 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                 <Button
-                  as={Link}
-                  href="/user/register"
+                  asChild
                   size="lg"
                   className="bg-[#FFD700] text-[#003873] font-bold hover:bg-yellow-500"
                 >
-                  Get Started <ChevronRight className="ml-2 h-5 w-5" />
+                  <Link href="/user/register">
+                    Get Started <ChevronRight className="ml-2 h-5 w-5" />
+                  </Link>
                 </Button>
-                <Button as={Link} href="/track" size="lg" className="bg-white text-[#003873] hover:bg-gray-100">
-                  Track Shipment
+                <Button asChild size="lg" variant="secondary" className="bg-white text-[#003873] hover:bg-gray-100">
+                  <Link href="/track">Track Shipment</Link>
                 </Button>
               </div>
             </div>
@@ -58,7 +62,7 @@ export default function Home() {
       {/* Carousel Section */}
       <CarouselSection />
 
-      <Divider />
+      <Separator />
 
       {/* Features Section */}
       <section className="w-full px-4 py-16 md:py-24">
@@ -92,9 +96,11 @@ export default function Home() {
                   transition={{ delay: i * 0.1 }}
                 >
                   <Card className="p-6 h-full hover:shadow-lg transition">
-                    <Icon className="mb-4 h-10 w-10 text-[#0066CC]" />
-                    <h3 className="mb-2 font-semibold text-lg text-foreground">{feature.title}</h3>
-                    <p className="text-sm text-foreground-600">{feature.description}</p>
+                    <CardContent className="p-0">
+                      <Icon className="mb-4 h-10 w-10 text-[#0066CC]" />
+                      <h3 className="mb-2 font-semibold text-lg text-foreground">{feature.title}</h3>
+                      <p className="text-sm text-foreground-600">{feature.description}</p>
+                    </CardContent>
                   </Card>
                 </motion.div>
               )
@@ -103,7 +109,7 @@ export default function Home() {
         </div>
       </section>
 
-      <Divider />
+      <Separator />
 
       {/* How It Works */}
       <section className="w-full px-4 py-16 md:py-24 bg-gray-50 dark:bg-slate-900">
@@ -137,7 +143,7 @@ export default function Home() {
       {/* Testimonials Carousel */}
       <TestimonialsCarousel />
 
-      <Divider />
+      <Separator />
 
       {/* CTA Section */}
       <section className="w-full px-4 py-16 md:py-24 bg-gradient-to-r from-[#003873] to-[#0066CC]">
@@ -154,15 +160,14 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
-              as={Link}
-              href="/user/register"
+              asChild
               size="lg"
               className="bg-[#FFD700] text-[#003873] font-bold hover:bg-yellow-500"
             >
-              Start Free Trial
+              <Link href="/user/register">Start Free Trial</Link>
             </Button>
-            <Button as={Link} href="/contact" size="lg" className="bg-white text-[#003873] hover:bg-gray-100">
-              Contact Sales
+            <Button asChild size="lg" variant="secondary" className="bg-white text-[#003873] hover:bg-gray-100">
+              <Link href="/contact">Contact Sales</Link>
             </Button>
           </div>
         </div>

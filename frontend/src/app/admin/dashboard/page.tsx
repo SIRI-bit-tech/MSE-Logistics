@@ -1,27 +1,14 @@
 "use client"
 
-import { useEffect } from "react"
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Button,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  useDisclosure,
-  Input,
-  Select,
-  SelectItem,
-  Divider,
-} from "@nextui-org/react"
+import { useEffect, useState } from "react"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { Label } from "@/components/ui/label"
 import { useAuth } from "@/hooks/use-auth"
 import AdminHeader from "@/components/admin/admin-header"
 import AdminStatsCard from "@/components/admin/admin-stats-card"
@@ -56,8 +43,10 @@ const mockShipments: ShipmentForAdmin[] = [
 
 export default function AdminDashboardPage() {
   const { user, isAuthenticated } = useAuth()
-  const { isOpen, onOpen, onOpenChange } = useDisclosure()
-  const [shipments, setShipments] = useEffect(() => {
+  const [isOpen, setIsOpen] = useState(false)
+  const [shipments, setShipments] = useState(mockShipments)
+  
+  useEffect(() => {
     // Fetch admin dashboard data
   }, [])
 
@@ -65,9 +54,9 @@ export default function AdminDashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Card className="w-full max-w-md">
-          <CardBody className="py-8 text-center">
+          <CardContent className="py-8 text-center">
             <p>Access Denied. Admin privileges required.</p>
-          </CardBody>
+          </CardContent>
         </Card>
       </div>
     )
@@ -85,70 +74,100 @@ export default function AdminDashboardPage() {
       </div>
 
       <Card>
-        <CardHeader className="flex justify-between items-center">
+        <CardHeader className="flex flex-row justify-between items-center">
           <h2 className="text-2xl font-bold">Manage Shipments</h2>
-          <Button color="primary" onPress={onOpen}>
-            Add Shipment
-          </Button>
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+              <Button>Add Shipment</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Add New Shipment</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="tracking">Tracking Number</Label>
+                  <Input id="tracking" placeholder="Enter tracking number" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="recipient">Recipient Name</Label>
+                  <Input id="recipient" placeholder="Enter recipient name" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="address">Recipient Address</Label>
+                  <Input id="address" placeholder="Enter address" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select>
+                    <SelectTrigger id="status">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PENDING">Pending</SelectItem>
+                      <SelectItem value="IN_TRANSIT">In Transit</SelectItem>
+                      <SelectItem value="DELIVERED">Delivered</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button onClick={() => setIsOpen(false)} className="w-full">
+                  Create Shipment
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </CardHeader>
-        <Divider />
-        <CardBody>
-          <Table aria-label="Admin shipments table">
+        <Separator />
+        <CardContent className="pt-6">
+          <Table>
             <TableHeader>
-              <TableColumn>Tracking</TableColumn>
-              <TableColumn>Destination</TableColumn>
-              <TableColumn>Status</TableColumn>
-              <TableColumn>Date</TableColumn>
-              <TableColumn>Actions</TableColumn>
+              <TableRow>
+                <TableHead>Tracking</TableHead>
+                <TableHead>Destination</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
             </TableHeader>
-            <TableBody items={mockShipments} emptyContent="No shipments">
-              {(shipment) => (
-                <TableRow key={shipment.id}>
-                  <TableCell>{shipment.trackingNumber}</TableCell>
-                  <TableCell>
-                    {shipment.recipientCity}, {shipment.recipientCountry}
-                  </TableCell>
-                  <TableCell>
-                    <Select size="sm" defaultSelectedKeys={[shipment.status]} className="w-32">
-                      <SelectItem key="PENDING">Pending</SelectItem>
-                      <SelectItem key="IN_TRANSIT">In Transit</SelectItem>
-                      <SelectItem key="OUT_FOR_DELIVERY">Out for Delivery</SelectItem>
-                      <SelectItem key="DELIVERED">Delivered</SelectItem>
-                    </Select>
-                  </TableCell>
-                  <TableCell>{shipment.createdAt}</TableCell>
-                  <TableCell>
-                    <Button variant="light" size="sm">
-                      Edit
-                    </Button>
-                  </TableCell>
+            <TableBody>
+              {mockShipments.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center">No shipments</TableCell>
                 </TableRow>
+              ) : (
+                mockShipments.map((shipment) => (
+                  <TableRow key={shipment.id}>
+                    <TableCell>{shipment.trackingNumber}</TableCell>
+                    <TableCell>
+                      {shipment.recipientCity}, {shipment.recipientCountry}
+                    </TableCell>
+                    <TableCell>
+                      <Select defaultValue={shipment.status}>
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="PENDING">Pending</SelectItem>
+                          <SelectItem value="IN_TRANSIT">In Transit</SelectItem>
+                          <SelectItem value="OUT_FOR_DELIVERY">Out for Delivery</SelectItem>
+                          <SelectItem value="DELIVERED">Delivered</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>{shipment.createdAt}</TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="sm">
+                        Edit
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
               )}
             </TableBody>
           </Table>
-        </CardBody>
+        </CardContent>
       </Card>
 
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl">
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">Add New Shipment</ModalHeader>
-          <ModalBody>
-            <div className="space-y-4">
-              <Input label="Tracking Number" placeholder="Enter tracking number" />
-              <Input label="Recipient Name" placeholder="Enter recipient name" />
-              <Input label="Recipient Address" placeholder="Enter address" />
-              <Select label="Status">
-                <SelectItem key="PENDING">Pending</SelectItem>
-                <SelectItem key="IN_TRANSIT">In Transit</SelectItem>
-                <SelectItem key="DELIVERED">Delivered</SelectItem>
-              </Select>
-              <Button color="primary" onPress={onOpenChange}>
-                Create Shipment
-              </Button>
-            </div>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
     </div>
   )
 }

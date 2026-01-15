@@ -1,6 +1,10 @@
 "use client"
 
-import { Button, Card, Select, SelectItem, Tabs, Tab } from "@nextui-org/react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Label } from "@/components/ui/label"
 import { Download, FileText } from "lucide-react"
 import { useState } from "react"
 import { motion } from "framer-motion"
@@ -25,34 +29,34 @@ export default function AdminReportsPage() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="mb-6">
           <Card className="p-6">
             <div className="flex flex-col md:flex-row gap-4 items-end">
-              <Select
-                label="Report Type"
-                selectedKeys={[reportType]}
-                onChange={(e) => setReportType(e.target.value)}
-                className="max-w-xs"
-              >
-                <SelectItem key="monthly" value="monthly">
-                  Monthly Report
-                </SelectItem>
-                <SelectItem key="quarterly" value="quarterly">
-                  Quarterly Report
-                </SelectItem>
-                <SelectItem key="annual" value="annual">
-                  Annual Report
-                </SelectItem>
-                <SelectItem key="custom" value="custom">
-                  Custom Range
-                </SelectItem>
-              </Select>
-              <Button color="primary" startContent={<Download className="w-4 h-4" />}>
+              <div className="space-y-2 max-w-xs flex-1">
+                <Label htmlFor="reportType">Report Type</Label>
+                <Select value={reportType} onValueChange={setReportType}>
+                  <SelectTrigger id="reportType">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monthly">Monthly Report</SelectItem>
+                    <SelectItem value="quarterly">Quarterly Report</SelectItem>
+                    <SelectItem value="annual">Annual Report</SelectItem>
+                    <SelectItem value="custom">Custom Range</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button className="bg-[#0066CC] hover:bg-[#0052A3]">
+                <Download className="w-4 h-4 mr-2" />
                 Generate Report
               </Button>
             </div>
           </Card>
         </motion.div>
 
-        <Tabs defaultSelectedKey="recent" className="mb-8">
-          <Tab key="recent" title="Recent Reports" className="w-full">
+        <Tabs defaultValue="recent" className="mb-8">
+          <TabsList>
+            <TabsTrigger value="recent">Recent Reports</TabsTrigger>
+            <TabsTrigger value="archived">Archived Reports</TabsTrigger>
+          </TabsList>
+          <TabsContent value="recent" className="w-full">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 mt-6">
               {reports.map((report, idx) => (
                 <Card key={idx} className="p-6 hover:shadow-lg transition">
@@ -61,25 +65,25 @@ export default function AdminReportsPage() {
                       <FileText className="w-8 h-8 text-[#0066CC] flex-shrink-0 mt-1" />
                       <div>
                         <h3 className="font-bold text-foreground">{report.name}</h3>
-                        <p className="text-sm text-foreground-600 mt-1">{report.date}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{report.date}</p>
                         <div className="flex gap-6 mt-2">
-                          <span className="text-sm text-foreground-600">{report.shipments} shipments</span>
+                          <span className="text-sm text-muted-foreground">{report.shipments} shipments</span>
                           <span className="text-sm font-semibold text-[#0066CC]">{report.revenue} revenue</span>
                         </div>
                       </div>
                     </div>
-                    <Button isIconOnly color="primary" variant="light">
+                    <Button variant="ghost" size="icon">
                       <Download className="w-5 h-5" />
                     </Button>
                   </div>
                 </Card>
               ))}
             </motion.div>
-          </Tab>
+          </TabsContent>
 
-          <Tab key="archived" title="Archived Reports" className="w-full">
-            <div className="mt-6 text-center p-8 text-foreground-600">No archived reports yet</div>
-          </Tab>
+          <TabsContent value="archived" className="w-full">
+            <div className="mt-6 text-center p-8 text-muted-foreground">No archived reports yet</div>
+          </TabsContent>
         </Tabs>
       </div>
     </div>

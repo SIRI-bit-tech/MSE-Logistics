@@ -1,7 +1,8 @@
 "use client"
 
-import { Card, CardBody, Link } from "@nextui-org/react"
 import { LucideIcon } from "lucide-react"
+import Link from "next/link"
+import { Card, CardContent } from "@/components/ui/card"
 
 interface ActionCardProps {
   title: string
@@ -15,13 +16,13 @@ export default function ActionCard({ title, description, icon: Icon, href, color
   return (
     <Link href={href} className="block">
       <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-        <CardBody className="p-6">
+        <CardContent className="p-6">
           <div className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center mb-4`}>
             <Icon className="w-6 h-6 text-black" />
           </div>
           <h3 className="font-semibold text-lg mb-2">{title}</h3>
           <p className="text-gray-600 text-sm">{description}</p>
-        </CardBody>
+        </CardContent>
       </Card>
     </Link>
   )

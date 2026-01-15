@@ -1,7 +1,18 @@
 "use client"
 
-import { Card, Input, Button, Select, SelectItem, Textarea, Checkbox } from "@nextui-org/react"
 import { ArrowRight, ArrowLeft, Package } from "lucide-react"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { PACKAGE_TYPES } from "../../../constants"
 
 interface PackageDetailsStepProps {
@@ -45,25 +56,19 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">PACKAGE TYPE</label>
             <Select
-              placeholder="Select package type"
-              selectedKeys={formData.packageType ? [formData.packageType] : []}
-              onSelectionChange={(keys) => {
-                if (keys !== "all") {
-                  const value = keys.size > 0 ? (Array.from(keys)[0] as string) : ''
-                  onInputChange('packageType', value)
-                }
-              }}
-              classNames={{
-                trigger: "bg-white border-gray-200",
-                value: "text-gray-900",
-                popoverContent: "bg-white"
-              }}
+              value={formData.packageType}
+              onValueChange={(value) => onInputChange('packageType', value)}
             >
-              {PACKAGE_TYPES.map((type) => (
-                <SelectItem key={type.value} value={type.value}>
-                  {type.label}
-                </SelectItem>
-              ))}
+              <SelectTrigger>
+                <SelectValue placeholder="Select package type" />
+              </SelectTrigger>
+              <SelectContent>
+                {PACKAGE_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
           </div>
           <div>
@@ -72,11 +77,7 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
               type="number"
               placeholder="0.0"
               value={formData.weight.toString()}
-              onValueChange={(value) => onInputChange('weight', parseFloat(value) || 0)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
+              onChange={(e) => onInputChange('weight', parseFloat(e.target.value) || 0)}
             />
           </div>
         </div>
@@ -88,11 +89,7 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
               type="number"
               placeholder="0"
               value={formData.length.toString()}
-              onValueChange={(value) => onInputChange('length', parseFloat(value) || 0)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
+              onChange={(e) => onInputChange('length', parseFloat(e.target.value) || 0)}
             />
           </div>
           <div>
@@ -101,11 +98,7 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
               type="number"
               placeholder="0"
               value={formData.width.toString()}
-              onValueChange={(value) => onInputChange('width', parseFloat(value) || 0)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
+              onChange={(e) => onInputChange('width', parseFloat(e.target.value) || 0)}
             />
           </div>
           <div>
@@ -114,11 +107,7 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
               type="number"
               placeholder="0"
               value={formData.height.toString()}
-              onValueChange={(value) => onInputChange('height', parseFloat(value) || 0)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
+              onChange={(e) => onInputChange('height', parseFloat(e.target.value) || 0)}
             />
           </div>
         </div>
@@ -128,13 +117,8 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
           <Textarea
             placeholder="Describe the contents of your package"
             value={formData.description}
-            onValueChange={(value) => onInputChange('description', value)}
-            minRows={3}
-            classNames={{
-              input: "text-gray-900",
-              inputWrapper: "bg-white border-gray-200 shadow-none",
-              base: "shadow-none"
-            }}
+            onChange={(e) => onInputChange('description', e.target.value)}
+            rows={3}
           />
         </div>
 
@@ -145,68 +129,60 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
               type="number"
               placeholder="0.00"
               value={formData.value.toString()}
-              onValueChange={(value) => onInputChange('value', parseFloat(value) || 0)}
-              classNames={{
-                input: "text-gray-900",
-                inputWrapper: "bg-white border-gray-200"
-              }}
+              onChange={(e) => onInputChange('value', parseFloat(e.target.value) || 0)}
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">CURRENCY</label>
             <Select
-              placeholder="Select currency"
-              selectedKeys={formData.currency ? [formData.currency] : []}
-              onSelectionChange={(keys) => {
-                if (keys !== "all") {
-                  const value = keys.size > 0 ? (Array.from(keys)[0] as string) : ''
-                  onInputChange('currency', value)
-                }
-              }}
-              classNames={{
-                trigger: "bg-white border-gray-200",
-                value: "text-gray-900",
-                popoverContent: "bg-white"
-              }}
+              value={formData.currency}
+              onValueChange={(value) => onInputChange('currency', value)}
             >
-              {CURRENCIES.map((currency) => (
-                <SelectItem key={currency.value} value={currency.value}>
-                  {currency.label}
-                </SelectItem>
-              ))}
+              <SelectTrigger>
+                <SelectValue placeholder="Select currency" />
+              </SelectTrigger>
+              <SelectContent>
+                {CURRENCIES.map((currency) => (
+                  <SelectItem key={currency.value} value={currency.value}>
+                    {currency.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
           </div>
         </div>
 
-        <div className="pt-4">
+        <div className="pt-4 flex items-center space-x-2">
           <Checkbox
-            isSelected={formData.insuranceOptional}
-            onValueChange={(checked) => onInputChange('insuranceOptional', checked)}
-            classNames={{
-              label: "text-sm text-gray-700"
-            }}
+            id="insurance"
+            checked={formData.insuranceOptional}
+            onCheckedChange={(checked) => onInputChange('insuranceOptional', checked as boolean)}
+          />
+          <label
+            htmlFor="insurance"
+            className="text-sm text-gray-700 cursor-pointer"
           >
             Add insurance coverage (recommended for valuable items)
-          </Checkbox>
+          </label>
         </div>
 
         <div className="pt-6 flex justify-between">
           <Button
             size="lg"
-            variant="bordered"
+            variant="outline"
             className="px-8"
-            startContent={<ArrowLeft className="w-5 h-5" />}
-            onPress={onPrevious}
+            onClick={onPrevious}
           >
+            <ArrowLeft className="w-5 h-5 mr-2" />
             Previous
           </Button>
           <Button
             size="lg"
             className="bg-black text-white hover:bg-gray-800 px-8"
-            endContent={<ArrowRight className="w-5 h-5" />}
-            onPress={onNext}
+            onClick={onNext}
           >
             Next: Service & Review
+            <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </div>
       </div>

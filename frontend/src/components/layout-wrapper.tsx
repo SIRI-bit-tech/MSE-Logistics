@@ -3,9 +3,12 @@
 import { usePathname } from "next/navigation"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import { useAuthStore } from "@/store/auth-store"
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const { isAuthenticated } = useAuthStore()
+  
   const isAuthPage = pathname?.startsWith('/auth')
   const isCustomerDashboard = pathname?.startsWith('/shipments') || 
                              pathname?.startsWith('/addresses') || 
@@ -15,8 +18,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                              pathname?.startsWith('/payments') ||
                              pathname?.startsWith('/quotes') ||
                              pathname?.startsWith('/invoices')
+  const isTrackingPage = pathname?.startsWith('/tracking')
 
-  if (isAuthPage || isCustomerDashboard) {
+  // Don't show navbar/footer for auth pages, customer dashboard, or tracking pages when authenticated
+  if (isAuthPage || isCustomerDashboard || (isTrackingPage && isAuthenticated)) {
     return <main className="min-h-screen">{children}</main>
   }
 

@@ -3,7 +3,9 @@
 import { useEffect } from "react"
 import { useParams } from "next/navigation"
 import { useShipment } from "@/hooks/use-shipment"
-import { useAuth } from "@/hooks/use-auth"
+import { useAuthStore } from "@/store/auth-store"
+import { Plane, Truck, Ship, Zap, XCircle, RotateCcw, PauseCircle } from "lucide-react"
+import { getStatusIcon } from "@/lib/status-icons"
 import Navbar from "@/components/navbar"
 import Sidebar from "@/components/dashboard/sidebar"
 import TrackingMap from "@/components/tracking/tracking-map"
@@ -13,13 +15,16 @@ export default function TrackingPage() {
   const params = useParams()
   const trackingNumber = params.trackingNumber as string
   const { selectedShipment, getShipmentDetails, isLoading } = useShipment()
-  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  
+  // Access auth state directly from store (initialized globally in Providers)
+  const { isAuthenticated, isLoading: authLoading } = useAuthStore()
 
   useEffect(() => {
-    if (trackingNumber) {
+    if (trackingNumber && !authLoading) {
       getShipmentDetails(trackingNumber)
     }
-  }, [trackingNumber, getShipmentDetails])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trackingNumber, authLoading])
 
   if (isLoading || authLoading || !selectedShipment) {
     return (
@@ -83,32 +88,25 @@ export default function TrackingPage() {
               <div className="flex gap-4">
                 <div className={`flex flex-col items-center ${selectedShipment.transportMode === 'AIR' ? 'opacity-100' : 'opacity-30'}`}>
                   <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                    </svg>
+                    <Plane className="w-6 h-6 text-gray-700" />
                   </div>
                   <span className="text-xs mt-1">Air</span>
                 </div>
                 <div className={`flex flex-col items-center ${selectedShipment.transportMode === 'LAND' ? 'opacity-100' : 'opacity-30'}`}>
                   <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                      <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
-                    </svg>
+                    <Truck className="w-6 h-6 text-gray-700" />
                   </div>
                   <span className="text-xs mt-1">Land</span>
                 </div>
                 <div className={`flex flex-col items-center ${selectedShipment.transportMode === 'WATER' ? 'opacity-100' : 'opacity-30'}`}>
                   <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">🚢</span>
+                    <Ship className="w-6 h-6 text-gray-700" />
                   </div>
                   <span className="text-xs mt-1">Sea</span>
                 </div>
                 <div className={`flex flex-col items-center ${selectedShipment.transportMode === 'MULTIMODAL' ? 'opacity-100' : 'opacity-30'}`}>
                   <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-                    </svg>
+                    <Zap className="w-6 h-6 text-gray-700" />
                   </div>
                   <span className="text-xs mt-1">Multi</span>
                 </div>
@@ -130,9 +128,9 @@ export default function TrackingPage() {
                       selectedShipment.status === 'RETURNED' ? 'bg-orange-500' :
                       'bg-yellow-500'
                     }`}>
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
+                      {selectedShipment.status === 'CANCELLED' && <XCircle className="w-5 h-5 text-white" />}
+                      {selectedShipment.status === 'RETURNED' && <RotateCcw className="w-5 h-5 text-white" />}
+                      {selectedShipment.status === 'ON_HOLD' && <PauseCircle className="w-5 h-5 text-white" />}
                     </div>
                     <div>
                       <p className="font-bold text-gray-900">
@@ -173,15 +171,18 @@ export default function TrackingPage() {
                     const isActive = index <= currentIndex
                     const isCurrent = index === currentIndex
                     
+                    // Get the appropriate icon for current status
+                    const StepIcon = isCurrent ? getStatusIcon(selectedShipment.status) : null
+                    
                     return (
                       <div key={step} className="flex flex-col items-center flex-1">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                           isCurrent ? 'bg-yellow-400' : isActive ? 'bg-gray-400' : 'bg-gray-200'
                         }`}>
-                          {isActive ? (
-                            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
+                          {isCurrent && StepIcon ? (
+                            <StepIcon className="w-5 h-5 text-white" />
+                          ) : isActive ? (
+                            <div className="w-3 h-3 bg-white rounded-full" />
                           ) : (
                             <div className="w-3 h-3 bg-gray-400 rounded-full" />
                           )}
@@ -204,6 +205,7 @@ export default function TrackingPage() {
           <TrackingStatusUpdates 
             events={selectedShipment.trackingEvents} 
             status={selectedShipment.status}
+            createdAt={selectedShipment.createdAt}
           />
         </div>
       </div>

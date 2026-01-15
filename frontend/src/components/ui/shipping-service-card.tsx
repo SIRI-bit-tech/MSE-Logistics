@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardBody } from "@nextui-org/react"
+import { Card, CardContent } from "@/components/ui/card"
 import { Crown, Truck, Plane } from "lucide-react"
 
 type ServiceType = "EXPRESS" | "STANDARD" | "ECONOMY"
@@ -29,7 +29,7 @@ const serviceIcons = {
 }
 
 const serviceColors = {
-  EXPRESS: 'border-msc-yellow bg-msc-yellow/5',
+  EXPRESS: 'border-[#FFD700] bg-[#FFD700]/5',
   STANDARD: 'border-gray-300 bg-white',
   ECONOMY: 'border-gray-300 bg-white',
 }
@@ -47,13 +47,12 @@ export default function ShippingServiceCard({
       className={`cursor-pointer transition-all hover:shadow-md ${
         selected ? serviceColors.EXPRESS : serviceColors[serviceType]
       }`}
-      isPressable
-      onPress={() => onSelect(serviceType)}
+      onClick={() => onSelect(serviceType)}
     >
-      <CardBody className="p-6">
+      <CardContent className="p-6">
         <div className="flex flex-col items-center text-center">
           <div className={`p-3 rounded-full mb-4 ${
-            selected ? 'bg-msc-yellow' : 'bg-gray-100'
+            selected ? 'bg-[#FFD700]' : 'bg-gray-100'
           }`}>
             <Icon className={`w-6 h-6 ${
               selected ? 'text-black' : 'text-gray-600'
@@ -72,7 +71,7 @@ export default function ShippingServiceCard({
             ${rate.totalCost.toFixed(2)}
           </div>
         </div>
-      </CardBody>
+      </CardContent>
     </Card>
   )
 }

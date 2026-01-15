@@ -1,6 +1,8 @@
 "use client"
 
-import { Card, CardBody, Button, Chip } from "@nextui-org/react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
 import { useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -66,13 +68,13 @@ export default function CustomerAdvisories() {
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800">Latest News</h2>
           <Button
-            as={Link}
-            href="/news"
-            variant="light"
-            className="text-msc-yellow hover:text-msc-gold font-semibold"
-            endContent={<span className="text-msc-yellow">→</span>}
+            asChild
+            variant="link"
+            className="text-[#FFD700] hover:text-[#D4AF37] font-semibold"
           >
-            View All News
+            <Link href="/news">
+              View All News →
+            </Link>
           </Button>
         </motion.div>
 
@@ -95,9 +97,7 @@ export default function CustomerAdvisories() {
                       alt={advisory.title}
                       className="w-full h-full object-cover"
                     />
-                    <Chip 
-                      size="sm" 
-                      variant="flat"
+                    <Badge 
                       className={`absolute top-4 left-4 ${
                         advisory.color === 'warning' ? 'bg-yellow-500 text-white' :
                         advisory.color === 'primary' ? 'bg-blue-500 text-white' :
@@ -107,9 +107,9 @@ export default function CustomerAdvisories() {
                       }`}
                     >
                       {advisory.category}
-                    </Chip>
+                    </Badge>
                   </div>
-                  <CardBody className="p-6">
+                  <CardContent className="p-6">
                     <div className="text-sm text-gray-500 mb-2">{advisory.date}</div>
                     <h3 className="text-lg font-bold text-gray-800 mb-3 leading-tight">
                       {advisory.title}
@@ -118,34 +118,38 @@ export default function CustomerAdvisories() {
                       {advisory.description}
                     </p>
                     <Button
-                      as={Link}
-                      href={advisory.readMore}
-                      variant="light"
-                      className="text-msc-yellow hover:text-msc-gold p-0 h-auto font-semibold"
-                      endContent={<span className="text-msc-yellow">→</span>}
+                      asChild
+                      variant="link"
+                      className="text-[#FFD700] hover:text-[#D4AF37] p-0 h-auto font-semibold"
                     >
-                      READ MORE
+                      <Link href={advisory.readMore}>
+                        READ MORE →
+                      </Link>
                     </Button>
-                  </CardBody>
+                  </CardContent>
                 </Card>
               </motion.div>
             ))}
           </div>
 
           {/* Navigation Arrows */}
-          <button
+          <Button
             onClick={prevSlide}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors z-10"
+            variant="outline"
+            size="icon"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white shadow-lg rounded-full z-10"
           >
             <ChevronLeft className="w-6 h-6 text-gray-600" />
-          </button>
+          </Button>
           
-          <button
+          <Button
             onClick={nextSlide}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors z-10"
+            variant="outline"
+            size="icon"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white shadow-lg rounded-full z-10"
           >
             <ChevronRight className="w-6 h-6 text-gray-600" />
-          </button>
+          </Button>
         </div>
       </div>
     </section>

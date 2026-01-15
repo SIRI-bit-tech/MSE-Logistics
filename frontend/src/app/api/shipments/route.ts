@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
       currency: data.currency,
       // Service info (defaults for now)
       serviceType: 'STANDARD',
-      transportMode: 'WATER',
+      transportMode: 'LAND',
       // Costs
       shippingCost,
       insuranceCost: data.insuranceOptional ? insuranceCost : null,

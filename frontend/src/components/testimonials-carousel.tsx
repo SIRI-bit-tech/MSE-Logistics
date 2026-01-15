@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Card } from "@nextui-org/react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Star } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -66,24 +67,21 @@ export default function TestimonialsCarousel() {
                     transition={{ duration: 0.5 }}
                   >
                     <Card className="p-8 md:p-12">
-                      <div className="flex flex-col items-center text-center">
-                        {/* <Image
-                        src={testimonial.image || "/placeholder.svg"}
-                        alt={testimonial.name}
-                        className="w-20 h-20 rounded-full object-cover mb-6"
-                      /> */}
-                        <div className="flex mb-4">
-                          {[...Array(testimonial.rating)].map((_, i) => (
-                            <Star key={i} className="w-5 h-5 fill-[#FFD700] text-[#FFD700]" />
-                          ))}
+                      <CardContent className="p-0">
+                        <div className="flex flex-col items-center text-center">
+                          <div className="flex mb-4">
+                            {[...Array(testimonial.rating)].map((_, i) => (
+                              <Star key={i} className="w-5 h-5 fill-[#FFD700] text-[#FFD700]" />
+                            ))}
+                          </div>
+                          <p className="text-lg md:text-xl text-foreground mb-6 italic">{testimonial.text}</p>
+                          <div>
+                            <p className="font-semibold text-foreground">{testimonial.name}</p>
+                            <p className="text-sm text-foreground-600">{testimonial.role}</p>
+                            <p className="text-sm text-[#0066CC] font-semibold">{testimonial.company}</p>
+                          </div>
                         </div>
-                        <p className="text-lg md:text-xl text-foreground mb-6 italic">{testimonial.text}</p>
-                        <div>
-                          <p className="font-semibold text-foreground">{testimonial.name}</p>
-                          <p className="text-sm text-foreground-600">{testimonial.role}</p>
-                          <p className="text-sm text-[#0066CC] font-semibold">{testimonial.company}</p>
-                        </div>
-                      </div>
+                      </CardContent>
                     </Card>
                   </motion.div>
                 ),
@@ -91,21 +89,25 @@ export default function TestimonialsCarousel() {
           </AnimatePresence>
 
           {/* Navigation */}
-          <button
+          <Button
             onClick={prev}
-            className="absolute -left-4 md:-left-16 top-1/2 -translate-y-1/2 bg-[#0066CC] hover:bg-[#003873] text-white rounded-full p-2 transition"
+            variant="default"
+            size="icon"
+            className="absolute -left-4 md:-left-16 top-1/2 -translate-y-1/2 bg-[#0066CC] hover:bg-[#003873] text-white rounded-full"
             aria-label="Previous testimonial"
           >
             <ChevronLeft className="w-6 h-6" />
-          </button>
+          </Button>
 
-          <button
+          <Button
             onClick={next}
-            className="absolute -right-4 md:-right-16 top-1/2 -translate-y-1/2 bg-[#0066CC] hover:bg-[#003873] text-white rounded-full p-2 transition"
+            variant="default"
+            size="icon"
+            className="absolute -right-4 md:-right-16 top-1/2 -translate-y-1/2 bg-[#0066CC] hover:bg-[#003873] text-white rounded-full"
             aria-label="Next testimonial"
           >
             <ChevronRight className="w-6 h-6" />
-          </button>
+          </Button>
 
           {/* Dots */}
           <div className="flex justify-center gap-2 mt-8">
