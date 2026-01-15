@@ -2,6 +2,8 @@ export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000
 
 export const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
 
+export const GRAPHHOPPER_API_KEY = process.env.NEXT_PUBLIC_GRAPHHOPPER_API_KEY
+
 // MSC Brand Colors - Exact match to MSC website
 export const MSC_COLORS = {
   // Primary MSC Colors (only yellow/gold and neutrals)

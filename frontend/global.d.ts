@@ -98,6 +98,11 @@ export interface Shipment {
   deliveryPhoto?: string
   recipientNameConfirm?: string
 
+  currentLatitude?: number
+  currentLongitude?: number
+  currentLocation?: string
+  lastLocationUpdate?: Date
+
   customsStatus?: CustomsStatus
   customsDocuments: string[] // Will be parsed from JSON string
 

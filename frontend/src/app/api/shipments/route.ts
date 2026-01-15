@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getUserFromToken } from '@/lib/jwt-config'
 import { z } from 'zod'
+import { geocodeShipmentAddresses } from '@/lib/geocoding'
 
 // Shipment creation validation schema
 const shipmentSchema = z.object({
@@ -108,8 +109,32 @@ export async function POST(request: NextRequest) {
 
     const data = validationResult.data
     
-    // Generate tracking number
-    const trackingNumber = `MSE${Date.now()}${Math.random().toString(36).substr(2, 4).toUpperCase()}`
+    // Generate secure tracking number (MSE-ABC123 format)
+    const generateTrackingNumber = () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+      let code = 'MSE-'
+      // Generate 3 random letters
+      for (let i = 0; i < 3; i++) {
+        code += chars.charAt(Math.floor(Math.random() * 26))
+      }
+      // Generate 3 random numbers
+      for (let i = 0; i < 3; i++) {
+        code += chars.charAt(26 + Math.floor(Math.random() * 10))
+      }
+      return code
+    }
+    
+    const trackingNumber = generateTrackingNumber()
+
+    // Geocode addresses using postal codes to get coordinates
+    const coordinates = await geocodeShipmentAddresses({
+      senderPostalCode: data.senderPostalCode,
+      senderCity: data.senderCity,
+      senderCountry: data.senderCountry,
+      recipientPostalCode: data.recipientPostalCode,
+      recipientCity: data.recipientCity,
+      recipientCountry: data.recipientCountry,
+    })
 
     // Calculate costs using validated data (basic calculation - can be enhanced)
     const baseRate = data.weight * 5 // $5 per kg base rate
@@ -131,6 +156,8 @@ export async function POST(request: NextRequest) {
         senderCity: data.senderCity,
         senderCountry: data.senderCountry,
         senderPostalCode: data.senderPostalCode,
+        senderLatitude: coordinates.senderLatitude,
+        senderLongitude: coordinates.senderLongitude,
         // Recipient info
         recipientName: data.recipientName,
         recipientEmail: data.recipientEmail,
@@ -139,6 +166,8 @@ export async function POST(request: NextRequest) {
         recipientCity: data.recipientCity,
         recipientCountry: data.recipientCountry,
         recipientPostalCode: data.recipientPostalCode,
+        recipientLatitude: coordinates.recipientLatitude,
+        recipientLongitude: coordinates.recipientLongitude,
         // Package info
         packageType: data.packageType,
         weight: data.weight,
@@ -155,6 +184,11 @@ export async function POST(request: NextRequest) {
         shippingCost,
         insuranceCost: data.insuranceOptional ? insuranceCost : null,
         totalCost,
+        // Current location (initially at sender location)
+        currentLatitude: coordinates.senderLatitude,
+        currentLongitude: coordinates.senderLongitude,
+        currentLocation: `${data.senderCity}, ${data.senderCountry}`,
+        lastLocationUpdate: new Date(),
       },
       select: {
         id: true,
