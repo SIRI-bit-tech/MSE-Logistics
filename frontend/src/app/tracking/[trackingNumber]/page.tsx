@@ -19,7 +19,7 @@ export default function TrackingPage() {
     if (trackingNumber) {
       getShipmentDetails(trackingNumber)
     }
-  }, [trackingNumber])
+  }, [trackingNumber, getShipmentDetails])
 
   if (isLoading || authLoading || !selectedShipment) {
     return (
@@ -53,11 +53,15 @@ export default function TrackingPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
                 <p className="text-gray-500 uppercase text-xs mb-1">Origin</p>
-                <p className="font-semibold text-gray-900">{selectedShipment.senderCity}, {selectedShipment.senderCountry.substring(0, 2)}</p>
+                <p className="font-semibold text-gray-900">
+                  {selectedShipment.senderCity}, {(selectedShipment.senderCountry || '').slice(0, 2) || selectedShipment.senderCountry}
+                </p>
               </div>
               <div>
                 <p className="text-gray-500 uppercase text-xs mb-1">Destination</p>
-                <p className="font-semibold text-gray-900">{selectedShipment.recipientCity}, {selectedShipment.recipientCountry.substring(0, 2)}</p>
+                <p className="font-semibold text-gray-900">
+                  {selectedShipment.recipientCity}, {(selectedShipment.recipientCountry || '').slice(0, 2) || selectedShipment.recipientCountry}
+                </p>
               </div>
               <div>
                 <p className="text-gray-500 uppercase text-xs mb-1">Est. Delivery</p>
@@ -113,31 +117,81 @@ export default function TrackingPage() {
 
             {/* Status Progress */}
             <div className="mt-6">
-              <div className="flex items-center justify-between">
-                {['Pending', 'Processing', 'In Transit', 'Delivery', 'Delivered'].map((step, index) => {
-                  const statusMap = ['PENDING', 'PROCESSING', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED']
-                  const currentIndex = statusMap.indexOf(selectedShipment.status)
-                  const isActive = index <= currentIndex
-                  const isCurrent = index === currentIndex
-                  
-                  return (
-                    <div key={step} className="flex flex-col items-center flex-1">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        isCurrent ? 'bg-yellow-400' : isActive ? 'bg-gray-400' : 'bg-gray-200'
-                      }`}>
-                        {isActive ? (
-                          <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        ) : (
-                          <div className="w-3 h-3 bg-gray-400 rounded-full" />
-                        )}
-                      </div>
-                      <span className="text-xs mt-2 text-center">{step}</span>
+              {/* Exception statuses (show alert instead of progress) */}
+              {['CANCELLED', 'RETURNED', 'ON_HOLD'].includes(selectedShipment.status) ? (
+                <div className={`p-4 rounded-lg border-2 ${
+                  selectedShipment.status === 'CANCELLED' ? 'bg-red-50 border-red-200' :
+                  selectedShipment.status === 'RETURNED' ? 'bg-orange-50 border-orange-200' :
+                  'bg-yellow-50 border-yellow-200'
+                }`}>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      selectedShipment.status === 'CANCELLED' ? 'bg-red-500' :
+                      selectedShipment.status === 'RETURNED' ? 'bg-orange-500' :
+                      'bg-yellow-500'
+                    }`}>
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-900">
+                        {selectedShipment.status === 'CANCELLED' && 'Shipment Cancelled'}
+                        {selectedShipment.status === 'RETURNED' && 'Shipment Returned to Sender'}
+                        {selectedShipment.status === 'ON_HOLD' && 'Shipment On Hold'}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {selectedShipment.status === 'CANCELLED' && 'This shipment has been cancelled and will not be delivered.'}
+                        {selectedShipment.status === 'RETURNED' && 'This shipment is being returned to the sender.'}
+                        {selectedShipment.status === 'ON_HOLD' && 'This shipment is temporarily on hold. Please contact support for more information.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Normal progress bar for active shipments */
+                <div className="flex items-center justify-between">
+                  {['Pending', 'Processing', 'In Transit', 'Delivery', 'Delivered'].map((step, index) => {
+                    // Map all statuses to progress steps
+                    const getStatusIndex = (status: string): number => {
+                      const statusMapping: Record<string, number> = {
+                        'PENDING': 0,
+                        'PROCESSING': 1,
+                        'PICKED_UP': 1,
+                        'IN_TRANSIT': 2,
+                        'IN_CUSTOMS': 2,
+                        'CUSTOMS_CLEARED': 2,
+                        'ARRIVED_AT_FACILITY': 2,
+                        'OUT_FOR_DELIVERY': 3,
+                        'DELIVERY_ATTEMPTED': 3,
+                        'DELIVERED': 4,
+                      }
+                      return statusMapping[status] ?? -1
+                    }
+                    
+                    const currentIndex = getStatusIndex(selectedShipment.status)
+                    const isActive = index <= currentIndex
+                    const isCurrent = index === currentIndex
+                    
+                    return (
+                      <div key={step} className="flex flex-col items-center flex-1">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          isCurrent ? 'bg-yellow-400' : isActive ? 'bg-gray-400' : 'bg-gray-200'
+                        }`}>
+                          {isActive ? (
+                            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          ) : (
+                            <div className="w-3 h-3 bg-gray-400 rounded-full" />
+                          )}
+                        </div>
+                        <span className="text-xs mt-2 text-center">{step}</span>
                     </div>
                   )
                 })}
               </div>
+              )}
             </div>
           </div>
 

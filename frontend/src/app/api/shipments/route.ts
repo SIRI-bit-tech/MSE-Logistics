@@ -3,6 +3,53 @@ import { prisma } from '@/lib/prisma'
 import { getUserFromToken } from '@/lib/jwt-config'
 import { z } from 'zod'
 import { geocodeShipmentAddresses } from '@/lib/geocoding'
+import crypto from 'crypto'
+
+// Generate cryptographically secure tracking number (MSE-ABC123 format)
+function generateTrackingNumber(): string {
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  const numbers = '0123456789'
+  
+  // Use crypto for secure random generation
+  const randomBytes = crypto.randomBytes(6)
+  
+  let code = 'MSE-'
+  // Generate 3 random letters
+  for (let i = 0; i < 3; i++) {
+    code += letters[randomBytes[i] % 26]
+  }
+  // Generate 3 random numbers
+  for (let i = 3; i < 6; i++) {
+    code += numbers[randomBytes[i] % 10]
+  }
+  
+  return code
+}
+
+// Generate unique tracking number with collision check
+async function generateUniqueTrackingNumber(): Promise<string> {
+  let attempts = 0
+  const maxAttempts = 10
+  
+  while (attempts < maxAttempts) {
+    const trackingNumber = generateTrackingNumber()
+    
+    // Check if tracking number already exists
+    const existing = await prisma.shipment.findUnique({
+      where: { trackingNumber },
+      select: { id: true }
+    })
+    
+    if (!existing) {
+      return trackingNumber
+    }
+    
+    attempts++
+  }
+  
+  // Fallback: add timestamp to ensure uniqueness
+  return `MSE-${Date.now().toString(36).toUpperCase().slice(-6)}`
+}
 
 // Shipment creation validation schema
 const shipmentSchema = z.object({
@@ -109,22 +156,8 @@ export async function POST(request: NextRequest) {
 
     const data = validationResult.data
     
-    // Generate secure tracking number (MSE-ABC123 format)
-    const generateTrackingNumber = () => {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-      let code = 'MSE-'
-      // Generate 3 random letters
-      for (let i = 0; i < 3; i++) {
-        code += chars.charAt(Math.floor(Math.random() * 26))
-      }
-      // Generate 3 random numbers
-      for (let i = 0; i < 3; i++) {
-        code += chars.charAt(26 + Math.floor(Math.random() * 10))
-      }
-      return code
-    }
-    
-    const trackingNumber = generateTrackingNumber()
+    // Generate unique tracking number with collision check
+    const trackingNumber = await generateUniqueTrackingNumber()
 
     // Geocode addresses using postal codes to get coordinates
     const coordinates = await geocodeShipmentAddresses({

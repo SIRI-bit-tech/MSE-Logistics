@@ -1,3 +1,4 @@
+import { useCallback } from "react"
 import { useShipmentStore } from "@/store/shipment-store"
 
 export function useShipment() {
@@ -13,7 +14,7 @@ export function useShipment() {
     addShipment,
   } = useShipmentStore()
 
-  const fetchShipments = async () => {
+  const fetchShipments = useCallback(async () => {
     setLoading(true)
     try {
       const response = await fetch(`/api/shipments?skip=0&take=10`, {
@@ -31,9 +32,9 @@ export function useShipment() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [setLoading, setShipments, setError])
 
-  const createShipment = async (shipmentData: any) => {
+  const createShipment = useCallback(async (shipmentData: any) => {
     setLoading(true)
     try {
       const response = await fetch('/api/shipments', {
@@ -59,9 +60,9 @@ export function useShipment() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [setLoading, addShipment, setError])
 
-  const getShipmentDetails = async (trackingNumber: string) => {
+  const getShipmentDetails = useCallback(async (trackingNumber: string) => {
     setLoading(true)
     try {
       const response = await fetch(`/api/tracking/${trackingNumber}`)
@@ -82,7 +83,7 @@ export function useShipment() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [setLoading, setSelectedShipment, setError])
 
   return {
     shipments,

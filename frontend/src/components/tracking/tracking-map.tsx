@@ -74,13 +74,20 @@ export default function TrackingMap({ shipment }: TrackingMapProps) {
           .setLngLat([shipment.currentLongitude!, shipment.currentLatitude!])
           .addTo(map.current)
 
-        // Add live position popup
+        // Add live position popup (safe DOM construction)
         const popup = document.createElement('div')
         popup.className = 'absolute -top-16 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap shadow-lg'
-        popup.innerHTML = `
-          <div class="font-semibold">LIVE POSITION</div>
-          <div class="text-xs opacity-90">Vessel: ${shipment.currentLocation || 'MSE ADRIATIC'}</div>
-        `
+        
+        const titleDiv = document.createElement('div')
+        titleDiv.className = 'font-semibold'
+        titleDiv.textContent = 'LIVE POSITION'
+        
+        const vesselDiv = document.createElement('div')
+        vesselDiv.className = 'text-xs opacity-90'
+        vesselDiv.textContent = `Vessel: ${shipment.currentLocation || 'MSE ADRIATIC'}`
+        
+        popup.appendChild(titleDiv)
+        popup.appendChild(vesselDiv)
         el.appendChild(popup)
     }
 
