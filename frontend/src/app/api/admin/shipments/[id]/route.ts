@@ -27,9 +27,10 @@ const updateShipmentSchema = z.object({
 // PATCH /api/admin/shipments/[id] - Update shipment (admin only)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const userId = await getUserFromToken(request)
     
     if (!userId) {
@@ -51,7 +52,7 @@ export async function PATCH(
 
     // Check if shipment exists
     const existingShipment = await prisma.shipment.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!existingShipment) {
@@ -85,7 +86,7 @@ export async function PATCH(
 
     // Update shipment
     const updatedShipment = await prisma.shipment.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       select: {
         id: true,
@@ -102,7 +103,7 @@ export async function PATCH(
     if (validatedData.status) {
       await prisma.trackingEvent.create({
         data: {
-          shipmentId: params.id,
+          shipmentId: id,
           status: validatedData.status,
           location: validatedData.currentLocation || existingShipment.currentLocation || 'Unknown',
           city: existingShipment.recipientCity,
@@ -134,9 +135,10 @@ export async function PATCH(
 // GET /api/admin/shipments/[id] - Get single shipment (admin only)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const userId = await getUserFromToken(request)
     
     if (!userId) {
@@ -154,7 +156,7 @@ export async function GET(
     }
 
     const shipment = await prisma.shipment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         user: {
           select: {
