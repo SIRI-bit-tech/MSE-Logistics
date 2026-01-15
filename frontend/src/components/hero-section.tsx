@@ -5,9 +5,24 @@ import { Input } from "@/components/ui/input"
 import { motion } from "framer-motion"
 import { useState } from "react"
 import { Search } from "lucide-react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 export default function HeroSection() {
   const [trackingNumber, setTrackingNumber] = useState("")
+  const router = useRouter()
+
+  const handleTrack = () => {
+    if (trackingNumber.trim()) {
+      router.push(`/tracking/${trackingNumber.trim()}`)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleTrack()
+    }
+  }
 
   return (
     <motion.section
@@ -54,13 +69,18 @@ export default function HeroSection() {
             <Button 
               size="lg" 
               className="bg-[#FFD700] hover:bg-[#D4AF37] text-black font-bold px-8 py-3"
+              asChild
             >
-              Get Quote
+              <Link href="/user/register">Get Started</Link>
             </Button>
             <Button 
               size="lg" 
               variant="outline" 
-              className="text-white border-white hover:bg-white/10 font-semibold px-8 py-3"
+              className="text-white border-white hover:bg-white/10 hover:text-white font-semibold px-8 py-3"
+              onClick={() => {
+                const trackingInput = document.getElementById('tracking-input') as HTMLInputElement
+                trackingInput?.focus()
+              }}
             >
               Track Shipment
             </Button>
@@ -73,14 +93,18 @@ export default function HeroSection() {
             className="flex gap-2 max-w-md"
           >
             <Input
+              id="tracking-input"
               placeholder="Enter tracking number..."
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
-              className="flex-1 bg-white text-gray-700"
+              onKeyPress={handleKeyPress}
+              className="flex-1 bg-white text-gray-900 placeholder:text-gray-500"
               aria-label="Enter tracking number"
             />
             <Button 
-              className="bg-[#FFD700] hover:bg-[#D4AF37] text-black px-6 font-semibold"
+              onClick={handleTrack}
+              disabled={!trackingNumber.trim()}
+              className="bg-[#FFD700] hover:bg-[#D4AF37] text-black px-6 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Search size={18} className="mr-2" />
               Track

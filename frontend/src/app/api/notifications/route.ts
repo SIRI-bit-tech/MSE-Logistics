@@ -39,3 +39,32 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+// PATCH /api/notifications - Mark all notifications as read
+export async function PATCH(request: NextRequest) {
+  try {
+    const userId = await getUserFromToken(request)
+    if (!userId) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
+    // Mark all unread notifications as read
+    const result = await prisma.notification.updateMany({
+      where: {
+        userId,
+        isRead: false,
+      },
+      data: {
+        isRead: true,
+      },
+    })
+
+    return NextResponse.json({ 
+      message: 'All notifications marked as read',
+      count: result.count 
+    })
+  } catch (error) {
+    console.error('Error marking notifications as read:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
