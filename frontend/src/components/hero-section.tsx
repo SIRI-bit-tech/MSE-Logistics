@@ -13,8 +13,9 @@ export default function HeroSection() {
   const router = useRouter()
 
   const handleTrack = () => {
-    if (trackingNumber.trim()) {
-      router.push(`/tracking/${trackingNumber.trim()}`)
+    const trimmedValue = trackingNumber.trim()
+    if (trimmedValue) {
+      router.push(`/tracking/${encodeURIComponent(trimmedValue)}`)
     }
   }
 

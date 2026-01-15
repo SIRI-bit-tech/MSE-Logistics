@@ -8,7 +8,6 @@ const updateDriverProfileSchema = z.object({
   lastName: z.string().min(1).optional(),
   phone: z.string().optional(),
   vehicle: z.string().optional(),
-  bio: z.string().optional(),
 })
 
 // GET /api/driver/profile - Get driver profile
@@ -56,7 +55,6 @@ export async function GET(request: NextRequest) {
       phone: user.phone || '',
       licenseNumber: driver?.licenseNumber || '',
       vehicle: driver ? `${driver.vehicleType} - ${driver.vehicleNumber}` : '',
-      bio: '', // Add bio field to User model if needed
     }
 
     return NextResponse.json(profileData)
@@ -127,16 +125,31 @@ export async function PUT(request: NextRequest) {
 
       if (driver) {
         // Parse vehicle string (format: "Type - Number")
-        const vehicleParts = validatedData.vehicle.split(' - ')
-        if (vehicleParts.length === 2) {
-          await prisma.driver.update({
-            where: { email: user.email },
-            data: {
-              vehicleType: vehicleParts[0],
-              vehicleNumber: vehicleParts[1],
-            },
-          })
+        // Use lastIndexOf to handle vehicle types that may contain ' - '
+        const lastDashIndex = validatedData.vehicle.lastIndexOf(' - ')
+        
+        if (lastDashIndex === -1) {
+          return NextResponse.json({ 
+            error: 'Invalid vehicle format. Expected format: "Type - Number"' 
+          }, { status: 400 })
         }
+
+        const vehicleType = validatedData.vehicle.substring(0, lastDashIndex).trim()
+        const vehicleNumber = validatedData.vehicle.substring(lastDashIndex + 3).trim()
+
+        if (!vehicleType || !vehicleNumber) {
+          return NextResponse.json({ 
+            error: 'Vehicle type and number cannot be empty' 
+          }, { status: 400 })
+        }
+
+        await prisma.driver.update({
+          where: { email: user.email },
+          data: {
+            vehicleType,
+            vehicleNumber,
+          },
+        })
       }
     }
 

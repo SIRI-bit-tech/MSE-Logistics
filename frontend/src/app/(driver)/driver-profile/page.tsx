@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { motion } from "framer-motion"
 import { useState, useEffect } from "react"
@@ -23,7 +22,6 @@ export default function DriverProfilePage() {
     phone: "",
     licenseNumber: "",
     vehicle: "",
-    bio: "",
   })
 
   // Store original data for cancel functionality
@@ -51,7 +49,6 @@ export default function DriverProfilePage() {
               phone: data.phone || "",
               licenseNumber: data.licenseNumber || "",
               vehicle: data.vehicle || "",
-              bio: data.bio || "",
             }
             setFormData(profileData)
             setOriginalData(profileData)
@@ -84,12 +81,22 @@ export default function DriverProfilePage() {
       })
 
       if (response.ok) {
-        await response.json()
-        setOriginalData(formData)
+        const data = await response.json()
+        // Use server response to preserve any server-side transformations
+        const updatedData = {
+          firstName: data.firstName || formData.firstName,
+          lastName: data.lastName || formData.lastName,
+          email: data.email || formData.email,
+          phone: data.phone || formData.phone,
+          licenseNumber: formData.licenseNumber,
+          vehicle: formData.vehicle,
+        }
+        setOriginalData(updatedData)
+        setFormData(updatedData)
         toast.success('Profile updated successfully!')
       } else {
         const error = await response.json()
-        toast.error(error.message || 'Failed to update profile')
+        toast.error(error.error || 'Failed to update profile')
       }
     } catch (error) {
       console.error('Error updating profile:', error)
@@ -195,14 +202,6 @@ export default function DriverProfilePage() {
                     id="vehicle"
                     value={formData.vehicle}
                     onChange={(e) => setFormData({ ...formData, vehicle: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
-                  <Textarea
-                    id="bio"
-                    value={formData.bio}
-                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                   />
                 </div>
               </div>
