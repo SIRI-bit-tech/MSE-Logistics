@@ -10,8 +10,8 @@ function generateTrackingNumber(): string {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
   const numbers = '0123456789'
   
-  // Use crypto for secure random generation
-  const randomBytes = crypto.randomBytes(6)
+  // Use crypto for secure random generation with stronger entropy
+  const randomBytes = crypto.randomBytes(8) // Increased from 6 to 8 for more entropy
   
   let code = 'MSE-'
   // Generate 3 random letters
@@ -23,32 +23,62 @@ function generateTrackingNumber(): string {
     code += numbers[randomBytes[i] % 10]
   }
   
+  // Add 2 more random characters for extra uniqueness (reduces collision probability)
+  code += letters[randomBytes[6] % 26]
+  code += numbers[randomBytes[7] % 10]
+  
   return code
 }
 
-// Generate unique tracking number with collision check
-async function generateUniqueTrackingNumber(): Promise<string> {
-  let attempts = 0
-  const maxAttempts = 10
+// Create shipment with retry on unique constraint violation
+async function createShipmentWithRetry(
+  shipmentData: any,
+  maxRetries: number = 5
+): Promise<any> {
+  let lastError: Error | null = null
   
-  while (attempts < maxAttempts) {
-    const trackingNumber = generateTrackingNumber()
-    
-    // Check if tracking number already exists
-    const existing = await prisma.shipment.findUnique({
-      where: { trackingNumber },
-      select: { id: true }
-    })
-    
-    if (!existing) {
-      return trackingNumber
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      // Generate new tracking number for each attempt
+      const trackingNumber = generateTrackingNumber()
+      
+      // Attempt to create shipment
+      const shipment = await prisma.shipment.create({
+        data: {
+          ...shipmentData,
+          trackingNumber,
+        },
+        select: {
+          id: true,
+          trackingNumber: true,
+          status: true,
+          totalCost: true,
+        }
+      })
+      
+      return shipment
+    } catch (error: any) {
+      // Check if it's a unique constraint violation on trackingNumber
+      if (
+        error.code === 'P2002' &&
+        error.meta?.target?.includes('trackingNumber')
+      ) {
+        lastError = error
+        // Collision detected, retry with new tracking number
+        console.warn(`Tracking number collision on attempt ${attempt + 1}, retrying...`)
+        continue
+      }
+      
+      // If it's a different error, throw immediately
+      throw error
     }
-    
-    attempts++
   }
   
-  // Fallback: add timestamp to ensure uniqueness
-  return `MSE-${Date.now().toString(36).toUpperCase().slice(-6)}`
+  // Max retries exceeded
+  throw new Error(
+    `Failed to generate unique tracking number after ${maxRetries} attempts. ` +
+    `This is extremely rare and may indicate a system issue.`
+  )
 }
 
 // Shipment creation validation schema
@@ -155,9 +185,6 @@ export async function POST(request: NextRequest) {
     }
 
     const data = validationResult.data
-    
-    // Generate unique tracking number with collision check
-    const trackingNumber = await generateUniqueTrackingNumber()
 
     // Geocode addresses using postal codes to get coordinates
     const coordinates = await geocodeShipmentAddresses({
@@ -175,65 +202,68 @@ export async function POST(request: NextRequest) {
     const shippingCost = baseRate
     const totalCost = shippingCost + insuranceCost
 
-    // Map form fields to DB schema explicitly
-    const shipment = await prisma.shipment.create({
-      data: {
-        userId,
-        trackingNumber,
-        status: 'PENDING',
-        // Sender info
-        senderName: data.senderName,
-        senderEmail: data.senderEmail,
-        senderPhone: data.senderPhone,
-        senderAddress: data.senderAddress,
-        senderCity: data.senderCity,
-        senderCountry: data.senderCountry,
-        senderPostalCode: data.senderPostalCode,
-        senderLatitude: coordinates.senderLatitude,
-        senderLongitude: coordinates.senderLongitude,
-        // Recipient info
-        recipientName: data.recipientName,
-        recipientEmail: data.recipientEmail,
-        recipientPhone: data.recipientPhone,
-        recipientAddress: data.recipientAddress,
-        recipientCity: data.recipientCity,
-        recipientCountry: data.recipientCountry,
-        recipientPostalCode: data.recipientPostalCode,
-        recipientLatitude: coordinates.recipientLatitude,
-        recipientLongitude: coordinates.recipientLongitude,
-        // Package info
-        packageType: data.packageType,
-        weight: data.weight,
-        length: data.length,
-        width: data.width,
-        height: data.height,
-        description: data.description,
-        value: data.value,
-        currency: data.currency,
-        // Service info (defaults for now)
-        serviceType: 'STANDARD',
-        transportMode: 'WATER',
-        // Costs
-        shippingCost,
-        insuranceCost: data.insuranceOptional ? insuranceCost : null,
-        totalCost,
-        // Current location (initially at sender location)
-        currentLatitude: coordinates.senderLatitude,
-        currentLongitude: coordinates.senderLongitude,
-        currentLocation: `${data.senderCity}, ${data.senderCountry}`,
-        lastLocationUpdate: new Date(),
-      },
-      select: {
-        id: true,
-        trackingNumber: true,
-        status: true,
-        totalCost: true,
-      }
-    })
+    // Prepare shipment data (without tracking number - will be generated in retry loop)
+    const shipmentData = {
+      userId,
+      status: 'PENDING',
+      // Sender info
+      senderName: data.senderName,
+      senderEmail: data.senderEmail,
+      senderPhone: data.senderPhone,
+      senderAddress: data.senderAddress,
+      senderCity: data.senderCity,
+      senderCountry: data.senderCountry,
+      senderPostalCode: data.senderPostalCode,
+      senderLatitude: coordinates.senderLatitude,
+      senderLongitude: coordinates.senderLongitude,
+      // Recipient info
+      recipientName: data.recipientName,
+      recipientEmail: data.recipientEmail,
+      recipientPhone: data.recipientPhone,
+      recipientAddress: data.recipientAddress,
+      recipientCity: data.recipientCity,
+      recipientCountry: data.recipientCountry,
+      recipientPostalCode: data.recipientPostalCode,
+      recipientLatitude: coordinates.recipientLatitude,
+      recipientLongitude: coordinates.recipientLongitude,
+      // Package info
+      packageType: data.packageType,
+      weight: data.weight,
+      length: data.length,
+      width: data.width,
+      height: data.height,
+      description: data.description,
+      value: data.value,
+      currency: data.currency,
+      // Service info (defaults for now)
+      serviceType: 'STANDARD',
+      transportMode: 'WATER',
+      // Costs
+      shippingCost,
+      insuranceCost: data.insuranceOptional ? insuranceCost : null,
+      totalCost,
+      // Current location (initially at sender location)
+      currentLatitude: coordinates.senderLatitude,
+      currentLongitude: coordinates.senderLongitude,
+      currentLocation: `${data.senderCity}, ${data.senderCountry}`,
+      lastLocationUpdate: new Date(),
+    }
+
+    // Create shipment with automatic retry on tracking number collision
+    const shipment = await createShipmentWithRetry(shipmentData)
 
     return NextResponse.json({ shipment }, { status: 201 })
   } catch (error) {
     console.error('Error creating shipment:', error)
+    
+    // Provide more specific error message if it's a tracking number generation failure
+    if (error instanceof Error && error.message.includes('unique tracking number')) {
+      return NextResponse.json(
+        { error: 'Unable to generate tracking number. Please try again.' },
+        { status: 500 }
+      )
+    }
+    
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

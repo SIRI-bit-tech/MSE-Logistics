@@ -54,13 +54,13 @@ export default function TrackingPage() {
               <div>
                 <p className="text-gray-500 uppercase text-xs mb-1">Origin</p>
                 <p className="font-semibold text-gray-900">
-                  {selectedShipment.senderCity}, {(selectedShipment.senderCountry || '').slice(0, 2) || selectedShipment.senderCountry}
+                  {selectedShipment.senderCity}, {selectedShipment.senderCountry}
                 </p>
               </div>
               <div>
                 <p className="text-gray-500 uppercase text-xs mb-1">Destination</p>
                 <p className="font-semibold text-gray-900">
-                  {selectedShipment.recipientCity}, {(selectedShipment.recipientCountry || '').slice(0, 2) || selectedShipment.recipientCountry}
+                  {selectedShipment.recipientCity}, {selectedShipment.recipientCountry}
                 </p>
               </div>
               <div>
