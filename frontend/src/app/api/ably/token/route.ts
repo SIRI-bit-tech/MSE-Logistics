@@ -2,17 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import Ably from 'ably'
 
-// GET /api/ably/token - Generate Ably token for authenticated users
+// GET /api/ably/token - Generate Ably token for all users (authenticated or not)
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    })
-
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const ablyApiKey = process.env.ABLY_API_KEY
     
     if (!ablyApiKey) {
@@ -24,19 +16,27 @@ export async function GET(request: NextRequest) {
 
     const ably = new Ably.Rest({ key: ablyApiKey })
     
-    // Generate token for the authenticated user
+    // Check if user is authenticated
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    })
+
+    // Generate token with appropriate permissions
     const tokenRequest = await ably.auth.createTokenRequest({
-      clientId: session.user.id,
+      clientId: session?.user?.id || `guest-${Date.now()}`,
       capability: {
-        [`user:${session.user.id}:tracking:*`]: ['subscribe'],
-        [`user:${session.user.id}:shipments`]: ['subscribe'],
+        // Allow subscribing to any tracking channel (public tracking)
+        'tracking:*': ['subscribe'],
+        // Allow subscribing to user-specific channels if authenticated
+        ...(session?.user?.id && {
+          [`user:${session.user.id}:*`]: ['subscribe', 'publish'],
+        }),
       },
       ttl: 60 * 60 * 1000, // 1 hour
     })
 
     return NextResponse.json({ tokenRequest })
   } catch (error) {
-    console.error('Error generating Ably token:', error)
     return NextResponse.json({ error: 'Failed to generate token' }, { status: 500 })
   }
 }

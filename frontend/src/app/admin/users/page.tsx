@@ -5,47 +5,109 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, Edit2, Trash2 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
+import { useAuth } from "@/hooks/use-auth"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
+
+interface User {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  role: string
+  createdAt: string
+  shipmentCount?: number
+}
 
 export default function AdminUsersPage() {
+  const router = useRouter()
+  const { user: currentUser, isAuthenticated, isLoading: authLoading } = useAuth()
   const [searchValue, setSearchValue] = useState("")
-  const [users] = useState([
-    {
-      id: "1",
-      name: "Sarah Chen",
-      email: "sarah@techcorp.com",
-      company: "TechCorp",
-      status: "ACTIVE",
-      joinDate: "2024-01-10",
-      shipments: 45,
-    },
-    {
-      id: "2",
-      name: "James Wilson",
-      email: "james@retailmax.com",
-      company: "RetailMax",
-      status: "ACTIVE",
-      joinDate: "2023-12-15",
-      shipments: 128,
-    },
-    {
-      id: "3",
-      name: "Maria Garcia",
-      email: "maria@freshfood.com",
-      company: "FreshFood Co",
-      status: "INACTIVE",
-      joinDate: "2023-11-20",
-      shipments: 78,
-    },
-  ])
+  const [users, setUsers] = useState<User[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState<User | null>(null)
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!isAuthenticated || (currentUser?.role !== "ADMIN" && currentUser?.role !== "SUPER_ADMIN")) {
+        toast.error("Access denied. Admin privileges required.")
+        router.push("/admin/login")
+        return
+      }
+      fetchUsers()
+    }
+  }, [authLoading, isAuthenticated, currentUser, router])
+
+  const fetchUsers = async () => {
+    try {
+      setIsLoading(true)
+      const response = await fetch('/api/admin/users')
+      
+      if (response.ok) {
+        const data = await response.json()
+        setUsers(data.users || [])
+      } else {
+        toast.error('Failed to load users')
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error)
+      toast.error('An error occurred while loading users')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const statusColor = {
-    ACTIVE: "default",
-    INACTIVE: "destructive",
-    SUSPENDED: "secondary",
+    CUSTOMER: "default",
+    DRIVER: "secondary",
+    ADMIN: "destructive",
+    SUPER_ADMIN: "destructive",
   } as const
+
+  const handleEditClick = (user: User) => {
+    setEditingUser(user)
+    setIsEditOpen(true)
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingUser) return
+
+    try {
+      toast.info('User editing functionality coming soon')
+      setIsEditOpen(false)
+      setEditingUser(null)
+    } catch (error) {
+      console.error('Error updating user:', error)
+      toast.error('An error occurred while updating user')
+    }
+  }
+
+  const handleDeleteClick = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user?')) return
+
+    try {
+      toast.info('User deletion functionality coming soon')
+    } catch (error) {
+      console.error('Error deleting user:', error)
+      toast.error('An error occurred while deleting user')
+    }
+  }
+
+  if (authLoading || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gray-50 dark:bg-slate-900">
@@ -74,49 +136,133 @@ export default function AdminUsersPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="hidden md:table-cell">NAME</TableHead>
+                    <TableHead>NAME</TableHead>
                     <TableHead className="hidden lg:table-cell">EMAIL</TableHead>
-                    <TableHead>COMPANY</TableHead>
-                    <TableHead>STATUS</TableHead>
+                    <TableHead>ROLE</TableHead>
+                    <TableHead className="hidden md:table-cell">JOINED</TableHead>
                     <TableHead className="hidden md:table-cell">SHIPMENTS</TableHead>
                     <TableHead>ACTIONS</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users
-                    .filter(
-                      (user) =>
-                        user.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-                        user.email.toLowerCase().includes(searchValue.toLowerCase()),
-                    )
-                    .map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell className="hidden md:table-cell font-semibold">{user.name}</TableCell>
-                        <TableCell className="hidden lg:table-cell text-sm">{user.email}</TableCell>
-                        <TableCell>{user.company}</TableCell>
-                        <TableCell>
-                          <Badge variant={statusColor[user.status as keyof typeof statusColor]}>
-                            {user.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">{user.shipments}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="ghost">
-                              <Edit2 className="w-4 h-4" />
-                            </Button>
-                            <Button size="sm" variant="ghost">
-                              <Trash2 className="w-4 h-4 text-red-500" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                  {users.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        No users found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    users
+                      .filter(
+                        (user) =>
+                          `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchValue.toLowerCase()) ||
+                          user.email.toLowerCase().includes(searchValue.toLowerCase()),
+                      )
+                      .map((user) => (
+                        <TableRow key={user.id}>
+                          <TableCell className="font-semibold">
+                            {user.firstName} {user.lastName}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell text-sm">{user.email}</TableCell>
+                          <TableCell>
+                            <Badge variant={statusColor[user.role as keyof typeof statusColor] || "default"}>
+                              {user.role}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            {new Date(user.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">{user.shipmentCount || 0}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => handleEditClick(user)}
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => handleDeleteClick(user.id)}
+                              >
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Edit User Dialog */}
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit User</DialogTitle>
+            </DialogHeader>
+            {editingUser && (
+              <form onSubmit={handleEditSubmit} className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label>Name</Label>
+                  <Input 
+                    value={`${editingUser.firstName} ${editingUser.lastName}`}
+                    onChange={(e) => {
+                      const [firstName, ...lastNameParts] = e.target.value.split(' ')
+                      setEditingUser({ 
+                        ...editingUser, 
+                        firstName, 
+                        lastName: lastNameParts.join(' ') 
+                      })
+                    }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input 
+                    type="email"
+                    value={editingUser.email}
+                    onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-role">Role</Label>
+                  <Select 
+                    value={editingUser.role}
+                    onValueChange={(value) => setEditingUser({ ...editingUser, role: value })}
+                  >
+                    <SelectTrigger id="edit-role">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="CUSTOMER">Customer</SelectItem>
+                      <SelectItem value="DRIVER">Driver</SelectItem>
+                      <SelectItem value="ADMIN">Admin</SelectItem>
+                      <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex gap-2">
+                  <Button type="submit" className="flex-1">
+                    Save Changes
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => setIsEditOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )

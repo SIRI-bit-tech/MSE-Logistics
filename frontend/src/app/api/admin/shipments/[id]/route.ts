@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getUserFromToken } from '@/lib/jwt-config'
 import { z } from 'zod'
+import Ably from 'ably'
 
 const updateShipmentSchema = z.object({
   status: z.enum([
@@ -22,6 +23,9 @@ const updateShipmentSchema = z.object({
   currentLocation: z.string().optional(),
   currentLatitude: z.number().optional(),
   currentLongitude: z.number().optional(),
+  estimatedDeliveryDate: z.string().optional(),
+  notes: z.string().optional(),
+  transportMode: z.enum(['AIR', 'LAND', 'WATER', 'MULTIMODAL']).optional(),
 })
 
 // PATCH /api/admin/shipments/[id] - Update shipment (admin only)
@@ -84,6 +88,18 @@ export async function PATCH(
       updateData.currentLongitude = validatedData.currentLongitude
     }
 
+    if (validatedData.estimatedDeliveryDate) {
+      updateData.estimatedDeliveryDate = new Date(validatedData.estimatedDeliveryDate)
+    }
+
+    if (validatedData.notes !== undefined) {
+      updateData.notes = validatedData.notes
+    }
+
+    if (validatedData.transportMode) {
+      updateData.transportMode = validatedData.transportMode
+    }
+
     // Update shipment
     const updatedShipment = await prisma.shipment.update({
       where: { id },
@@ -96,11 +112,14 @@ export async function PATCH(
         currentLatitude: true,
         currentLongitude: true,
         lastLocationUpdate: true,
+        estimatedDeliveryDate: true,
+        notes: true,
+        transportMode: true,
       },
     })
 
-    // Create tracking event if status changed
-    if (validatedData.status) {
+    // Create tracking event ONLY if status actually changed
+    if (validatedData.status && validatedData.status !== existingShipment.status) {
       await prisma.trackingEvent.create({
         data: {
           shipmentId: id,
@@ -110,10 +129,25 @@ export async function PATCH(
           country: existingShipment.recipientCountry,
           latitude: validatedData.currentLatitude || existingShipment.currentLatitude,
           longitude: validatedData.currentLongitude || existingShipment.currentLongitude,
-          description: `Status updated to ${validatedData.status} by admin`,
+          description: `Status updated to ${validatedData.status}`,
           updatedBy: user.email,
         },
       })
+    }
+
+    // Publish update to Ably for real-time tracking
+    try {
+      const ablyApiKey = process.env.ABLY_API_KEY
+      if (ablyApiKey) {
+        const ably = new Ably.Rest({ key: ablyApiKey })
+        const channel = ably.channels.get(`tracking:${existingShipment.trackingNumber}`)
+        await channel.publish('tracking:updated', {
+          shipment: updatedShipment,
+          timestamp: new Date().toISOString(),
+        })
+      }
+    } catch (ablyError) {
+      // Don't fail the request if Ably publish fails
     }
 
     return NextResponse.json({ 
@@ -124,11 +158,13 @@ export async function PATCH(
     if (error instanceof z.ZodError) {
       return NextResponse.json({ 
         error: 'Validation error', 
-        details: error.issues 
+        details: error.issues,
+        message: error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ')
       }, { status: 400 })
     }
-    console.error('Error updating shipment:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ 
+      error: 'Internal server error'
+    }, { status: 500 })
   }
 }
 

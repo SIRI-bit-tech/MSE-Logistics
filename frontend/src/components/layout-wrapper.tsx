@@ -10,6 +10,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const { isAuthenticated } = useAuthStore()
   
   const isAuthPage = pathname?.startsWith('/auth')
+  const isAdminAuthPage = pathname?.startsWith('/admin/login') || pathname?.startsWith('/admin/register')
   const isCustomerDashboard = pathname?.startsWith('/shipments') || 
                              pathname?.startsWith('/addresses') || 
                              pathname?.startsWith('/profile') || 
@@ -20,8 +21,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                              pathname?.startsWith('/invoices')
   const isTrackingPage = pathname?.startsWith('/tracking')
 
-  // Don't show navbar/footer for auth pages, customer dashboard, or tracking pages when authenticated
-  if (isAuthPage || isCustomerDashboard || (isTrackingPage && isAuthenticated)) {
+  // Don't show navbar/footer for auth pages, admin auth pages, customer dashboard, or tracking pages when authenticated
+  if (isAuthPage || isAdminAuthPage || isCustomerDashboard || (isTrackingPage && isAuthenticated)) {
     return <main className="min-h-screen">{children}</main>
   }
 

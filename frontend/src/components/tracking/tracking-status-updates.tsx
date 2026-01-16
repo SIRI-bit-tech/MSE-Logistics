@@ -16,9 +16,6 @@ export default function TrackingStatusUpdates({ events, status, createdAt }: Tra
     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   )
 
-  // If status is PENDING and no events, show pending message
-  const hasPendingStatus = status === 'PENDING' && sortedEvents.length === 0
-
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
@@ -30,6 +27,7 @@ export default function TrackingStatusUpdates({ events, status, createdAt }: Tra
 
   // Get icon for current status
   const StatusIcon = getStatusIcon(status)
+  const PendingIcon = getStatusIcon('PENDING')
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
@@ -39,11 +37,12 @@ export default function TrackingStatusUpdates({ events, status, createdAt }: Tra
       </div>
 
       <div className="space-y-4">
-        {hasPendingStatus ? (
+        {sortedEvents.length === 0 ? (
+          // No events yet - show only pending
           <div className="flex gap-3">
             <div className="relative z-10">
               <div className="w-8 h-8 rounded-full flex items-center justify-center bg-yellow-100">
-                <StatusIcon className="w-4 h-4 text-yellow-600" />
+                <PendingIcon className="w-4 h-4 text-yellow-600" />
               </div>
             </div>
             <div className="flex-1 pb-4">
@@ -63,54 +62,84 @@ export default function TrackingStatusUpdates({ events, status, createdAt }: Tra
             </div>
           </div>
         ) : (
-          sortedEvents.map((event, index) => {
-            const EventIcon = getStatusIcon(event.status)
-            const colorClass = getStatusColor(event.status)
-            
-            return (
-              <div key={event.id} className="relative">
-                {/* Timeline line */}
-                {index < sortedEvents.length - 1 && (
+          <>
+            {/* Show all tracking events */}
+            {sortedEvents.map((event, index) => {
+              const EventIcon = getStatusIcon(event.status)
+              const colorClass = getStatusColor(event.status)
+              
+              return (
+                <div key={event.id} className="relative">
+                  {/* Timeline line */}
                   <div className="absolute left-4 top-10 bottom-0 w-0.5 bg-gray-200" />
-                )}
-                
-                <div className="flex gap-3">
-                  {/* Status icon */}
-                  <div className="relative z-10">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      index === 0 ? colorClass : 'bg-gray-100 text-gray-400'
-                    }`}>
-                      <EventIcon className="w-4 h-4" />
-                    </div>
-                  </div>
-
-                  {/* Event details */}
-                  <div className="flex-1 pb-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <p className="font-semibold text-gray-900 text-sm">
-                          {event.description}
-                        </p>
-                        <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
-                          <MapPin className="w-3 h-3" />
-                          <span>{event.location}, {event.city}</span>
-                        </div>
-                        {event.facility && (
-                          <div className="flex items-center gap-1 text-xs text-gray-400 mt-0.5">
-                            <Building2 className="w-3 h-3" />
-                            <span>{event.facility}</span>
-                          </div>
-                        )}
+                  
+                  <div className="flex gap-3">
+                    {/* Status icon */}
+                    <div className="relative z-10">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        index === 0 ? colorClass : 'bg-gray-100 text-gray-400'
+                      }`}>
+                        <EventIcon className="w-4 h-4" />
                       </div>
-                      <span className="text-xs text-gray-400 whitespace-nowrap">
-                        {formatDate(event.createdAt)}
-                      </span>
+                    </div>
+
+                    {/* Event details */}
+                    <div className="flex-1 pb-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900 text-sm">
+                            {event.description}
+                          </p>
+                          <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                            <MapPin className="w-3 h-3" />
+                            <span>
+                              {event.location}
+                              {event.city && event.location !== event.city && `, ${event.city}`}
+                            </span>
+                          </div>
+                          {event.facility && (
+                            <div className="flex items-center gap-1 text-xs text-gray-400 mt-0.5">
+                              <Building2 className="w-3 h-3" />
+                              <span>{event.facility}</span>
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-xs text-gray-400 whitespace-nowrap">
+                          {formatDate(event.createdAt)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
+              )
+            })}
+
+            {/* Always show PENDING at the bottom */}
+            <div className="relative">
+              <div className="flex gap-3">
+                <div className="relative z-10">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-400">
+                    <PendingIcon className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="flex-1 pb-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900 text-sm">
+                        Shipment Created
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Shipment order received and pending processing
+                      </p>
+                    </div>
+                    <span className="text-xs text-gray-400 whitespace-nowrap">
+                      {formatDate(createdAt)}
+                    </span>
+                  </div>
+                </div>
               </div>
-            )
-          })
+            </div>
+          </>
         )}
       </div>
 
