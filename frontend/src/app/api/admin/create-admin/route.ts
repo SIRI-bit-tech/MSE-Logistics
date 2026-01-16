@@ -4,25 +4,36 @@ import { Prisma } from '@prisma/client'
 import { getUserFromToken } from '@/lib/jwt-config'
 import bcrypt from 'bcryptjs'
 
-// POST /api/admin/create-admin - Create admin account (SUPER_ADMIN only)
+// POST /api/admin/create-admin - Create admin account (public for first admin, SUPER_ADMIN only after)
 export async function POST(request: NextRequest) {
   try {
     const userId = await getUserFromToken(request)
 
-    // Check authentication
-    if (!userId) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
-    }
-
-    // Check authorization - only SUPER_ADMIN can create admin accounts
-    const currentUser = await prisma.user.findUnique({
-      where: { id: userId }
+    // Check if any admin exists
+    const adminCount = await prisma.user.count({
+      where: {
+        OR: [
+          { role: 'ADMIN' },
+          { role: 'SUPER_ADMIN' }
+        ]
+      }
     })
 
-    if (!currentUser || currentUser.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ 
-        error: 'Access denied. Super Admin privileges required.' 
-      }, { status: 403 })
+    // If admins exist, require authentication and SUPER_ADMIN role
+    if (adminCount > 0) {
+      if (!userId) {
+        return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+      }
+
+      const currentUser = await prisma.user.findUnique({
+        where: { id: userId }
+      })
+
+      if (!currentUser || currentUser.role !== 'SUPER_ADMIN') {
+        return NextResponse.json({ 
+          error: 'Access denied. Super Admin privileges required.' 
+        }, { status: 403 })
+      }
     }
 
     const body = await request.json()

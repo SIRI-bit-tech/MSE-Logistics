@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { useShipment } from "@/hooks/use-shipment"
 import { useAuthStore } from "@/store/auth-store"
@@ -9,6 +9,7 @@ import { getStatusIcon } from "@/lib/status-icons"
 import Sidebar from "@/components/dashboard/sidebar"
 import TrackingMap from "@/components/tracking/tracking-map"
 import TrackingStatusUpdates from "@/components/tracking/tracking-status-updates"
+import { subscribeToTracking } from "@/lib/ably-client"
 
 export default function TrackingPage() {
   const params = useParams()
@@ -24,6 +25,20 @@ export default function TrackingPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trackingNumber, authLoading])
+
+  // Subscribe to Ably for real-time updates
+  useEffect(() => {
+    if (!trackingNumber) return
+
+    const unsubscribe = subscribeToTracking(trackingNumber, (message: any) => {
+      // Refresh shipment data when update received
+      getShipmentDetails(trackingNumber)
+    })
+
+    return () => {
+      unsubscribe.then(unsub => unsub())
+    }
+  }, [trackingNumber, getShipmentDetails])
 
   if (isLoading || authLoading || !selectedShipment) {
     return (
@@ -86,112 +101,38 @@ export default function TrackingPage() {
               <p className="text-sm text-gray-500 uppercase mb-3">Transport Mode</p>
               <div className="flex gap-4">
                 <div className={`flex flex-col items-center ${selectedShipment.transportMode === 'AIR' ? 'opacity-100' : 'opacity-30'}`}>
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <div className={`w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center ${
+                    selectedShipment.transportMode === 'AIR' ? 'animate-pulse' : ''
+                  }`}>
                     <Plane className="w-6 h-6 text-gray-700" />
                   </div>
                   <span className="text-xs mt-1">Air</span>
                 </div>
                 <div className={`flex flex-col items-center ${selectedShipment.transportMode === 'LAND' ? 'opacity-100' : 'opacity-30'}`}>
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <div className={`w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center ${
+                    selectedShipment.transportMode === 'LAND' ? 'animate-pulse' : ''
+                  }`}>
                     <Truck className="w-6 h-6 text-gray-700" />
                   </div>
                   <span className="text-xs mt-1">Land</span>
                 </div>
                 <div className={`flex flex-col items-center ${selectedShipment.transportMode === 'WATER' ? 'opacity-100' : 'opacity-30'}`}>
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <div className={`w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center ${
+                    selectedShipment.transportMode === 'WATER' ? 'animate-pulse' : ''
+                  }`}>
                     <Ship className="w-6 h-6 text-gray-700" />
                   </div>
                   <span className="text-xs mt-1">Sea</span>
                 </div>
                 <div className={`flex flex-col items-center ${selectedShipment.transportMode === 'MULTIMODAL' ? 'opacity-100' : 'opacity-30'}`}>
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <div className={`w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center ${
+                    selectedShipment.transportMode === 'MULTIMODAL' ? 'animate-pulse' : ''
+                  }`}>
                     <Zap className="w-6 h-6 text-gray-700" />
                   </div>
                   <span className="text-xs mt-1">Multi</span>
                 </div>
               </div>
-            </div>
-
-            {/* Status Progress */}
-            <div className="mt-6">
-              {/* Exception statuses (show alert instead of progress) */}
-              {['CANCELLED', 'RETURNED', 'ON_HOLD'].includes(selectedShipment.status) ? (
-                <div className={`p-4 rounded-lg border-2 ${
-                  selectedShipment.status === 'CANCELLED' ? 'bg-red-50 border-red-200' :
-                  selectedShipment.status === 'RETURNED' ? 'bg-orange-50 border-orange-200' :
-                  'bg-yellow-50 border-yellow-200'
-                }`}>
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      selectedShipment.status === 'CANCELLED' ? 'bg-red-500' :
-                      selectedShipment.status === 'RETURNED' ? 'bg-orange-500' :
-                      'bg-yellow-500'
-                    }`}>
-                      {selectedShipment.status === 'CANCELLED' && <XCircle className="w-5 h-5 text-white" />}
-                      {selectedShipment.status === 'RETURNED' && <RotateCcw className="w-5 h-5 text-white" />}
-                      {selectedShipment.status === 'ON_HOLD' && <PauseCircle className="w-5 h-5 text-white" />}
-                    </div>
-                    <div>
-                      <p className="font-bold text-gray-900">
-                        {selectedShipment.status === 'CANCELLED' && 'Shipment Cancelled'}
-                        {selectedShipment.status === 'RETURNED' && 'Shipment Returned to Sender'}
-                        {selectedShipment.status === 'ON_HOLD' && 'Shipment On Hold'}
-                      </p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {selectedShipment.status === 'CANCELLED' && 'This shipment has been cancelled and will not be delivered.'}
-                        {selectedShipment.status === 'RETURNED' && 'This shipment is being returned to the sender.'}
-                        {selectedShipment.status === 'ON_HOLD' && 'This shipment is temporarily on hold. Please contact support for more information.'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                /* Normal progress bar for active shipments */
-                <div className="flex items-center justify-between">
-                  {['Pending', 'Processing', 'In Transit', 'Delivery', 'Delivered'].map((step, index) => {
-                    // Map all statuses to progress steps
-                    const getStatusIndex = (status: string): number => {
-                      const statusMapping: Record<string, number> = {
-                        'PENDING': 0,
-                        'PROCESSING': 1,
-                        'PICKED_UP': 1,
-                        'IN_TRANSIT': 2,
-                        'IN_CUSTOMS': 2,
-                        'CUSTOMS_CLEARED': 2,
-                        'ARRIVED_AT_FACILITY': 2,
-                        'OUT_FOR_DELIVERY': 3,
-                        'DELIVERY_ATTEMPTED': 3,
-                        'DELIVERED': 4,
-                      }
-                      return statusMapping[status] ?? -1
-                    }
-                    
-                    const currentIndex = getStatusIndex(selectedShipment.status)
-                    const isActive = index <= currentIndex
-                    const isCurrent = index === currentIndex
-                    
-                    // Get the appropriate icon for current status
-                    const StepIcon = isCurrent ? getStatusIcon(selectedShipment.status) : null
-                    
-                    return (
-                      <div key={step} className="flex flex-col items-center flex-1">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          isCurrent ? 'bg-yellow-400' : isActive ? 'bg-gray-400' : 'bg-gray-200'
-                        }`}>
-                          {isCurrent && StepIcon ? (
-                            <StepIcon className="w-5 h-5 text-white" />
-                          ) : isActive ? (
-                            <div className="w-3 h-3 bg-white rounded-full" />
-                          ) : (
-                            <div className="w-3 h-3 bg-gray-400 rounded-full" />
-                          )}
-                        </div>
-                        <span className="text-xs mt-2 text-center">{step}</span>
-                    </div>
-                  )
-                })}
-              </div>
-              )}
             </div>
           </div>
 

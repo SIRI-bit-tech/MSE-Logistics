@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { Label } from "@/components/ui/label"
 import { useAuth } from "@/hooks/use-auth"
 import { toast } from "sonner"
+import { Package, CheckCircle, Truck, DollarSign } from "lucide-react"
 import AdminHeader from "@/components/admin/admin-header"
 import AdminStatsCard from "@/components/admin/admin-stats-card"
 
@@ -20,6 +21,16 @@ interface ShipmentForAdmin {
   status: string
   recipientCity: string
   recipientCountry: string
+  recipientName?: string
+  recipientEmail?: string
+  recipientPhone?: string
+  recipientAddress?: string
+  currentLatitude?: number
+  currentLongitude?: number
+  currentLocation?: string
+  estimatedDeliveryDate?: string
+  notes?: string
+  transportMode?: string
   createdAt: string
 }
 
@@ -30,10 +41,25 @@ interface FormData {
   status: string
 }
 
+interface DashboardStats {
+  totalShipments: number
+  deliveredToday: number
+  inTransit: number
+  revenueToday: number
+}
+
 export default function AdminDashboardPage() {
   const { user, isAuthenticated } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [editingShipment, setEditingShipment] = useState<ShipmentForAdmin | null>(null)
   const [shipments, setShipments] = useState<ShipmentForAdmin[]>([])
+  const [stats, setStats] = useState<DashboardStats>({
+    totalShipments: 0,
+    deliveredToday: 0,
+    inTransit: 0,
+    revenueToday: 0,
+  })
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState<FormData>({
@@ -45,18 +71,20 @@ export default function AdminDashboardPage() {
   
   useEffect(() => {
     if (isAuthenticated && (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN")) {
-      fetchShipments()
+      fetchDashboardData()
     }
   }, [isAuthenticated, user])
   
-  const fetchShipments = async () => {
+  const fetchDashboardData = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('/api/admin/shipments?limit=50')
       
-      if (response.ok) {
-        const data = await response.json()
-        const formattedShipments = data.shipments.map((s: any) => ({
+      // Fetch shipments
+      const shipmentsResponse = await fetch('/api/admin/shipments?limit=50')
+      
+      if (shipmentsResponse.ok) {
+        const shipmentsData = await shipmentsResponse.json()
+        const formattedShipments = shipmentsData.shipments.map((s: any) => ({
           id: s.id,
           trackingNumber: s.trackingNumber,
           status: s.status,
@@ -65,12 +93,49 @@ export default function AdminDashboardPage() {
           createdAt: new Date(s.createdAt).toLocaleDateString(),
         }))
         setShipments(formattedShipments)
+        
+        // Calculate stats from real data
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        
+        const totalShipments = shipmentsData.pagination?.total || shipmentsData.shipments.length
+        const deliveredToday = shipmentsData.shipments.filter((s: any) => {
+          if (s.status === 'DELIVERED' && s.actualDeliveryDate) {
+            const deliveryDate = new Date(s.actualDeliveryDate)
+            deliveryDate.setHours(0, 0, 0, 0)
+            return deliveryDate.getTime() === today.getTime()
+          }
+          return false
+        }).length
+        
+        const inTransit = shipmentsData.shipments.filter((s: any) => 
+          s.status === 'IN_TRANSIT' || s.status === 'OUT_FOR_DELIVERY'
+        ).length
+        
+        // Calculate revenue from today's delivered shipments
+        const revenueToday = shipmentsData.shipments
+          .filter((s: any) => {
+            if (s.status === 'DELIVERED' && s.actualDeliveryDate) {
+              const deliveryDate = new Date(s.actualDeliveryDate)
+              deliveryDate.setHours(0, 0, 0, 0)
+              return deliveryDate.getTime() === today.getTime()
+            }
+            return false
+          })
+          .reduce((sum: number, s: any) => sum + (s.totalCost || 0), 0)
+        
+        setStats({
+          totalShipments,
+          deliveredToday,
+          inTransit,
+          revenueToday,
+        })
       } else {
-        toast.error('Failed to load shipments')
+        toast.error('Failed to load dashboard data')
       }
     } catch (error) {
-      console.error('Error fetching shipments:', error)
-      toast.error('An error occurred while loading shipments')
+      console.error('Error fetching dashboard data:', error)
+      toast.error('An error occurred while loading dashboard data')
     } finally {
       setIsLoading(false)
     }
@@ -132,6 +197,101 @@ export default function AdminDashboardPage() {
     }
   }
 
+  const handleEditClick = async (shipment: ShipmentForAdmin) => {
+    // Fetch full shipment details
+    try {
+      const response = await fetch(`/api/admin/shipments/${shipment.id}`)
+      if (response.ok) {
+        const data = await response.json()
+        setEditingShipment({
+          ...shipment,
+          recipientName: data.shipment.recipientName,
+          recipientEmail: data.shipment.recipientEmail,
+          recipientPhone: data.shipment.recipientPhone,
+          recipientAddress: data.shipment.recipientAddress,
+          currentLatitude: data.shipment.currentLatitude,
+          currentLongitude: data.shipment.currentLongitude,
+          currentLocation: data.shipment.currentLocation,
+          estimatedDeliveryDate: data.shipment.estimatedDeliveryDate,
+          notes: data.shipment.notes,
+          transportMode: data.shipment.transportMode,
+        })
+        setIsEditOpen(true)
+      } else {
+        toast.error('Failed to load shipment details')
+      }
+    } catch (error) {
+      console.error('Error loading shipment:', error)
+      toast.error('An error occurred while loading shipment')
+    }
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingShipment) return
+
+    setIsSubmitting(true)
+    try {
+      // Prepare payload - only send fields that have values
+      const payload: any = {}
+      
+      if (editingShipment.status) {
+        payload.status = editingShipment.status
+      }
+      
+      if (editingShipment.currentLocation) {
+        payload.currentLocation = editingShipment.currentLocation
+      }
+      
+      if (editingShipment.currentLatitude !== undefined && editingShipment.currentLatitude !== null) {
+        payload.currentLatitude = Number(editingShipment.currentLatitude)
+      }
+      
+      if (editingShipment.currentLongitude !== undefined && editingShipment.currentLongitude !== null) {
+        payload.currentLongitude = Number(editingShipment.currentLongitude)
+      }
+      
+      if (editingShipment.estimatedDeliveryDate) {
+        payload.estimatedDeliveryDate = editingShipment.estimatedDeliveryDate
+      }
+      
+      if (editingShipment.notes) {
+        payload.notes = editingShipment.notes
+      }
+
+      if (editingShipment.transportMode) {
+        payload.transportMode = editingShipment.transportMode
+      }
+
+      const response = await fetch(`/api/admin/shipments/${editingShipment.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        
+        setShipments(prev => 
+          prev.map(s => s.id === editingShipment.id ? editingShipment : s)
+        )
+        toast.success('Shipment updated successfully')
+        setIsEditOpen(false)
+        setEditingShipment(null)
+        fetchDashboardData() // Refresh data
+      } else {
+        const errorData = await response.json()
+        toast.error(errorData.error || 'Failed to update shipment')
+      }
+    } catch (error) {
+      toast.error('An error occurred while updating shipment')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   if (!isAuthenticated || (user?.role !== "ADMIN" && user?.role !== "SUPER_ADMIN")) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -149,10 +309,26 @@ export default function AdminDashboardPage() {
       <AdminHeader />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <AdminStatsCard title="Total Shipments" value="1,234" icon="📦" />
-        <AdminStatsCard title="Delivered Today" value="89" icon="✅" />
-        <AdminStatsCard title="In Transit" value="234" icon="🚀" />
-        <AdminStatsCard title="Revenue Today" value="$12,450" icon="💰" />
+        <AdminStatsCard 
+          title="Total Shipments" 
+          value={stats.totalShipments} 
+          icon={Package} 
+        />
+        <AdminStatsCard 
+          title="Delivered Today" 
+          value={stats.deliveredToday} 
+          icon={CheckCircle} 
+        />
+        <AdminStatsCard 
+          title="In Transit" 
+          value={stats.inTransit} 
+          icon={Truck} 
+        />
+        <AdminStatsCard 
+          title="Revenue Today" 
+          value={`$${stats.revenueToday.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} 
+          icon={DollarSign} 
+        />
       </div>
 
       <Card>
@@ -280,7 +456,11 @@ export default function AdminDashboardPage() {
                       </TableCell>
                       <TableCell>{shipment.createdAt}</TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleEditClick(shipment)}
+                        >
                           Edit
                         </Button>
                       </TableCell>
@@ -292,6 +472,183 @@ export default function AdminDashboardPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Shipment Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Shipment - {editingShipment?.trackingNumber}</DialogTitle>
+          </DialogHeader>
+          {editingShipment && (
+            <form onSubmit={handleEditSubmit} className="space-y-4 py-4">
+              {/* Recipient Info - Read Only */}
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Recipient Information</Label>
+                <div className="grid grid-cols-2 gap-3 p-3 bg-muted rounded-lg">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Name</p>
+                    <p className="text-sm font-medium">{editingShipment.recipientName || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Email</p>
+                    <p className="text-sm font-medium">{editingShipment.recipientEmail || 'N/A'}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-xs text-muted-foreground">Address</p>
+                    <p className="text-sm font-medium">{editingShipment.recipientAddress || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">City</p>
+                    <p className="text-sm font-medium">{editingShipment.recipientCity}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Country</p>
+                    <p className="text-sm font-medium">{editingShipment.recipientCountry}</p>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Status */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-status">Shipment Status *</Label>
+                <Select 
+                  value={editingShipment.status}
+                  onValueChange={(value) => setEditingShipment({ ...editingShipment, status: value })}
+                >
+                  <SelectTrigger id="edit-status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PENDING">Pending</SelectItem>
+                    <SelectItem value="PROCESSING">Processing</SelectItem>
+                    <SelectItem value="ON_HOLD">On Hold</SelectItem>
+                    <SelectItem value="PICKED_UP">Picked Up</SelectItem>
+                    <SelectItem value="IN_TRANSIT">In Transit</SelectItem>
+                    <SelectItem value="IN_CUSTOMS">In Customs</SelectItem>
+                    <SelectItem value="CUSTOMS_CLEARED">Customs Cleared</SelectItem>
+                    <SelectItem value="ARRIVED_AT_FACILITY">Arrived at Facility</SelectItem>
+                    <SelectItem value="OUT_FOR_DELIVERY">Out for Delivery</SelectItem>
+                    <SelectItem value="DELIVERY_ATTEMPTED">Delivery Attempted</SelectItem>
+                    <SelectItem value="DELIVERED">Delivered</SelectItem>
+                    <SelectItem value="RETURNED">Returned</SelectItem>
+                    <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Current Location */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-location">Current Location</Label>
+                <Input 
+                  id="edit-location"
+                  placeholder="e.g., Distribution Center, Miami, FL"
+                  value={editingShipment.currentLocation || ''}
+                  onChange={(e) => setEditingShipment({ ...editingShipment, currentLocation: e.target.value })}
+                />
+              </div>
+
+              {/* GPS Coordinates */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-lat">Latitude</Label>
+                  <Input 
+                    id="edit-lat"
+                    type="number"
+                    step="any"
+                    placeholder="e.g., 25.7617"
+                    value={editingShipment.currentLatitude || ''}
+                    onChange={(e) => setEditingShipment({ 
+                      ...editingShipment, 
+                      currentLatitude: e.target.value ? parseFloat(e.target.value) : undefined 
+                    })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-lng">Longitude</Label>
+                  <Input 
+                    id="edit-lng"
+                    type="number"
+                    step="any"
+                    placeholder="e.g., -80.1918"
+                    value={editingShipment.currentLongitude || ''}
+                    onChange={(e) => setEditingShipment({ 
+                      ...editingShipment, 
+                      currentLongitude: e.target.value ? parseFloat(e.target.value) : undefined 
+                    })}
+                  />
+                </div>
+              </div>
+
+              {/* Estimated Delivery Date */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-delivery">Estimated Delivery Date</Label>
+                <Input 
+                  id="edit-delivery"
+                  type="date"
+                  value={editingShipment.estimatedDeliveryDate ? 
+                    new Date(editingShipment.estimatedDeliveryDate).toISOString().split('T')[0] : ''}
+                  onChange={(e) => setEditingShipment({ 
+                    ...editingShipment, 
+                    estimatedDeliveryDate: e.target.value 
+                  })}
+                />
+              </div>
+
+              {/* Notes */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-notes">Internal Notes</Label>
+                <Input 
+                  id="edit-notes"
+                  placeholder="Add any internal notes..."
+                  value={editingShipment.notes || ''}
+                  onChange={(e) => setEditingShipment({ ...editingShipment, notes: e.target.value })}
+                />
+              </div>
+
+              {/* Transport Mode */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-transport">Transport Mode</Label>
+                <Select 
+                  value={editingShipment.transportMode || 'LAND'}
+                  onValueChange={(value) => setEditingShipment({ ...editingShipment, transportMode: value })}
+                >
+                  <SelectTrigger id="edit-transport">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="AIR">Air</SelectItem>
+                    <SelectItem value="LAND">Land</SelectItem>
+                    <SelectItem value="WATER">Sea</SelectItem>
+                    <SelectItem value="MULTIMODAL">Multimodal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Separator />
+
+              <div className="flex gap-2">
+                <Button 
+                  type="submit" 
+                  className="flex-1"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Saving...' : 'Save Changes'}
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={() => setIsEditOpen(false)}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
 
     </div>
   )
