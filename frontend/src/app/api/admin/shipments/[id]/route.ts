@@ -23,7 +23,14 @@ const updateShipmentSchema = z.object({
   currentLocation: z.string().optional(),
   currentLatitude: z.number().optional(),
   currentLongitude: z.number().optional(),
-  estimatedDeliveryDate: z.string().optional(),
+  estimatedDeliveryDate: z.string().refine(
+    (dateStr) => {
+      if (!dateStr) return true // Allow empty/undefined
+      const date = new Date(dateStr)
+      return !isNaN(date.getTime())
+    },
+    { message: 'Invalid date format for estimatedDeliveryDate' }
+  ).optional(),
   notes: z.string().optional(),
   transportMode: z.enum(['AIR', 'LAND', 'WATER', 'MULTIMODAL']).optional(),
 })
@@ -89,7 +96,14 @@ export async function PATCH(
     }
 
     if (validatedData.estimatedDeliveryDate) {
-      updateData.estimatedDeliveryDate = new Date(validatedData.estimatedDeliveryDate)
+      const parsedDate = new Date(validatedData.estimatedDeliveryDate)
+      if (isNaN(parsedDate.getTime())) {
+        return NextResponse.json({ 
+          error: 'Validation error',
+          message: 'Invalid date format for estimatedDeliveryDate'
+        }, { status: 400 })
+      }
+      updateData.estimatedDeliveryDate = parsedDate
     }
 
     if (validatedData.notes !== undefined) {

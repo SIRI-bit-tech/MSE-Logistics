@@ -9,33 +9,6 @@ export async function POST(request: NextRequest) {
   try {
     const userId = await getUserFromToken(request)
 
-    // Check if any admin exists
-    const adminCount = await prisma.user.count({
-      where: {
-        OR: [
-          { role: 'ADMIN' },
-          { role: 'SUPER_ADMIN' }
-        ]
-      }
-    })
-
-    // If admins exist, require authentication and SUPER_ADMIN role
-    if (adminCount > 0) {
-      if (!userId) {
-        return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
-      }
-
-      const currentUser = await prisma.user.findUnique({
-        where: { id: userId }
-      })
-
-      if (!currentUser || currentUser.role !== 'SUPER_ADMIN') {
-        return NextResponse.json({ 
-          error: 'Access denied. Super Admin privileges required.' 
-        }, { status: 403 })
-      }
-    }
-
     const body = await request.json()
     const { firstName, lastName, email, phone, password, role } = body
 
@@ -60,53 +33,107 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    })
-
-    if (existingUser) {
-      return NextResponse.json({ 
-        error: 'User with this email already exists' 
-      }, { status: 409 })
-    }
-
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    // Create admin user
-    const newAdmin = await prisma.user.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        phone: phone || null,
-        password: hashedPassword,
-        role: role as 'ADMIN' | 'SUPER_ADMIN',
-      },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        role: true,
-        createdAt: true,
+    // Use transaction to prevent race condition when creating first admin
+    const result = await prisma.$transaction(async (tx) => {
+      // Check if any admin exists (inside transaction)
+      const adminCount = await tx.user.count({
+        where: {
+          OR: [
+            { role: 'ADMIN' },
+            { role: 'SUPER_ADMIN' }
+          ]
+        }
+      })
+
+      // If admins exist, require authentication and SUPER_ADMIN role
+      if (adminCount > 0) {
+        if (!userId) {
+          throw new Error('UNAUTHORIZED')
+        }
+
+        const currentUser = await tx.user.findUnique({
+          where: { id: userId }
+        })
+
+        if (!currentUser || currentUser.role !== 'SUPER_ADMIN') {
+          throw new Error('FORBIDDEN')
+        }
       }
+
+      // Check if user already exists (inside transaction)
+      const existingUser = await tx.user.findUnique({
+        where: { email }
+      })
+
+      if (existingUser) {
+        throw new Error('USER_EXISTS')
+      }
+
+      // Create admin user (inside transaction)
+      const newAdmin = await tx.user.create({
+        data: {
+          firstName,
+          lastName,
+          email,
+          phone: phone || null,
+          password: hashedPassword,
+          role: role as 'ADMIN' | 'SUPER_ADMIN',
+        },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          createdAt: true,
+        }
+      })
+
+      return newAdmin
+    }, {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+      maxWait: 5000,
+      timeout: 10000,
     })
 
     return NextResponse.json({ 
       success: true, 
-      admin: newAdmin 
+      admin: result 
     })
 
   } catch (error) {
-    console.error('Error creating admin account:', error)
+    // Handle custom transaction errors
+    if (error instanceof Error) {
+      if (error.message === 'UNAUTHORIZED') {
+        return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+      }
+      if (error.message === 'FORBIDDEN') {
+        return NextResponse.json({ 
+          error: 'Access denied. Super Admin privileges required.' 
+        }, { status: 403 })
+      }
+      if (error.message === 'USER_EXISTS') {
+        return NextResponse.json({ 
+          error: 'User with this email already exists' 
+        }, { status: 409 })
+      }
+    }
     
     // Handle Prisma unique constraint violation
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2002') {
         return NextResponse.json(
           { error: 'User with this email already exists' },
+          { status: 409 }
+        )
+      }
+      // Handle serialization failure (concurrent transaction conflict)
+      if (error.code === 'P2034') {
+        return NextResponse.json(
+          { error: 'Another admin was created concurrently. Please try again.' },
           { status: 409 }
         )
       }

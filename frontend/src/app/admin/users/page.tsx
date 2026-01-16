@@ -208,23 +208,34 @@ export default function AdminUsersPage() {
             </DialogHeader>
             {editingUser && (
               <form onSubmit={handleEditSubmit} className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label>Name</Label>
-                  <Input 
-                    value={`${editingUser.firstName} ${editingUser.lastName}`}
-                    onChange={(e) => {
-                      const [firstName, ...lastNameParts] = e.target.value.split(' ')
-                      setEditingUser({ 
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-firstName">First Name</Label>
+                    <Input 
+                      id="edit-firstName"
+                      value={editingUser.firstName}
+                      onChange={(e) => setEditingUser({ 
                         ...editingUser, 
-                        firstName, 
-                        lastName: lastNameParts.join(' ') 
-                      })
-                    }}
-                  />
+                        firstName: e.target.value 
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-lastName">Last Name</Label>
+                    <Input 
+                      id="edit-lastName"
+                      value={editingUser.lastName}
+                      onChange={(e) => setEditingUser({ 
+                        ...editingUser, 
+                        lastName: e.target.value 
+                      })}
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Email</Label>
+                  <Label htmlFor="edit-email">Email</Label>
                   <Input 
+                    id="edit-email"
                     type="email"
                     value={editingUser.email}
                     onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
