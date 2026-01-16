@@ -25,6 +25,15 @@ export default function TrackingStatusUpdates({ events, status, createdAt }: Tra
     })
   }
 
+  const formatStatusText = (text: string) => {
+    // Replace underscores with spaces and capitalize properly
+    return text
+      .replace(/_/g, ' ')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ')
+  }
+
   // Get icon for current status
   const StatusIcon = getStatusIcon(status)
   const PendingIcon = getStatusIcon('PENDING')
@@ -88,7 +97,7 @@ export default function TrackingStatusUpdates({ events, status, createdAt }: Tra
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
                           <p className="font-semibold text-gray-900 text-sm">
-                            {event.description}
+                            {formatStatusText(event.description)}
                           </p>
                           <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
                             <MapPin className="w-3 h-3" />

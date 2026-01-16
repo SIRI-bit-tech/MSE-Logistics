@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       ttl: 60 * 60 * 1000, // 1 hour
     })
 
-    return NextResponse.json({ tokenRequest })
+    return NextResponse.json(tokenRequest)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to generate token' }, { status: 500 })
   }

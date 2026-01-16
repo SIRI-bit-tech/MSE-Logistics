@@ -19,21 +19,8 @@ export async function initializeAbly(): Promise<Ably.Realtime | null> {
       autoConnect: true,
     })
 
-    ablyClient.connection.on('connected', () => {
-      console.log('Ably connected')
-    })
-
-    ablyClient.connection.on('disconnected', () => {
-      console.log('Ably disconnected')
-    })
-
-    ablyClient.connection.on('failed', (error: any) => {
-      console.error('Ably connection error:', error)
-    })
-
     return ablyClient
   } catch (error) {
-    console.error('Failed to initialize Ably:', error)
     return null
   }
 }

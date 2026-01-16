@@ -1,11 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useParams } from "next/navigation"
 import { useShipment } from "@/hooks/use-shipment"
 import { useAuthStore } from "@/store/auth-store"
-import { Plane, Truck, Ship, Zap, XCircle, RotateCcw, PauseCircle } from "lucide-react"
-import { getStatusIcon } from "@/lib/status-icons"
+import { Plane, Truck, Ship, Zap } from "lucide-react"
 import Sidebar from "@/components/dashboard/sidebar"
 import TrackingMap from "@/components/tracking/tracking-map"
 import TrackingStatusUpdates from "@/components/tracking/tracking-status-updates"
@@ -30,13 +29,33 @@ export default function TrackingPage() {
   useEffect(() => {
     if (!trackingNumber) return
 
-    const unsubscribe = subscribeToTracking(trackingNumber, (message: any) => {
+    let unsubscribeFn: (() => void) | null = null
+    let isMounted = true
+
+    // Subscribe and capture the unsubscribe function
+    subscribeToTracking(trackingNumber, () => {
       // Refresh shipment data when update received
-      getShipmentDetails(trackingNumber)
+      if (isMounted) {
+        getShipmentDetails(trackingNumber)
+      }
     })
+      .then((unsub) => {
+        if (isMounted) {
+          unsubscribeFn = unsub
+        } else {
+          // Component unmounted before subscription completed
+          unsub()
+        }
+      })
+      .catch(() => {
+        // Handle subscription errors silently
+      })
 
     return () => {
-      unsubscribe.then(unsub => unsub())
+      isMounted = false
+      if (unsubscribeFn) {
+        unsubscribeFn()
+      }
     }
   }, [trackingNumber, getShipmentDetails])
 
@@ -64,7 +83,9 @@ export default function TrackingPage() {
                 <h1 className="text-3xl font-bold text-gray-900">{selectedShipment.trackingNumber}</h1>
               </div>
               <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full font-semibold">
-                {selectedShipment.status.replace(/_/g, ' ')}
+                {selectedShipment.status.replace(/_/g, ' ').split(' ').map(word => 
+                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                ).join(' ')}
               </div>
             </div>
 
