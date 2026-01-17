@@ -25,9 +25,8 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       const cachesToDelete = cacheNames.filter((cacheName) => cacheName !== CACHE_NAME)
       return Promise.all(cachesToDelete.map((name) => caches.delete(name)))
-    })
+    }).then(() => self.clients.claim())
   )
-  self.clients.claim()
 })
 
 // Fetch event
