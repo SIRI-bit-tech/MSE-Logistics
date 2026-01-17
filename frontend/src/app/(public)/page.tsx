@@ -41,7 +41,7 @@ export default function Home() {
                     Get Started <ChevronRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="secondary" className="bg-white text-[#003873] hover:bg-gray-100">
+                <Button asChild size="lg" variant="secondary" className="bg-white text-[#003873] hover:bg-gray-100 hover:text-[#003873]">
                   <Link href="/track">Track Shipment</Link>
                 </Button>
               </div>
@@ -166,7 +166,7 @@ export default function Home() {
             >
               <Link href="/user/register">Start Free Trial</Link>
             </Button>
-            <Button asChild size="lg" variant="secondary" className="bg-white text-[#003873] hover:bg-gray-100">
+            <Button asChild size="lg" variant="secondary" className="bg-white text-[#003873] hover:bg-gray-100 hover:text-[#003873]">
               <Link href="/contact">Contact Sales</Link>
             </Button>
           </div>

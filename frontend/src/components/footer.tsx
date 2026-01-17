@@ -22,23 +22,23 @@ export default function Footer() {
             <h5 className="font-semibold mb-6 text-lg text-msc-yellow">Services</h5>
             <ul className="space-y-3 text-sm text-gray-300">
               <li>
-                <Link href="/services" className="hover:text-msc-yellow transition-colors">
+                <Link href="/services/ocean-freight" className="hover:text-msc-yellow transition-colors">
                   Ocean Freight
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="hover:text-yellow-500 transition-colors">
-                  Inland Transportation
+                <Link href="/services/intermodal" className="hover:text-msc-yellow transition-colors">
+                  Intermodal Transport
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="hover:text-yellow-500 transition-colors">
-                  Air Freight
+                <Link href="/services/warehousing" className="hover:text-msc-yellow transition-colors">
+                  Warehousing & Storage
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="hover:text-yellow-500 transition-colors">
-                  Warehousing
+                <Link href="/services/supply-chain" className="hover:text-msc-yellow transition-colors">
+                  Supply Chain Management
                 </Link>
               </li>
             </ul>
