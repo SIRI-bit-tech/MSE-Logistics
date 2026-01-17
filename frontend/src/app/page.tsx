@@ -7,6 +7,7 @@ import MovingWorldSection from "@/components/moving-world-section"
 import IndustriesSection from "@/components/industries-section"
 import WhyChooseSection from "@/components/why-choose-section"
 import CustomerAdvisories from "@/components/customer-advisories"
+import OurSolutionsSection from "@/components/our-solutions-section"
 import CTASection from "@/components/cta-section"
 
 export default function Home() {
@@ -18,6 +19,7 @@ export default function Home() {
       <MovingWorldSection />
       <IndustriesSection />
       <WhyChooseSection />
+      <OurSolutionsSection />
       <CustomerAdvisories />
       <CTASection />
     </div>

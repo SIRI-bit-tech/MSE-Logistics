@@ -7,6 +7,7 @@ import { ChevronRight, Globe, Zap, Shield, MapPin, Clock, BarChart3, Truck } fro
 import CarouselSection from "@/components/carousel-section"
 import StatsBanner from "@/components/stats-banner"
 import TestimonialsCarousel from "@/components/testimonials-carousel"
+import OurSolutionsSection from "@/components/our-solutions-section"
 import { motion } from "framer-motion"
 import Link from "next/link"
 
@@ -61,6 +62,11 @@ export default function Home() {
 
       {/* Carousel Section */}
       <CarouselSection />
+
+      <Separator />
+
+      {/* Our Solutions Section */}
+      <OurSolutionsSection />
 
       <Separator />
 
