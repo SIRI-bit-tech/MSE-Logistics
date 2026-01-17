@@ -3,10 +3,8 @@ const nextConfig = {
   reactStrictMode: true,
   // Enable source maps in production for better debugging
   productionBrowserSourceMaps: true,
-  // Skip pre-rendering API routes during build
-  experimental: {
-    skipTrailingSlashRedirect: true,
-  },
+  // Skip trailing slash redirect
+  skipTrailingSlashRedirect: true,
   // Don't pre-render API routes
   generateBuildId: async () => {
     return 'build-' + Date.now()
