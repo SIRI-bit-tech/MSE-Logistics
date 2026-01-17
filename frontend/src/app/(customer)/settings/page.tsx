@@ -1,6 +1,9 @@
 "use client"
 
-import { Button, Card, Divider, Switch } from "@heroui/react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
 import { motion } from "framer-motion"
 import { useState } from "react"
 
@@ -34,16 +37,16 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   checked={settings.twoFactor}
-                  onChange={(e) => setSettings({ ...settings, twoFactor: e.target.checked })}
+                  onCheckedChange={(checked) => setSettings({ ...settings, twoFactor: checked })}
                 />
               </div>
-              <Button variant="bordered" className="w-full">
+              <Button variant="outline" className="w-full">
                 Change Password
               </Button>
             </div>
           </Card>
 
-          <Divider />
+          <Separator />
 
           <Card className="p-6 md:p-8">
             <h2 className="text-xl font-bold mb-6 text-foreground">Privacy</h2>
@@ -55,13 +58,13 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   checked={settings.publicProfile}
-                  onChange={(e) => setSettings({ ...settings, publicProfile: e.target.checked })}
+                  onCheckedChange={(checked) => setSettings({ ...settings, publicProfile: checked })}
                 />
               </div>
             </div>
           </Card>
 
-          <Divider />
+          <Separator />
 
           <Card className="p-6 md:p-8">
             <h2 className="text-xl font-bold mb-6 text-foreground">Preferences</h2>
@@ -73,13 +76,13 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   checked={settings.marketingEmails}
-                  onChange={(e) => setSettings({ ...settings, marketingEmails: e.target.checked })}
+                  onCheckedChange={(checked) => setSettings({ ...settings, marketingEmails: checked })}
                 />
               </div>
             </div>
           </Card>
 
-          <Button color="danger" variant="bordered" className="w-full">
+          <Button variant="destructive" className="w-full">
             Delete Account
           </Button>
         </motion.div>

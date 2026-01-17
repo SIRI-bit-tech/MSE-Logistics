@@ -1,6 +1,8 @@
 "use client"
 
-import { Button, Card, Input } from "@heroui/react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { Mail } from "lucide-react"
 

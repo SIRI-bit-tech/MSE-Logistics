@@ -1,6 +1,8 @@
 "use client"
 
-import { Button, Card, Checkbox } from "@heroui/react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { motion } from "framer-motion"
 
 export default function NotificationsPage() {
@@ -68,8 +70,8 @@ export default function NotificationsPage() {
           </Card>
 
           <div className="flex gap-4">
-            <Button variant="bordered">Cancel</Button>
-            <Button color="primary" className="bg-[#0066CC]">
+            <Button variant="outline">Cancel</Button>
+            <Button className="bg-[#0066CC]">
               Save Preferences
             </Button>
           </div>

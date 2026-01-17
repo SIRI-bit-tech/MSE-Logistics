@@ -13,9 +13,21 @@ self.addEventListener('install', (event) => {
       .then((cache) => {
         return cache.addAll(urlsToCache).catch((error) => {
           console.log('Cache addAll failed:', error)
+          throw error // Re-throw to ensure service worker doesn't activate with missing assets
         })
       })
   )
+})
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      const cachesToDelete = cacheNames.filter((cacheName) => cacheName !== CACHE_NAME)
+      return Promise.all(cachesToDelete.map((name) => caches.delete(name)))
+    })
+  )
+  self.clients.claim()
 })
 
 // Fetch event

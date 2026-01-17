@@ -329,7 +329,7 @@ export default function SupplyChainPage() {
               { step: 3, title: "Implementation & Integration", description: "Execute the plan with minimal disruption to your operations, including system integration, process changes, and staff training." },
               { step: 4, title: "Optimization & Support", description: "Continuous monitoring, performance tracking, and ongoing optimization to ensure sustained improvements and adapt to changing business needs." }
             ].map((process, index) => {
-              const isYellow = process.step % 2 === 1 // Steps 1 and 3 use yellow, steps 2 and 4 use gold
+              const isYellow = process.step % 2 === 1; // Steps 1 and 3 use yellow, steps 2 and 4 use gold
               return (
                 <motion.div
                   key={index}
@@ -351,10 +351,10 @@ export default function SupplyChainPage() {
                           </p>
                         </div>
                       </div>
-                  </CardContent>
+                    </CardContent>
                 </Card>
               </motion.div>
-            ))}
+              )})}
           </div>
         </motion.div>
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { Card } from "@heroui/react"
+import { Card, CardContent } from "@/components/ui/card"
 import { TrendingUp, Package, Clock, DollarSign } from "lucide-react"
 import { motion } from "framer-motion"
 

@@ -12,7 +12,6 @@ function safeJsonStringify(data: object): string {
     .replace(/>/g, '\\u003e')
     .replace(/&/g, '\\u0026')
     .replace(/'/g, '\\u0027')
-    .replace(/"/g, '\\u0022')
 }
 
 export default function StructuredData({ data, id = 'structured-data-default' }: StructuredDataProps) {
