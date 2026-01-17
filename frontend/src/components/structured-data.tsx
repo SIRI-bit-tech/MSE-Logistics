@@ -2,15 +2,26 @@ import Script from 'next/script'
 
 interface StructuredDataProps {
   data: object
+  id?: string
 }
 
-export default function StructuredData({ data }: StructuredDataProps) {
+// Hardened JSON serialization that escapes HTML-unsafe characters
+function safeJsonStringify(data: object): string {
+  return JSON.stringify(data)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/'/g, '\\u0027')
+    .replace(/"/g, '\\u0022')
+}
+
+export default function StructuredData({ data, id = 'structured-data-default' }: StructuredDataProps) {
   return (
     <Script
-      id="structured-data"
+      id={id}
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(data)
+        __html: safeJsonStringify(data)
       }}
     />
   )

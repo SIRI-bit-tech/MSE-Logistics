@@ -49,14 +49,20 @@ export const organizationStructuredData = {
         }
       },
       {
-        "@type": "Service",
-        "name": "Warehousing",
-        "description": "Secure storage and distribution services with inventory management"
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Warehousing",
+          "description": "Secure storage and distribution services with inventory management"
+        }
       },
       {
-        "@type": "Service",
-        "name": "Supply Chain Management",
-        "description": "End-to-end supply chain optimization and management solutions"
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Supply Chain Management",
+          "description": "End-to-end supply chain optimization and management solutions"
+        }
       }
     ]
   }

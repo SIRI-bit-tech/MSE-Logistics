@@ -4,6 +4,7 @@ import { Providers } from "@/components/providers"
 import "../../globals.css"
 import LayoutWrapper from "@/components/layout-wrapper"
 import StructuredData from "@/components/structured-data"
+import PerformanceOptimizations from "@/components/performance-optimizations"
 import { organizationStructuredData, websiteStructuredData } from "@/lib/structured-data"
 
 export const metadata: Metadata = {
@@ -43,19 +44,33 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    nocache: false,
     googleBot: {
       index: true,
       follow: true,
+      noimageindex: false,
       'max-video-preview': -1,
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
   },
-  verification: {
-    google: 'your-google-verification-code',
-    yandex: 'your-yandex-verification-code',
-    yahoo: 'your-yahoo-verification-code',
-  },
+  ...(process.env.NEXT_PUBLIC_SITE_VERIFICATION_GOOGLE || 
+     process.env.NEXT_PUBLIC_SITE_VERIFICATION_YANDEX || 
+     process.env.NEXT_PUBLIC_SITE_VERIFICATION_YAHOO ? {
+    verification: {
+      ...(process.env.NEXT_PUBLIC_SITE_VERIFICATION_GOOGLE && {
+        google: process.env.NEXT_PUBLIC_SITE_VERIFICATION_GOOGLE
+      }),
+      ...(process.env.NEXT_PUBLIC_SITE_VERIFICATION_YANDEX && {
+        yandex: process.env.NEXT_PUBLIC_SITE_VERIFICATION_YANDEX
+      }),
+      ...(process.env.NEXT_PUBLIC_SITE_VERIFICATION_YAHOO && {
+        yahoo: process.env.NEXT_PUBLIC_SITE_VERIFICATION_YAHOO
+      }),
+    }
+  } : {}),
+  category: 'business',
+  classification: 'Logistics and Shipping Services',
   icons: {
     icon: [
       { url: '/favicons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -70,7 +85,12 @@ export const metadata: Metadata = {
       { url: '/favicons/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' }
     ]
   },
-  manifest: '/favicons/site.webmanifest'
+  manifest: '/favicons/site.webmanifest',
+  other: {
+    'theme-color': '#003873',
+    'color-scheme': 'light',
+    'format-detection': 'telephone=no',
+  }
 }
 
 export default function RootLayout({
@@ -81,10 +101,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <StructuredData data={organizationStructuredData} />
-        <StructuredData data={websiteStructuredData} />
+        <StructuredData data={organizationStructuredData} id="organization-data" />
+        <StructuredData data={websiteStructuredData} id="website-data" />
+        {/* Preload critical resources */}
+        <link rel="preload" href="/mse-logo.png" as="image" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* DNS prefetch for external resources */}
+        <link rel="dns-prefetch" href="https://api.mapbox.com" />
       </head>
       <body>
+        <PerformanceOptimizations />
         <Providers>
           <LayoutWrapper>{children}</LayoutWrapper>
         </Providers>

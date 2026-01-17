@@ -99,19 +99,4 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
-  
-  <!-- Auth Pages (lower priority) -->
-  <url>
-    <loc>https://mediterraneanshippingexpress.com/auth/login</loc>
-    <lastmod>2025-01-17</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  
-  <url>
-    <loc>https://mediterraneanshippingexpress.com/auth/signup</loc>
-    <lastmod>2025-01-17</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
 </urlset>

@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
+import Image from "next/image"
 import { CheckCircle, Clock, Shield, Globe } from "lucide-react"
 import Link from "next/link"
 
@@ -41,9 +42,11 @@ export default function WhyChooseSection() {
             viewport={{ once: true }}
             className="relative"
           >
-            <img 
-              src="https://images.unsplash.com/photo-1605902711834-8b11c3e3ef2f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+            <Image 
+              src="/leadership-team.jpg"
               alt="Captain looking through binoculars"
+              width={800}
+              height={384}
               className="w-full h-96 object-cover rounded-lg shadow-xl"
             />
             <div className="absolute bottom-6 left-6 bg-[#FFD700] text-black p-4 rounded-lg">

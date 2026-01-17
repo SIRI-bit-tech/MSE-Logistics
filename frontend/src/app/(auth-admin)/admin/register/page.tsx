@@ -11,6 +11,7 @@ import { Mail, Lock, Shield, User, Phone } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function AdminRegister() {
   const router = useRouter()
@@ -78,7 +79,7 @@ export default function AdminRegister() {
       {/* Logo Header */}
       <div className="p-6">
         <Link href="/" className="inline-flex items-center gap-2">
-          <img src="/mse-logo.png" alt="MSE Logo" className="w-10 h-10" />
+          <Image src="/mse-logo.png" alt="MSE Logo" width={60} height={40} />
           <span className="text-white font-bold text-xl">MSE</span>
         </Link>
       </div>

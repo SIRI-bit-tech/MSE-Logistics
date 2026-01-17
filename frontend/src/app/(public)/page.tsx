@@ -38,7 +38,7 @@ export default function Home() {
                   className="bg-[#FFD700] text-[#003873] font-bold hover:bg-yellow-500 w-full sm:w-auto"
                 >
                   <Link href="/user/register">
-                    Get Started <ChevronRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                    Create Account <ChevronRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="secondary" className="bg-white text-[#003873] hover:bg-gray-100 hover:text-[#003873] w-full sm:w-auto">

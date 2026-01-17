@@ -3,6 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import Image from "next/image"
 
 const services = [
   {
@@ -62,9 +63,11 @@ export default function FeaturesSection() {
               <Link href={service.href}>
                 <Card className="h-full hover:shadow-xl transition-all duration-300 cursor-pointer group">
                   <div className="relative h-48 overflow-hidden">
-                    <img 
+                    <Image 
                       src={service.image} 
                       alt={service.title}
+                      width={800}
+                      height={192}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>

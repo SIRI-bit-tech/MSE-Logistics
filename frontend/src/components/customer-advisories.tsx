@@ -7,6 +7,7 @@ import { motion } from "framer-motion"
 import { useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 const advisories = [
   {
@@ -14,7 +15,7 @@ const advisories = [
     category: "TRADE UPDATE",
     title: "Container Ship from China Sets Record for Fastest Transit Time",
     description: "New shipping route reduces delivery time by 30% for Asia-Europe trade",
-    image: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    image: "/ocean-freight-container.jpg",
     readMore: "/news/fastest-transit-record",
     color: "warning"
   },
@@ -23,7 +24,7 @@ const advisories = [
     category: "SUSTAINABILITY",
     title: "The Future of Logistics: Sustainable Shipping Solutions",
     description: "How green technology is revolutionizing the maritime industry",
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    image: "/sustainability-hero.jpg",
     readMore: "/news/sustainable-shipping",
     color: "success"
   },
@@ -32,7 +33,7 @@ const advisories = [
     category: "TECHNOLOGY",
     title: "Digital Transformation in Container Tracking",
     description: "New IoT sensors provide real-time cargo monitoring and temperature control",
-    image: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    image: "/technology-innovation.jpg",
     readMore: "/news/digital-transformation",
     color: "primary"
   }
@@ -92,9 +93,11 @@ export default function CustomerAdvisories() {
                 <Card className="h-full hover:shadow-lg transition-shadow">
                   {/* Image */}
                   <div className="relative h-48 overflow-hidden">
-                    <img 
+                    <Image 
                       src={advisory.image} 
                       alt={advisory.title}
+                      width={800}
+                      height={192}
                       className="w-full h-full object-cover"
                     />
                     <Badge 
@@ -123,7 +126,7 @@ export default function CustomerAdvisories() {
                       className="text-[#FFD700] hover:text-[#D4AF37] p-0 h-auto font-semibold"
                     >
                       <Link href={advisory.readMore}>
-                        READ MORE →
+                        READ FULL ARTICLE →
                       </Link>
                     </Button>
                   </CardContent>

@@ -65,7 +65,7 @@ export default function GreenFutureSection() {
             className="bg-white/20 text-white border-2 border-white hover:bg-white hover:text-[#212529] font-semibold px-8 py-3 backdrop-blur-sm"
           >
             <Link href="/about">
-              Learn More
+              Learn More About Our Sustainability
             </Link>
           </Button>
         </motion.div>
