@@ -1,210 +1,346 @@
-# Mediterranean Shipping Express - Production-Ready Logistics Platform
 
-A comprehensive, enterprise-grade global courier and logistics platform built with modern technologies for seamless package shipping, real-time tracking, and delivery management.
+## 🚢 About Mediterranean Shipping Express
 
-## Architecture Overview
+Mediterranean Shipping Express (MSE) is a global leader in container shipping and logistics, providing worldwide network of industry-specific services. We offer customers a comprehensive international service that delivers fast and reliable transit times, helping provide the best solutions for shipping needs.
 
-### Backend Stack
-- **Framework**: NestJS with GraphQL (code-first approach)
-- **Database**: PostgreSQL with Prisma ORM
-- **Real-time**: Socket.io for live updates
-- **Authentication**: Auth0 with separate user/admin flows
-- **Geo-services**: Mapbox for routing and geocoding
-- **Caching**: Redis for query optimization
-- **Runtime**: Bun for optimal performance
+### Our Solutions
+- **Express Shipping**: 24-hour delivery, same-day service, priority handling
+- **Standard Shipping**: Ground transport, cost-effective, reliable delivery  
+- **International Shipping**: Air freight, sea freight, customs clearance
+- **Track & Trace Solutions**: Live GPS tracking, SMS notifications, delivery updates
+
+## 🏗️ Architecture Overview
 
 ### Frontend Stack
-- **Framework**: Next.js 16 with App Router
-- **UI Library**: HeroUI (NextUI) components
-- **Styling**: Tailwind CSS v4
-- **Animations**: Framer Motion
-- **State Management**: Zustand
-- **Maps**: Mapbox GL
-- **Real-time**: Socket.io client
-- **API Client**: Apollo Client for GraphQL
+- **Framework**: Next.js 16 with App Router and Turbopack
+- **UI Library**: Shadcn/UI components with Radix UI primitives
+- **Styling**: Tailwind CSS v4 with custom MSC brand colors
+- **Animations**: Framer Motion for smooth interactions
+- **State Management**: Zustand for client state
+- **Authentication**: Better Auth with email/password authentication
+- **Database**: PostgreSQL with Prisma ORM
+- **Real-time**: Ably for live tracking updates
+- **Maps & Routing**: GraphHopper API for geocoding and route optimization
+- **Mapping Library**: MapLibre GL for interactive maps
+- **Runtime**: Bun for optimal performance
 
-## Project Structure
+### Key Technologies
+- **Ably**: Real-time messaging for live shipment tracking and notifications
+- **GraphHopper**: Geocoding, route optimization and distance calculations
+- **Better Auth**: Secure email/password authentication with session management
+- **Prisma**: Type-safe database access and migrations
+- **MapLibre GL**: Interactive maps and geolocation services
+- **Framer Motion**: Smooth animations and page transitions
+
+## 📁 Project Structure
 
 ```
-swiftship-global/
-├── backend/
-│   ├── src/
-│   │   ├── main.ts                    # Application entry point
-│   │   ├── app.module.ts              # Root module
-│   │   ├── modules/
-│   │   │   ├── auth/                  # Authentication module
-│   │   │   ├── user/                  # User management
-│   │   │   ├── shipment/              # Shipment operations
-│   │   │   ├── driver/                # Driver management
-│   │   │   ├── tracking/              # Tracking service
-│   │   │   ├── notification/          # Notification system
-│   │   │   ├── geo/                   # Geolocation services
-│   │   │   └── prisma/                # Database service
-│   │   └── common/
-│   │       ├── decorators/            # Custom decorators
-│   │       ├── guards/                # Auth guards
-│   │       └── interfaces/            # Shared interfaces
-│   ├── prisma/
-│   │   └── schema.prisma              # Database schema
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── .env.example
-│
+mediterranean-shipping-express/
 ├── frontend/
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── page.tsx               # Homepage
-│   │   │   ├── layout.tsx             # Root layout
-│   │   │   ├── dashboard/             # Customer dashboard
-│   │   │   ├── tracking/              # Public tracking page
+│   │   │   ├── page.tsx               # Homepage with Our Solutions
+│   │   │   ├── layout.tsx             # Root layout with MSE branding
+│   │   │   ├── (public)/              # Public pages
+│   │   │   │   ├── solutions/         # Solutions overview page
+│   │   │   │   ├── services/          # Service detail pages
+│   │   │   │   ├── about/             # About MSE
+│   │   │   │   ├── contact/           # Contact page
+│   │   │   │   ├── track/             # Public tracking
+│   │   │   │   ├── faq/               # FAQ page
+│   │   │   │   ├── privacy/           # Privacy policy
+│   │   │   │   ├── terms/             # Terms of service
+│   │   │   │   └── sustainability/    # Sustainability page
+│   │   │   ├── (customer)/            # Customer dashboard
+│   │   │   │   ├── shipments/         # Shipment management
+│   │   │   │   ├── addresses/         # Address book
+│   │   │   │   ├── notifications/     # Notification settings
+│   │   │   │   ├── profile/           # User profile
+│   │   │   │   └── settings/          # Account settings
+│   │   │   ├── (driver)/              # Driver portal
+│   │   │   │   ├── dashboard/         # Driver dashboard
+│   │   │   │   ├── deliveries/        # Delivery management
+│   │   │   │   ├── earnings/          # Earnings tracking
+│   │   │   │   └── driver-profile/    # Driver profile
 │   │   │   ├── admin/                 # Admin panel
-│   │   │   └── auth/                  # Authentication pages
+│   │   │   │   ├── dashboard/         # Admin dashboard
+│   │   │   │   ├── users/             # User management
+│   │   │   │   ├── drivers/           # Driver management
+│   │   │   │   ├── analytics/         # Analytics
+│   │   │   │   ├── reports/           # Reports
+│   │   │   │   ├── issues/            # Issue management
+│   │   │   │   ├── offices/           # Office management
+│   │   │   │   └── settings/          # System settings
+│   │   │   ├── auth/                  # Authentication pages
+│   │   │   │   ├── login/             # User login
+│   │   │   │   ├── signup/            # User registration
+│   │   │   │   └── callback/          # Auth0 callback
+│   │   │   ├── (auth-user)/           # User auth pages
+│   │   │   ├── (auth-admin)/          # Admin auth pages
+│   │   │   └── api/                   # API routes
 │   │   ├── components/
-│   │   │   ├── navbar.tsx             # Navigation bar
-│   │   │   ├── footer.tsx             # Footer
-│   │   │   ├── hero-section.tsx       # Landing hero
-│   │   │   ├── features-section.tsx   # Features showcase
-│   │   │   ├── pricing-section.tsx    # Pricing plans
+│   │   │   ├── ui/                    # Shadcn/UI components
 │   │   │   ├── dashboard/             # Dashboard components
 │   │   │   ├── tracking/              # Tracking components
-│   │   │   └── admin/                 # Admin components
+│   │   │   ├── admin/                 # Admin components
+│   │   │   ├── auth/                  # Auth components
+│   │   │   ├── shipment/              # Shipment components
+│   │   │   ├── our-solutions-section.tsx # Interactive solutions grid
+│   │   │   ├── hero-section.tsx       # Landing hero
+│   │   │   ├── features-section.tsx   # Features showcase
+│   │   │   ├── customer-advisories.tsx # Latest news section
+│   │   │   ├── navbar.tsx             # Navigation with MSE logo
+│   │   │   └── footer.tsx             # Footer
 │   │   ├── hooks/
 │   │   │   ├── use-auth.ts            # Auth hook
-│   │   │   └── use-shipment.ts        # Shipment hook
+│   │   │   ├── use-shipment.ts        # Shipment hook
+│   │   │   └── use-toast.ts           # Toast notifications
 │   │   ├── store/
 │   │   │   ├── auth-store.ts          # Auth state
 │   │   │   └── shipment-store.ts      # Shipment state
 │   │   ├── lib/
-│   │   │   ├── graphql-client.ts      # Apollo client setup
-│   │   │   └── socket-client.ts       # Socket.io setup
-│   │   └── globals.css                # Global styles
-│   ├── global.d.ts                    # Global TypeScript types
-│   ├── constants.ts                   # Application constants
+│   │   │   ├── auth.ts                # Auth configuration
+│   │   │   ├── auth0.ts               # Auth0 setup
+│   │   │   ├── prisma.ts              # Database client
+│   │   │   ├── ably-client.ts         # Ably real-time client
+│   │   │   ├── geocoding.ts           # Geocoding service
+│   │   │   └── utils.ts               # Utility functions
+│   │   └── types/                     # TypeScript types
+│   ├── prisma/
+│   │   ├── schema.prisma              # Database schema
+│   │   └── migrations/                # Database migrations
+│   │   ├── public/                        # Static assets
+│   │   │   ├── mse-logo.png              # MSE logo
+│   │   │   ├── express-shipping.png       # Solution images
+│   │   │   ├── Standard-Shipping.png      
+│   │   │   ├── International-Shipping.png 
+│   │   │   ├── Track & Trace Solutions.png  
+│   │   │   ├── ocean-freight-hero.jpg     # Hero images
+│   │   │   ├── logistics-tracking-gps-map.jpg
+│   │   │   ├── intermodal-transport-hero.jpg
+│   │   │   └── favicons/                  # Favicon files
+│   ├── constants.ts                   # MSC brand colors & constants
 │   ├── package.json
-│   ├── tsconfig.json
-│   ├── next.config.js
-│   └── .env.example
+│   ├── next.config.js                 # Next.js configuration
+│   ├── tailwind.config.js             # Tailwind CSS config
+│   └── .env.example                   # Environment variables
 │
 └── README.md
 ```
 
-## Key Features
+## ✨ Key Features
 
-### Real-time Tracking
-- Live GPS updates via Socket.io
-- Real-time location sharing with WebSocket connections
-- Instant notifications on status changes
-- Interactive Mapbox integration for route visualization
+### Interactive Solutions Grid
+- **MSC-style interface**: Full-width background carousel with 4 service cards
+- **Auto-rotating images**: Background changes every 4 seconds
+- **Hover interactions**: Background switches to card-specific images on hover
+- **Responsive design**: 4 columns on desktop, 2 on tablet, 1 on mobile
+- **Smooth animations**: Framer Motion powered transitions
 
-### Comprehensive GraphQL API
-- **Queries**: 12+ queries for shipment data, pricing, and tracking
-- **Mutations**: 18+ mutations for shipment operations and management
-- **Subscriptions**: 7+ subscriptions for real-time updates
-- Code-first approach with TypeScript decorators
-- Enterprise-safe with depth limits, DataLoader pattern, and rate limiting
+### Real-time Tracking with Ably
+- **Live updates**: Real-time shipment status changes via Ably channels
+- **Push notifications**: Instant alerts for status updates
+- **Multi-device sync**: Updates across all connected devices
+- **Scalable messaging**: Handles thousands of concurrent tracking sessions
 
-### Multi-role Authentication
-- **Customer**: Create and track shipments
-- **Driver**: Manage deliveries and real-time location tracking
-- **Admin**: Full shipment and platform management
-- **Super Admin**: System configuration and user management
-- Auth0 integration with separate user and admin flows
-- 2FA for admin accounts
+### Route Optimization with GraphHopper
+- **Smart routing**: Optimal delivery routes using GraphHopper API
+- **Distance calculations**: Accurate shipping cost estimates
+- **Multi-modal transport**: Support for air, sea, land, and combined shipping
+- **International routing**: Global route optimization across 200+ countries
 
-### Package Status Management
-- 13 comprehensive status states (PENDING, PROCESSING, IN_TRANSIT, etc.)
-- Transport modes (AIR, LAND, WATER, MULTIMODAL)
-- Service types (EXPRESS, STANDARD, ECONOMY)
-- Customs clearance tracking
-- Detailed tracking events with timestamps and locations
+### Multi-role Authentication (Better Auth)
+- **Customer Portal**: Create and track shipments, manage addresses
+- **Driver Portal**: Delivery management, earnings tracking, route optimization  
+- **Admin Dashboard**: Full platform management, analytics, user management
+- **Secure access**: JWT tokens, role-based permissions, session management
 
-### Admin Dashboard
-- Real-time shipment management
-- Driver assignment and tracking
-- Status updates with location tracking
-- Analytics and insights
-- Custom reporting
+### Comprehensive Shipment Management
+- **13 status states**: From PENDING to DELIVERED with detailed tracking
+- **Service types**: Express (1-2 days), Standard (3-5 days), Economy (7-10 days)
+- **Package categories**: Documents, parcels, fragile items, electronics, etc.
+- **International support**: Customs clearance, documentation, duties handling
 
-### Customer Features
-- Easy shipment creation
-- Real-time tracking with live maps
-- Shipping cost calculator
-- Address book management
-- Payment method storage
-- Notification system
-- Shipment history and invoices
+### Modern UI/UX
+- **MSC Brand Colors**: Authentic golden yellow (#D4AF37) and darker gold (#B8860B)
+- **Shadcn/UI Components**: Modern, accessible component library
+- **Responsive Design**: Mobile-first approach with perfect tablet/desktop scaling
+- **Dark Mode Support**: System preference detection and manual toggle
+- **Smooth Animations**: Framer Motion for professional interactions
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ (or Bun)
+- Node.js 18+ (or Bun recommended)
 - PostgreSQL 13+
-- Redis (for caching)
-- Auth0 account
-- Mapbox API key
+- Ably account (for real-time features)
+- GraphHopper API key (for geocoding and routing)
 
-### Installation
+### Environment Variables
 
-#### Backend Setup
+Create a `.env.local` file in the frontend directory:
+
 ```bash
-cd backend
-cp .env.example .env
-# Edit .env with your credentials
+# App Configuration
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-bun install
-bun run prisma:generate
-bun run prisma:migrate
-bun run dev
+# Better Auth Configuration
+BETTER_AUTH_SECRET=your-32-character-secret-key-here
+BETTER_AUTH_URL=http://localhost:3000
+
+# Database
+DATABASE_URL="postgresql://username:password@localhost:5432/mse_db"
+
+# Ably (Real-time)
+ABLY_API_KEY=your-ably-server-key
+
+# GraphHopper (Geocoding & Routing)
+NEXT_PUBLIC_GRAPHHOPPER_API_KEY=your-graphhopper-api-key
+
+# JWT Authentication
+JWT_SECRET=your-jwt-secret-key-here-32-chars-minimum
+
+# Email (Optional)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
 ```
 
-#### Frontend Setup
+### Installation & Setup
+
 ```bash
-cd frontend
+# Clone the repository
+git clone https://github.com/your-org/mediterranean-shipping-express.git
+cd mediterranean-shipping-express/frontend
+
+# Install dependencies (using Bun for optimal performance)
+bun install
+
+# Set up environment variables
 cp .env.example .env.local
-# Edit .env.local with your credentials
+# Edit .env.local with your configuration
 
-bun install
+# Set up the database
+bun run prisma:generate
+bun run prisma:migrate dev
+bun run prisma:seed  # Optional: seed with sample data
+
+# Start development server
 bun run dev
 ```
 
-Visit `http://localhost:3000` for the frontend and `http://localhost:3001/graphql` for the GraphQL API.
+Visit `http://localhost:3000` to see the application.
 
-## API Endpoints
+### Database Setup
 
-### GraphQL Endpoint
-- **URL**: `/graphql`
-- **Method**: POST/WebSocket
-- **Authentication**: Bearer token in Authorization header
+The application uses PostgreSQL with Prisma ORM:
 
-### Socket.io Events
-- `tracking:subscribe` - Subscribe to tracking updates
-- `location:update` - Real-time location update
-- `status:update` - Shipment status change
-- `driver:assign` - Driver assignment notification
+```bash
+# Generate Prisma client
+bun run prisma:generate
 
-## Database Schema
+# Run migrations
+bun run prisma:migrate dev
 
-The application uses PostgreSQL with Prisma ORM. Key models:
-- **User**: Customer and admin accounts
-- **Driver**: Delivery personnel with location tracking
-- **Shipment**: Package information and status
-- **TrackingEvent**: Tracking history timeline
-- **Notification**: User notifications
-- **Address**: Saved shipping addresses
-- **PaymentMethod**: Billing information
+# View database in Prisma Studio
+bun run prisma:studio
+```
 
-## Security Features
+## 🔧 API Integration
 
-- **JWT Authentication**: Secure token-based auth
-- **Role-Based Access Control**: Fine-grained permissions
-- **Field-Level Authorization**: GraphQL resolver protection
-- **Rate Limiting**: 100 req/min authenticated, 20 req/min anonymous
-- **Query Complexity Analysis**: Prevent expensive operations
-- **Depth Limit Enforcement**: Max 5 levels of nesting
-- **DataLoader Pattern**: N+1 query prevention
+### Ably Real-time Messaging
+```typescript
+// Subscribe to shipment updates
+const channel = ably.channels.get(`shipment:${shipmentId}`)
+channel.subscribe('status-update', (message) => {
+  console.log('Shipment status updated:', message.data)
+})
+
+// Publish location update (driver app)
+channel.publish('location-update', {
+  lat: 40.7128,
+  lng: -74.0060,
+  timestamp: new Date().toISOString()
+})
+```
+
+### GraphHopper Routing
+```typescript
+// Calculate shipping route and cost
+const route = await fetch(`https://graphhopper.com/api/1/route`, {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${process.env.GRAPHHOPPER_API_KEY}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    points: [[pickup_lng, pickup_lat], [delivery_lng, delivery_lat]],
+    vehicle: 'car',
+    locale: 'en'
+  })
+})
+```
+
+### Better Auth Authentication
+```typescript
+// Protected API route
+import { auth } from "@/lib/auth"
+
+export default async function handler(req: Request) {
+  const session = await auth.api.getSession({ headers: req.headers })
+  
+  if (!session) {
+    return new Response("Unauthorized", { status: 401 })
+  }
+  
+  // Handle authenticated request
+}
+```
+
+## 🗄️ Database Schema
+
+The application uses PostgreSQL with Prisma ORM. Key models include:
+
+- **User**: Customer and admin accounts with Better Auth integration
+- **Driver**: Delivery personnel with location tracking capabilities
+- **Shipment**: Package information, status, and routing details
+- **TrackingEvent**: Detailed tracking history with timestamps and locations
+- **Notification**: User notifications and preferences
+- **Address**: Saved shipping addresses with geocoding
+- **Activity**: System activity logs and audit trail
+
+### MSC Brand Configuration
+
+The application uses authentic MSC colors defined in `constants.ts`:
+
+```typescript
+export const MSC_COLORS = {
+  YELLOW: "#D4AF37",    // MSC's signature golden yellow
+  GOLD: "#B8860B",      // Darker gold variant
+  WHITE: "#FFFFFF",     // Clean white
+  BLACK: "#000000",     // Pure black
+  LIGHT_GRAY: "#F8F9FA",
+  MEDIUM_GRAY: "#6C757D",
+  DARK_GRAY: "#343A40",
+  TEXT_PRIMARY: "#212529",
+  TEXT_SECONDARY: "#6C757D",
+  BG_PRIMARY: "#FFFFFF",
+  BG_SECONDARY: "#F8F9FA"
+}
+```
+
+## 🔒 Security Features
+
+- **JWT Authentication**: Secure token-based authentication via Auth0
+- **Role-Based Access Control**: Customer, Driver, Admin, Super Admin roles
+- **API Route Protection**: Server-side authentication checks
+- **CSRF Protection**: Built-in Next.js CSRF protection
+- **Rate Limiting**: API endpoint rate limiting
+- **Input Validation**: Comprehensive form and API validation
 - **SQL Injection Prevention**: Parameterized queries via Prisma
-- **CORS Configuration**: Restricted cross-origin requests
-- **HTTPS Required**: Production deployments only
+- **XSS Protection**: Content Security Policy headers
+- **HTTPS Enforcement**: Production HTTPS requirements
 
 ## Deployment
 
@@ -256,33 +392,43 @@ bun run prisma:studio
 
 ## Production Checklist
 
-- [ ] Environment variables configured
-- [ ] Database backups enabled
-- [ ] Auth0 production app created
-- [ ] Mapbox production token configured
-- [ ] Email notifications configured
-- [ ] Redis replication enabled
-- [ ] HTTPS certificates installed
-- [ ] Rate limiting configured
-- [ ] Monitoring and logging setup
-- [ ] CI/CD pipeline configured
-- [ ] Database indexes optimized
-- [ ] CDN configured for static assets
-- [ ] API documentation generated
-- [ ] Security audit completed
+- [ ] Environment variables configured for production
+- [ ] Database backups enabled and tested
+- [ ] Better Auth production configuration completed
+- [ ] Ably production API keys configured
+- [ ] GraphHopper production API key configured
+- [ ] Email notifications configured and tested
+- [ ] HTTPS certificates installed and verified
+- [ ] Rate limiting configured for API endpoints
+- [ ] Monitoring and logging setup (error tracking, performance)
+- [ ] CI/CD pipeline configured for automated deployments
+- [ ] Database indexes optimized for production queries
+- [ ] CDN configured for static assets and images
+- [ ] API documentation generated and accessible
+- [ ] Security audit completed and vulnerabilities addressed
+- [ ] Load testing performed for expected traffic
+- [ ] Backup and disaster recovery procedures documented
 
 ## Support and Documentation
 
-- **GraphQL Schema**: Available at `/graphql` endpoint
-- **API Documentation**: Auto-generated GraphQL docs
-- **Database Docs**: Prisma Studio (`bun run prisma:studio`)
+- **Live Tracking**: Real-time shipment tracking at `/track`
+- **Customer Portal**: Full-featured dashboard for shipment management
+- **Admin Panel**: Comprehensive administrative interface
+- **API Documentation**: GraphQL schema available at `/graphql` endpoint
+- **Database Management**: Prisma Studio (`bun run prisma:studio`)
+- **24/7 Support**: Customer service available around the clock
 
 ## License
 
-All rights reserved. Contact support@swiftship.global for licensing inquiries.
+© 2026 Mediterranean Shipping Express. All rights reserved. 
+
+This software is proprietary and confidential. Unauthorized copying, distribution, or use is strictly prohibited. For licensing inquiries, please contact legal@mediterraneanshippingexpress.com.
 
 ## Contact
 
-- Email: support@swiftship.global
-- Website: https://swiftship.global
-- Docs: https://docs.swiftship.global
+- **Website**: https://mediterraneanshippingexpress.com
+- **Email**: support@mediterraneanshippingexpress.com
+- **Customer Service**: Available 24/7 for tracking and support
+- **Business Inquiries**: sales@mediterraneanshippingexpress.com
+
+For technical support or development inquiries, please contact our development team.
