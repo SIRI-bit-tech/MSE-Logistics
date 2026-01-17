@@ -8,25 +8,25 @@ const services = [
   {
     title: "Ocean Freight",
     description: "Reliable container shipping services connecting major ports worldwide with competitive rates and flexible scheduling.",
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    image: "/ocean-freight-container.jpg",
     href: "/services/ocean-freight"
   },
   {
     title: "Intermodal Transport",
     description: "Seamless door-to-door logistics combining sea, rail, and road transport for maximum efficiency and cost savings.",
-    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    image: "/intermodal-logistics.jpg",
     href: "/services/intermodal"
   },
   {
     title: "Warehousing & Storage",
     description: "Secure storage facilities and distribution centers strategically located near major ports and transportation hubs.",
-    image: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    image: "/warehouse-facility.jpg",
     href: "/services/warehousing"
   },
   {
     title: "Supply Chain",
     description: "End-to-end supply chain management solutions designed to optimize your logistics operations and reduce costs.",
-    image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    image: "/supply-chain-network.jpg",
     href: "/services/supply-chain"
   }
 ]

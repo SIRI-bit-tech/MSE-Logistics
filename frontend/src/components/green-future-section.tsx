@@ -62,11 +62,10 @@ export default function GreenFutureSection() {
           <Button 
             asChild
             size="lg" 
-            variant="outline" 
-            className="text-white border-white hover:bg-white/10 font-semibold px-8 py-3"
+            className="bg-white/20 text-white border-2 border-white hover:bg-white hover:text-[#212529] font-semibold px-8 py-3 backdrop-blur-sm"
           >
-            <Link href="/green-initiatives">
-              Green Initiatives
+            <Link href="/about">
+              Learn More
             </Link>
           </Button>
         </motion.div>

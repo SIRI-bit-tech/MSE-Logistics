@@ -76,8 +76,7 @@ export default function HeroSection() {
             </Button>
             <Button 
               size="lg" 
-              variant="outline" 
-              className="text-white border-white hover:bg-white/10 hover:text-white font-semibold px-8 py-3"
+              className="bg-white/20 text-white border-2 border-white hover:bg-white hover:text-[#212529] font-semibold px-8 py-3 backdrop-blur-sm"
               onClick={() => {
                 const trackingInput = document.getElementById('tracking-input') as HTMLInputElement
                 trackingInput?.focus()
