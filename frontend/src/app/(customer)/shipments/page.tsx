@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Sidebar from "@/components/dashboard/sidebar"
+import MobileHeader from "@/components/dashboard/mobile-header"
 import StatsCard from "@/components/dashboard/stats-card"
 import RecentShipmentsTable from "@/components/dashboard/recent-shipments-table"
 import QuickSupport from "@/components/dashboard/quick-support"
@@ -26,6 +27,7 @@ interface DashboardStats {
 export default function DashboardPage() {
   const { user } = useAuth()
   const router = useRouter()
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const [stats, setStats] = useState<DashboardStats>({
     activeShipments: 0,
     delivered: 0,
@@ -65,6 +67,21 @@ export default function DashboardPage() {
     fetchStats()
   }, [user?.id])
 
+  // Close sidebar on mobile by default
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setSidebarOpen(false)
+      } else {
+        setSidebarOpen(true)
+      }
+    }
+
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   const handleNewShipment = () => {
     router.push('/shipments/new')
   }
@@ -73,43 +90,59 @@ export default function DashboardPage() {
     router.push('/reports')
   }
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen)
+  }
+
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar 
+        isOpen={sidebarOpen} 
+        onToggle={toggleSidebar}
+      />
       
-      <div className="flex-1">
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-0">
+        <MobileHeader 
+          onMenuToggle={toggleSidebar}
+          title="Dashboard"
+        />
+        
         {/* Main Content */}
-        <div className="p-8">
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 pt-20 lg:pt-4">
           {/* Header Section */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-4">
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 truncate">
                 Welcome back, {welcomeName}!
               </h1>
-              <p className="text-gray-600">Here's what's happening with your shipments today.</p>
+              <p className="text-sm sm:text-base text-gray-600">Here's what's happening with your shipments today.</p>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <Button 
                 variant="outline" 
-                className="border-gray-300 text-gray-700"
+                className="border-gray-300 text-gray-700 text-sm sm:text-base"
                 onClick={handleReports}
+                size="sm"
               >
-                <FileText className="w-4 h-4 mr-2" />
-                Reports
+                <FileText className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Reports</span>
+                <span className="sm:hidden">Reports</span>
               </Button>
               <Button 
-                className="bg-[#FFD700] text-black hover:bg-[#D4AF37]"
+                className="bg-[#FFD700] text-black hover:bg-[#D4AF37] text-sm sm:text-base"
                 onClick={handleNewShipment}
+                size="sm"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                New Shipment
+                <Plus className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">New Shipment</span>
+                <span className="sm:hidden">New</span>
               </Button>
             </div>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
             <StatsCard
               title="Active Shipments"
               value={loading ? "..." : stats.activeShipments}
@@ -141,9 +174,9 @@ export default function DashboardPage() {
           </div>
 
           {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Recent Shipments - Takes up 2 columns */}
-            <div className="lg:col-span-2">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
+            {/* Recent Shipments - Takes up 2 columns on xl screens */}
+            <div className="xl:col-span-2">
               <RecentShipmentsTable />
             </div>
 

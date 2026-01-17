@@ -62,9 +62,7 @@ export default function LoginPage() {
         <div className="absolute inset-0 flex flex-col justify-between p-8 text-white">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-msc-yellow rounded-lg flex items-center justify-center">
-              <span className="text-black font-bold text-xl">⚓</span>
-            </div>
+            <img src="/mse-logo.png" alt="MSE Logo" className="w-12 h-12 drop-shadow-lg filter brightness-110 contrast-125" />
             <span className="text-xl font-bold">MEDITERRANEAN SHIPPING EXPRESS</span>
           </div>
 
@@ -99,6 +97,11 @@ export default function LoginPage() {
       {/* Right Side - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
+          {/* Mobile Logo - Only shown on mobile */}
+          <div className="lg:hidden flex justify-center mb-8">
+            <img src="/mse-logo.png" alt="MSE Logo" className="w-16 h-16 drop-shadow-lg filter brightness-110 contrast-125" />
+          </div>
+          
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-800 mb-2">Login to Your Account</h2>
             <p className="text-gray-600">Secure authentication with Better Auth.</p>

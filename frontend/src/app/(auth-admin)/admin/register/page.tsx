@@ -78,9 +78,7 @@ export default function AdminRegister() {
       {/* Logo Header */}
       <div className="p-6">
         <Link href="/" className="inline-flex items-center gap-2">
-          <span className="bg-[#FFD700] text-black rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">
-            M
-          </span>
+          <img src="/mse-logo.png" alt="MSE Logo" className="w-10 h-10" />
           <span className="text-white font-bold text-xl">MSE</span>
         </Link>
       </div>

@@ -7,9 +7,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           <div className="md:col-span-2">
             <div className="flex items-center mb-6">
-              <span className="bg-msc-yellow text-black rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg mr-3">
-                M
-              </span>
+              <img src="/mse-logo.png" alt="MSE Logo" className="w-10 h-10 mr-3" />
               <h4 className="font-bold text-xl">Mediterranean Shipping Express</h4>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed max-w-md">

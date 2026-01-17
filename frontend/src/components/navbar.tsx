@@ -11,6 +11,7 @@ import {
 import {
   Sheet,
   SheetContent,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { useAuth } from "@/hooks/use-auth"
@@ -60,7 +61,6 @@ export default function Navbar() {
       return [
         { label: "Admin Dashboard", href: "/admin/dashboard" },
         { label: "Users", href: "/admin/users" },
-        { label: "Shipments", href: "/admin/shipments" },
         { label: "Track Shipment", href: "/track" },
       ]
     }
@@ -84,6 +84,7 @@ export default function Navbar() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left">
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                 <div className="flex flex-col gap-4 mt-8">
                   {menuItems.map((item) => (
                     <Link
@@ -109,12 +110,9 @@ export default function Navbar() {
 
             <Link
               href={isAuthenticated ? (user?.role === "DRIVER" ? "/dashboard" : "/shipments") : "/"}
-              className="font-bold text-gray-800 text-lg md:text-xl flex items-center gap-2"
+              className="flex items-center"
             >
-              <span className="bg-[#FFD700] text-black rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
-                M
-              </span>
-              <span className="hidden sm:inline font-bold">MSE</span>
+              <img src="/mse-logo.png" alt="MSE Logo" className="h-10 w-10 drop-shadow-lg filter brightness-110 contrast-125" />
             </Link>
           </div>
 

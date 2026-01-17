@@ -11,7 +11,7 @@ export default function About() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <div className="relative h-[600px] w-full">
+      <div className="relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] w-full">
         <Image
           src="/about-hero.jpg"
           alt="Mediterranean Shipping Express - Global Logistics Leader"
@@ -20,26 +20,26 @@ export default function About() {
           priority
         />
         <div className="absolute inset-0 bg-black/50" />
-        <div className="relative max-w-7xl mx-auto px-4 h-full flex items-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="text-white max-w-4xl"
           >
-            <div className="flex items-center gap-4 mb-6">
-              <Anchor className="w-16 h-16 text-[#D4AF37]" />
-              <h1 className="text-5xl md:text-7xl font-bold">About Mediterranean Shipping Express</h1>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <Anchor className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-[#D4AF37] flex-shrink-0" />
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">About Mediterranean Shipping Express</h1>
             </div>
-            <p className="text-xl md:text-2xl text-gray-100 mb-8 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-100 mb-6 sm:mb-8 leading-relaxed max-w-3xl">
               Connecting the world through reliable, innovative, and sustainable logistics solutions. 
               Your trusted partner in global shipping since 2020.
             </p>
-            <div className="flex gap-4">
-              <Button asChild size="lg" className="bg-[#D4AF37] text-[#212529] hover:bg-[#B8860B] font-bold">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md">
+              <Button asChild size="lg" className="bg-[#D4AF37] text-[#212529] hover:bg-[#B8860B] font-bold w-full sm:w-auto">
                 <Link href="/services/ocean-freight">Our Services</Link>
               </Button>
-              <Button asChild size="lg" className="bg-white/20 text-white border-2 border-white hover:bg-white hover:text-[#212529] font-bold backdrop-blur-sm">
+              <Button asChild size="lg" className="bg-white/20 text-white border-2 border-white hover:bg-white hover:text-[#212529] font-bold backdrop-blur-sm w-full sm:w-auto">
                 <Link href="/contact">Contact Us</Link>
               </Button>
             </div>
@@ -48,7 +48,7 @@ export default function About() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
         {/* Our Story */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}

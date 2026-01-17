@@ -11,7 +11,7 @@ export default function ReportPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <div className="relative h-[400px] w-full">
+      <div className="relative h-[250px] sm:h-[300px] md:h-[400px] w-full">
         <Image
           src="/sustainability-hero.jpg"
           alt="Sustainability Report"
@@ -20,26 +20,26 @@ export default function ReportPage() {
           priority
         />
         <div className="absolute inset-0 bg-black/60" />
-        <div className="relative max-w-7xl mx-auto px-4 h-full flex items-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="text-white max-w-4xl"
           >
-            <div className="flex items-center gap-4 mb-6">
-              <FileText className="w-12 h-12 text-[#D4AF37]" />
-              <h1 className="text-4xl md:text-6xl font-bold">2024 Sustainability Report</h1>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <FileText className="w-10 h-10 sm:w-12 sm:h-12 text-[#D4AF37] flex-shrink-0" />
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">2024 Sustainability Report</h1>
             </div>
-            <p className="text-xl md:text-2xl text-gray-100 mb-8">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-100 mb-6 sm:mb-8 max-w-3xl">
               Our comprehensive annual report on environmental initiatives, progress metrics, and future commitments
             </p>
-            <div className="flex gap-4 flex-wrap">
-              <Button size="lg" className="bg-[#D4AF37] text-[#212529] hover:bg-[#B8860B] font-bold hover:scale-105 transition-all duration-300">
-                <Download className="w-5 h-5 mr-2" />
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-wrap max-w-lg">
+              <Button size="lg" className="bg-[#D4AF37] text-[#212529] hover:bg-[#B8860B] font-bold hover:scale-105 transition-all duration-300 w-full sm:w-auto">
+                <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 Download PDF Report
               </Button>
-              <Button asChild size="lg" className="bg-white/20 text-white border-2 border-white hover:bg-white hover:text-[#212529] font-bold backdrop-blur-sm hover:scale-105 transition-all duration-300">
+              <Button asChild size="lg" className="bg-white/20 text-white border-2 border-white hover:bg-white hover:text-[#212529] font-bold backdrop-blur-sm hover:scale-105 transition-all duration-300 w-full sm:w-auto">
                 <Link href="/sustainability">View Online Version</Link>
               </Button>
             </div>
@@ -48,7 +48,7 @@ export default function ReportPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
         {/* Report Overview */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}

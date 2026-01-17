@@ -85,18 +85,16 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Ocean Background with Container Ship */}
+      {/* Left Side - Ocean Background with Container Ship - Hidden on mobile */}
       <div 
-        className="flex-1 relative bg-cover bg-center bg-no-repeat flex flex-col justify-between p-12 text-white"
+        className="hidden lg:flex flex-1 relative bg-cover bg-center bg-no-repeat flex-col justify-between p-12 text-white"
         style={{
           backgroundImage: `url('/signup-image.png')`
         }}
       >
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-msc-yellow rounded-lg flex items-center justify-center">
-            <span className="text-black font-bold text-2xl">⚓</span>
-          </div>
+          <img src="/mse-logo.png" alt="MSE Logo" className="w-12 h-12 drop-shadow-lg filter brightness-110 contrast-125" />
           <span className="text-2xl font-bold tracking-wide">MEDITERRANEAN SHIPPING EXPRESS</span>
         </div>
 
@@ -133,18 +131,24 @@ export default function SignupPage() {
         </div>
       </div>
 
-      {/* Right Side - Registration Form */}
-      <div className="w-full max-w-2xl bg-white flex flex-col justify-center px-12 py-8 overflow-y-auto">
+      {/* Right Side - Registration Form - Full width on mobile */}
+      <div className="w-full lg:max-w-2xl bg-white flex flex-col justify-center px-4 sm:px-8 lg:px-12 py-8 overflow-y-auto">
         <div className="w-full max-w-xl mx-auto">
-          <div className="mb-10">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Create an Account</h2>
+          {/* Mobile Logo - Only shown on mobile */}
+          <div className="lg:hidden flex items-center justify-center mb-8">
+            <img src="/mse-logo.png" alt="MSE Logo" className="w-16 h-16 drop-shadow-lg filter brightness-110 contrast-125" />
           </div>
 
-          <form onSubmit={handleSignup} className="space-y-6">
+          <div className="mb-6 lg:mb-10">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 lg:mb-4 text-center lg:text-left">Create an Account</h2>
+            <p className="text-sm sm:text-base text-gray-600 text-center lg:text-left lg:hidden">Join Mediterranean Shipping Express today</p>
+          </div>
+
+          <form onSubmit={handleSignup} className="space-y-4 sm:space-y-6">
             {/* First Name and Last Name */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 mb-2 sm:mb-3">
                   First Name
                 </label>
                 <div className="relative">
@@ -152,14 +156,14 @@ export default function SignupPage() {
                     placeholder="John"
                     value={formData.firstName}
                     onChange={(e) => handleChange("firstName", e.target.value)}
-                    className="h-12 pl-10"
+                    className="h-10 sm:h-12 pl-10 text-sm sm:text-base"
                     required
                   />
                   <User className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 </div>
               </div>
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 mb-2 sm:mb-3">
                   Last Name
                 </label>
                 <div className="relative">
@@ -167,7 +171,7 @@ export default function SignupPage() {
                     placeholder="Doe"
                     value={formData.lastName}
                     onChange={(e) => handleChange("lastName", e.target.value)}
-                    className="h-12 pl-10"
+                    className="h-10 sm:h-12 pl-10 text-sm sm:text-base"
                     required
                   />
                   <User className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -176,9 +180,9 @@ export default function SignupPage() {
             </div>
 
             {/* Business Email and Phone Number */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 mb-2 sm:mb-3">
                   Business Email
                 </label>
                 <div className="relative">
@@ -187,14 +191,14 @@ export default function SignupPage() {
                     placeholder="john@example.com"
                     value={formData.businessEmail}
                     onChange={(e) => handleChange("businessEmail", e.target.value)}
-                    className="h-12 pl-10"
+                    className="h-10 sm:h-12 pl-10 text-sm sm:text-base"
                     required
                   />
                   <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 </div>
               </div>
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 mb-2 sm:mb-3">
                   Phone Number
                 </label>
                 <div className="relative">
@@ -203,7 +207,7 @@ export default function SignupPage() {
                     placeholder="+1 234 567 8900"
                     value={formData.phoneNumber}
                     onChange={(e) => handleChange("phoneNumber", e.target.value)}
-                    className="h-12 pl-10"
+                    className="h-10 sm:h-12 pl-10 text-sm sm:text-base"
                   />
                   <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 </div>
@@ -212,7 +216,7 @@ export default function SignupPage() {
 
             {/* Country/Region */}
             <div>
-              <label className="block text-base font-semibold text-gray-800 mb-3">
+              <label className="block text-sm sm:text-base font-semibold text-gray-800 mb-2 sm:mb-3">
                 Country/Region
               </label>
               <div className="relative">
@@ -220,7 +224,7 @@ export default function SignupPage() {
                   value={formData.country}
                   onValueChange={(value) => handleChange("country", value)}
                 >
-                  <SelectTrigger className="h-12 pl-10">
+                  <SelectTrigger className="h-10 sm:h-12 pl-10 text-sm sm:text-base">
                     <SelectValue placeholder="Select Country" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
@@ -246,9 +250,9 @@ export default function SignupPage() {
             </div>
 
             {/* Password and Confirm Password */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 mb-2 sm:mb-3">
                   Password
                 </label>
                 <div className="relative">
@@ -257,7 +261,7 @@ export default function SignupPage() {
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={(e) => handleChange("password", e.target.value)}
-                    className="h-12 pl-10 pr-10"
+                    className="h-10 sm:h-12 pl-10 pr-10 text-sm sm:text-base"
                     required
                   />
                   <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -271,7 +275,7 @@ export default function SignupPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 mb-2 sm:mb-3">
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -280,7 +284,7 @@ export default function SignupPage() {
                     placeholder="••••••••"
                     value={formData.confirmPassword}
                     onChange={(e) => handleChange("confirmPassword", e.target.value)}
-                    className="h-12 pl-10 pr-10"
+                    className="h-10 sm:h-12 pl-10 pr-10 text-sm sm:text-base"
                     required
                   />
                   <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -302,7 +306,7 @@ export default function SignupPage() {
                 checked={formData.agreeTerms}
                 onCheckedChange={(checked) => handleChange("agreeTerms", checked as boolean)}
               />
-              <label htmlFor="agreeTerms" className="text-base text-gray-700 leading-relaxed cursor-pointer">
+              <label htmlFor="agreeTerms" className="text-sm sm:text-base text-gray-700 leading-relaxed cursor-pointer">
                 I agree to the{" "}
                 <Link href="/terms" className="text-msc-yellow hover:text-msc-gold transition-colors font-medium">
                   Terms of Service
@@ -317,17 +321,17 @@ export default function SignupPage() {
 
             <Button
               type="submit"
-              className="w-full bg-msc-yellow hover:bg-msc-gold text-black font-bold text-lg h-14"
+              className="w-full bg-msc-yellow hover:bg-msc-gold text-black font-bold text-sm sm:text-lg h-12 sm:h-14"
               disabled={loading}
             >
               {loading ? "Creating Account..." : "Create Account →"}
             </Button>
 
-            <div className="text-center pt-6">
-              <span className="text-gray-500 text-base">Already have an account? </span>
+            <div className="text-center pt-4 sm:pt-6">
+              <span className="text-gray-500 text-sm sm:text-base">Already have an account? </span>
               <Link 
                 href="/auth/login" 
-                className="text-msc-yellow hover:text-msc-gold font-semibold text-base transition-colors"
+                className="text-msc-yellow hover:text-msc-gold font-semibold text-sm sm:text-base transition-colors"
               >
                 Log In
               </Link>

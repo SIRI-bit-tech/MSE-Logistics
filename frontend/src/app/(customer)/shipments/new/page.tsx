@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Globe } from "lucide-react"
 import Sidebar from "@/components/dashboard/sidebar"
+import MobileHeader from "@/components/dashboard/mobile-header"
 import SenderInfoStep from "@/components/shipment/SenderInfoStep"
 import RecipientInfoStep from "@/components/shipment/RecipientInfoStep"
 import PackageDetailsStep from "@/components/shipment/PackageDetailsStep"
@@ -45,6 +46,7 @@ export default function CreateShipmentPage() {
   const { user } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const [formData, setFormData] = useState<ShipmentFormData>({
     senderName: user ? `${user.firstName} ${user.lastName}` : "",
     senderEmail: user?.email || "",
@@ -70,6 +72,25 @@ export default function CreateShipmentPage() {
     currency: "USD",
     insuranceOptional: false,
   })
+
+  // Close sidebar on mobile by default
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setSidebarOpen(false)
+      } else {
+        setSidebarOpen(true)
+      }
+    }
+
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen)
+  }
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -133,10 +154,19 @@ export default function CreateShipmentPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar 
+        isOpen={sidebarOpen} 
+        onToggle={toggleSidebar}
+      />
       
-      <div className="flex-1 p-6 md:p-8 lg:p-12">
-        <div className="max-w-7xl mx-auto">
+      <div className="flex-1 flex flex-col min-w-0">
+        <MobileHeader 
+          onMenuToggle={toggleSidebar}
+          title="Create Shipment"
+        />
+        
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 pt-20 lg:pt-4">
+          <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Shipment</h1>
@@ -317,6 +347,7 @@ export default function CreateShipmentPage() {
                 </p>
               </Card>
             </div>
+          </div>
           </div>
         </div>
       </div>

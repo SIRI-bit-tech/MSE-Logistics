@@ -27,7 +27,7 @@ export default function Contact() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <div className="relative h-[400px] w-full">
+      <div className="relative h-[250px] sm:h-[300px] md:h-[400px] w-full">
         <Image
           src="/contact-hero.jpg"
           alt="Contact Mediterranean Shipping Express"
@@ -36,18 +36,18 @@ export default function Contact() {
           priority
         />
         <div className="absolute inset-0 bg-black/50" />
-        <div className="relative max-w-7xl mx-auto px-4 h-full flex items-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-white max-w-3xl"
+            className="text-white max-w-4xl"
           >
-            <div className="flex items-center gap-3 mb-6">
-              <MessageCircle className="w-14 h-14 text-[#D4AF37]" />
-              <h1 className="text-5xl md:text-6xl font-bold">Contact Us</h1>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <MessageCircle className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 text-[#D4AF37] flex-shrink-0" />
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">Contact Us</h1>
             </div>
-            <p className="text-xl md:text-2xl text-gray-100">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-100 max-w-3xl">
               Ready to ship with confidence? Our expert team is here to help you with all your logistics needs.
             </p>
           </motion.div>

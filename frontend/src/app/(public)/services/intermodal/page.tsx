@@ -11,7 +11,7 @@ export default function IntermodalPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section with Image */}
-      <div className="relative h-[500px] w-full">
+      <div className="relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] w-full">
         <Image
           src="/intermodal-transport-hero.jpg"
           alt="Intermodal Transport Solutions"
@@ -20,20 +20,20 @@ export default function IntermodalPage() {
           priority
         />
         <div className="absolute inset-0 bg-black/50" />
-        <div className="relative max-w-7xl mx-auto px-4 h-full flex items-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-white max-w-3xl"
+            className="text-white max-w-4xl"
           >
-            <div className="flex items-center gap-4 mb-6">
-              <Ship className="w-12 h-12 text-[#D4AF37]" />
-              <Train className="w-12 h-12 text-[#D4AF37]" />
-              <Truck className="w-12 h-12 text-[#D4AF37]" />
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <Ship className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-[#D4AF37]" />
+              <Train className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-[#D4AF37]" />
+              <Truck className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-[#D4AF37]" />
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Intermodal Transport Solutions</h1>
-            <p className="text-xl md:text-2xl text-gray-100">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 leading-tight">Intermodal Transport Solutions</h1>
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-100 max-w-3xl">
               Seamless multi-modal logistics combining ocean, rail, and road transport for maximum efficiency
             </p>
           </motion.div>
@@ -41,21 +41,21 @@ export default function IntermodalPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
         {/* Overview with Image */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="mb-16 grid md:grid-cols-2 gap-12 items-center"
+          className="mb-12 sm:mb-16 lg:mb-20 grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center"
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className="relative h-[400px] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300"
+            className="relative h-[250px] sm:h-[300px] md:h-[400px] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 order-2 lg:order-1"
           >
             <Image
               src="/intermodal-logistics.jpg"
@@ -64,14 +64,14 @@ export default function IntermodalPage() {
               className="object-cover hover:scale-105 transition-transform duration-500"
             />
           </motion.div>
-          <div>
-            <h2 className="text-4xl font-bold text-[#212529] mb-6">Integrated Multi-Modal Logistics</h2>
-            <p className="text-lg text-[#6C757D] leading-relaxed mb-4">
+          <div className="order-1 lg:order-2">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#212529] mb-4 sm:mb-6">Integrated Multi-Modal Logistics</h2>
+            <p className="text-base sm:text-lg text-[#6C757D] leading-relaxed mb-3 sm:mb-4">
               Intermodal transportation combines the strengths of different transport modes to create the most efficient 
               and cost-effective shipping solution. By strategically utilizing ocean freight, rail transport, and road 
               delivery, we optimize your supply chain while reducing costs and environmental impact.
             </p>
-            <p className="text-lg text-[#6C757D] leading-relaxed">
+            <p className="text-base sm:text-lg text-[#6C757D] leading-relaxed">
               Our intermodal services provide seamless door-to-door delivery with a single point of contact managing the 
               entire journey. From initial pickup to final delivery, we coordinate every transfer point, handle all 
               documentation, and ensure your cargo moves smoothly across different transport modes without delays or complications.
@@ -85,10 +85,10 @@ export default function IntermodalPage() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="mb-16"
+          className="mb-12 sm:mb-16 lg:mb-20"
         >
-          <h2 className="text-4xl font-bold text-[#212529] mb-8 text-center">Advantages of Intermodal Transport</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#212529] mb-6 sm:mb-8 text-center px-4">Advantages of Intermodal Transport</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
               { icon: TrendingDown, title: "Cost Savings", description: "Reduce shipping costs by 20-30% through optimized route planning and mode selection" },
               { icon: Clock, title: "Faster Transit", description: "Minimize delays with coordinated transfers and priority handling at interchange points" },
@@ -105,10 +105,10 @@ export default function IntermodalPage() {
                   viewport={{ once: true }}
                 >
                   <Card className="border-[#DEE2E6] hover:shadow-lg hover:scale-105 transition-all duration-300 h-full group">
-                    <CardContent className="p-6">
-                      <Icon className="w-12 h-12 text-[#D4AF37] mb-4 group-hover:scale-110 transition-transform duration-300" />
-                      <h3 className="text-xl font-bold text-[#212529] mb-3 group-hover:text-[#D4AF37] transition-colors duration-300">{benefit.title}</h3>
-                      <p className="text-[#6C757D]">
+                    <CardContent className="p-4 sm:p-6">
+                      <Icon className="w-10 h-10 sm:w-12 sm:h-12 text-[#D4AF37] mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300" />
+                      <h3 className="text-lg sm:text-xl font-bold text-[#212529] mb-2 sm:mb-3 group-hover:text-[#D4AF37] transition-colors duration-300">{benefit.title}</h3>
+                      <p className="text-sm sm:text-base text-[#6C757D] leading-relaxed">
                         {benefit.description}
                       </p>
                     </CardContent>
