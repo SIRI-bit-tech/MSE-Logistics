@@ -36,11 +36,11 @@ export default function SustainabilityPage() {
               the industry towards sustainable shipping practices and cleaner oceans.
             </p>
             <div className="flex gap-4">
-              <Button size="lg" className="bg-[#D4AF37] text-[#212529] hover:bg-[#B8860B] font-bold">
-                View Our Progress
+              <Button asChild size="lg" className="bg-[#D4AF37] text-[#212529] hover:bg-[#B8860B] font-bold">
+                <Link href="#progress">View Our Progress</Link>
               </Button>
-              <Button size="lg" className="bg-white/20 text-white border-2 border-white hover:bg-white hover:text-[#212529] font-bold backdrop-blur-sm">
-                Download Report
+              <Button asChild size="lg" className="bg-white/20 text-white border-2 border-white hover:bg-white hover:text-[#212529] font-bold backdrop-blur-sm">
+                <Link href="/sustainability/report">Download Report</Link>
               </Button>
             </div>
           </motion.div>
@@ -265,6 +265,7 @@ export default function SustainabilityPage() {
 
         {/* Progress Metrics */}
         <motion.section
+          id="progress"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}

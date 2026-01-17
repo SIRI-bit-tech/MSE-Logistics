@@ -36,11 +36,11 @@ export default function About() {
               Your trusted partner in global shipping since 2020.
             </p>
             <div className="flex gap-4">
-              <Button size="lg" className="bg-[#D4AF37] text-[#212529] hover:bg-[#B8860B] font-bold">
-                Our Services
+              <Button asChild size="lg" className="bg-[#D4AF37] text-[#212529] hover:bg-[#B8860B] font-bold">
+                <Link href="/services/ocean-freight">Our Services</Link>
               </Button>
-              <Button size="lg" className="bg-white/20 text-white border-2 border-white hover:bg-white hover:text-[#212529] font-bold backdrop-blur-sm">
-                Contact Us
+              <Button asChild size="lg" className="bg-white/20 text-white border-2 border-white hover:bg-white hover:text-[#212529] font-bold backdrop-blur-sm">
+                <Link href="/contact">Contact Us</Link>
               </Button>
             </div>
           </motion.div>

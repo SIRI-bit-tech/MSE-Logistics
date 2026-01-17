@@ -149,8 +149,9 @@ export default function Contact() {
                       transition={{ duration: 0.3, delay: 0.1 }}
                       viewport={{ once: true }}
                     >
-                      <label className="block text-sm font-medium text-[#212529] mb-2">Full Name *</label>
+                      <label htmlFor="name" className="block text-sm font-medium text-[#212529] mb-2">Full Name *</label>
                       <Input
+                        id="name"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="border-[#DEE2E6] focus:border-[#D4AF37] focus:ring-[#D4AF37] hover:border-[#B8860B] transition-colors duration-300"
@@ -163,8 +164,9 @@ export default function Contact() {
                       transition={{ duration: 0.3, delay: 0.2 }}
                       viewport={{ once: true }}
                     >
-                      <label className="block text-sm font-medium text-[#212529] mb-2">Email Address *</label>
+                      <label htmlFor="email" className="block text-sm font-medium text-[#212529] mb-2">Email Address *</label>
                       <Input
+                        id="email"
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -181,8 +183,9 @@ export default function Contact() {
                       transition={{ duration: 0.3, delay: 0.3 }}
                       viewport={{ once: true }}
                     >
-                      <label className="block text-sm font-medium text-[#212529] mb-2">Phone Number</label>
+                      <label htmlFor="phone" className="block text-sm font-medium text-[#212529] mb-2">Phone Number</label>
                       <Input
+                        id="phone"
                         type="tel"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -195,8 +198,9 @@ export default function Contact() {
                       transition={{ duration: 0.3, delay: 0.4 }}
                       viewport={{ once: true }}
                     >
-                      <label className="block text-sm font-medium text-[#212529] mb-2">Subject *</label>
+                      <label htmlFor="subject" className="block text-sm font-medium text-[#212529] mb-2">Subject *</label>
                       <Input
+                        id="subject"
                         value={formData.subject}
                         onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                         className="border-[#DEE2E6] focus:border-[#D4AF37] focus:ring-[#D4AF37] hover:border-[#B8860B] transition-colors duration-300"
@@ -211,8 +215,9 @@ export default function Contact() {
                     transition={{ duration: 0.3, delay: 0.5 }}
                     viewport={{ once: true }}
                   >
-                    <label className="block text-sm font-medium text-[#212529] mb-2">Message *</label>
+                    <label htmlFor="message" className="block text-sm font-medium text-[#212529] mb-2">Message *</label>
                     <Textarea
+                      id="message"
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       className="border-[#DEE2E6] focus:border-[#D4AF37] focus:ring-[#D4AF37] hover:border-[#B8860B] transition-colors duration-300 min-h-[120px]"

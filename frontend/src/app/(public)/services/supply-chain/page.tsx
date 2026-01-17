@@ -324,31 +324,33 @@ export default function SupplyChainPage() {
           <h2 className="text-4xl font-bold text-[#212529] mb-8 text-center">Our Implementation Approach</h2>
           <div className="space-y-6">
             {[
-              { step: 1, title: "Assessment & Analysis", description: "Comprehensive evaluation of your current supply chain operations, identifying pain points, inefficiencies, and opportunities for improvement.", color: "D4AF37" },
-              { step: 2, title: "Strategy Development", description: "Design customized solutions aligned with your business objectives, including technology selection, process redesign, and implementation roadmap.", color: "B8860B" },
-              { step: 3, title: "Implementation & Integration", description: "Execute the plan with minimal disruption to your operations, including system integration, process changes, and staff training.", color: "D4AF37" },
-              { step: 4, title: "Optimization & Support", description: "Continuous monitoring, performance tracking, and ongoing optimization to ensure sustained improvements and adapt to changing business needs.", color: "B8860B" }
-            ].map((process, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card className={`border-l-4 border-[#${process.color}] hover:shadow-lg hover:scale-105 transition-all duration-300 group`}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4">
-                      <div className="bg-[#F8F9FA] p-3 rounded-full group-hover:bg-[#D4AF37] transition-colors duration-300">
-                        <span className={`text-2xl font-bold text-[#${process.color}] group-hover:text-white transition-colors duration-300`}>{process.step}</span>
+              { step: 1, title: "Assessment & Analysis", description: "Comprehensive evaluation of your current supply chain operations, identifying pain points, inefficiencies, and opportunities for improvement." },
+              { step: 2, title: "Strategy Development", description: "Design customized solutions aligned with your business objectives, including technology selection, process redesign, and implementation roadmap." },
+              { step: 3, title: "Implementation & Integration", description: "Execute the plan with minimal disruption to your operations, including system integration, process changes, and staff training." },
+              { step: 4, title: "Optimization & Support", description: "Continuous monitoring, performance tracking, and ongoing optimization to ensure sustained improvements and adapt to changing business needs." }
+            ].map((process, index) => {
+              const isYellow = process.step % 2 === 1 // Steps 1 and 3 use yellow, steps 2 and 4 use gold
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Card className={`border-l-4 ${isYellow ? 'border-msc-yellow' : 'border-msc-gold'} hover:shadow-lg hover:scale-105 transition-all duration-300 group`}>
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className={`bg-[#F8F9FA] p-3 rounded-full ${isYellow ? 'group-hover:bg-msc-yellow' : 'group-hover:bg-msc-gold'} transition-colors duration-300`}>
+                          <span className={`text-2xl font-bold ${isYellow ? 'text-msc-yellow' : 'text-msc-gold'} group-hover:text-white transition-colors duration-300`}>{process.step}</span>
+                        </div>
+                        <div>
+                          <h3 className={`text-xl font-bold text-[#212529] mb-2 ${isYellow ? 'group-hover:text-msc-yellow' : 'group-hover:text-msc-gold'} transition-colors duration-300`}>{process.title}</h3>
+                          <p className="text-[#6C757D]">
+                            {process.description}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-[#212529] mb-2 group-hover:text-[#D4AF37] transition-colors duration-300">{process.title}</h3>
-                        <p className="text-[#6C757D]">
-                          {process.description}
-                        </p>
-                      </div>
-                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
