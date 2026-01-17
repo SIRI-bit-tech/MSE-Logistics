@@ -130,12 +130,13 @@ export default function IntermodalPage() {
           <h2 className="text-4xl font-bold text-[#212529] mb-8 text-center">How Intermodal Transport Works</h2>
           <div className="space-y-6">
             {[
-              { icon: Truck, step: 1, title: "Initial Pickup", description: "We collect your cargo from your facility using road transport and deliver it to the nearest rail terminal or port", color: "D4AF37" },
-              { icon: Train, step: 2, title: "Long-Distance Transport", description: "Your containerized cargo travels via rail or ocean freight for the main leg of the journey, maximizing efficiency", color: "B8860B" },
-              { icon: Ship, step: 3, title: "Transfer & Coordination", description: "Seamless transfers between transport modes at our partner facilities with minimal handling and no delays", color: "D4AF37" },
-              { icon: Truck, step: 4, title: "Final Delivery", description: "Road transport completes the last mile, delivering your cargo directly to the destination address", color: "B8860B" }
+              { icon: Truck, step: 1, title: "Initial Pickup", description: "We collect your cargo from your facility using road transport and deliver it to the nearest rail terminal or port" },
+              { icon: Train, step: 2, title: "Long-Distance Transport", description: "Your containerized cargo travels via rail or ocean freight for the main leg of the journey, maximizing efficiency" },
+              { icon: Ship, step: 3, title: "Transfer & Coordination", description: "Seamless transfers between transport modes at our partner facilities with minimal handling and no delays" },
+              { icon: Truck, step: 4, title: "Final Delivery", description: "Road transport completes the last mile, delivering your cargo directly to the destination address" }
             ].map((step, index) => {
               const Icon = step.icon
+              const isYellow = step.step % 2 === 1 // Steps 1 and 3 use yellow, steps 2 and 4 use gold
               return (
                 <motion.div
                   key={index}
@@ -144,14 +145,14 @@ export default function IntermodalPage() {
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <Card className={`border-l-4 border-[#${step.color}] hover:shadow-lg hover:scale-105 transition-all duration-300 group`}>
+                  <Card className={`border-l-4 ${isYellow ? 'border-msc-yellow' : 'border-msc-gold'} hover:shadow-lg hover:scale-105 transition-all duration-300 group`}>
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
-                        <div className="bg-[#F8F9FA] p-3 rounded-full group-hover:bg-[#D4AF37] transition-colors duration-300">
-                          <Icon className={`w-8 h-8 text-[#${step.color}] group-hover:text-white transition-colors duration-300`} />
+                        <div className={`bg-[#F8F9FA] p-3 rounded-full ${isYellow ? 'group-hover:bg-msc-yellow' : 'group-hover:bg-msc-gold'} transition-colors duration-300`}>
+                          <Icon className={`w-8 h-8 ${isYellow ? 'text-msc-yellow' : 'text-msc-gold'} group-hover:text-white transition-colors duration-300`} />
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold text-[#212529] mb-2 group-hover:text-[#D4AF37] transition-colors duration-300">Step {step.step}: {step.title}</h3>
+                          <h3 className={`text-xl font-bold text-[#212529] mb-2 ${isYellow ? 'group-hover:text-msc-yellow' : 'group-hover:text-msc-gold'} transition-colors duration-300`}>Step {step.step}: {step.title}</h3>
                           <p className="text-[#6C757D]">
                             {step.description}
                           </p>
