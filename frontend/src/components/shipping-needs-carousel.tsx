@@ -6,41 +6,42 @@ import { motion } from "framer-motion"
 import { useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 const shippingNeeds = [
   {
     title: "Agriculture",
-    image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    image: "/supply-chain-supplier.jpg",
     description: "With global sourcing an everyday reality, MSC connects the growers, farmers and producers of agricultural products around the world with their customers.",
     readMore: "/services/agriculture"
   },
   {
     title: "Fruit",
-    image: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    image: "/warehouse-storage.jpg",
     description: "Whether you're shipping apples or avocados, our world-leading reefer fleet is equipped with the technology you need to keep your fruit in perfect condition.",
     readMore: "/services/fruit"
   },
   {
     title: "Pharmaceuticals",
-    image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    image: "/warehouse-value-added.jpg",
     description: "More and more pharmaceutical companies are turning to sea transport to deliver medicines and other essential goods quickly and safely to their destinations.",
     readMore: "/services/pharmaceuticals"
   },
   {
     title: "Car Parts",
-    image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    image: "/intermodal-logistics.jpg",
     description: "Whether you are shipping production or service parts, a reliable and experienced shipping partner is a vital link in your automotive supply chain.",
     readMore: "/services/car-parts"
   },
   {
     title: "Electronics",
-    image: "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    image: "/technology-innovation.jpg",
     description: "From smartphones to industrial equipment, we provide secure and reliable shipping solutions for all your electronic goods.",
     readMore: "/services/electronics"
   },
   {
     title: "Textiles",
-    image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    image: "/warehouse-fulfillment.jpg",
     description: "Our comprehensive textile shipping services connect fashion brands and manufacturers with global markets efficiently.",
     readMore: "/services/textiles"
   }
@@ -101,9 +102,11 @@ export default function ShippingNeedsCarousel() {
               >
                 <Card className="h-full hover:shadow-xl transition-all duration-300">
                   <div className="relative h-48 overflow-hidden">
-                    <img 
+                    <Image 
                       src={item.image} 
                       alt={item.title}
+                      width={1000}
+                      height={192}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -118,7 +121,7 @@ export default function ShippingNeedsCarousel() {
                       className="text-[#FFD700] hover:text-[#D4AF37] p-0 h-auto font-semibold"
                     >
                       <Link href={item.readMore}>
-                        READ MORE →
+                        LEARN MORE ABOUT {item.title.toUpperCase()} →
                       </Link>
                     </Button>
                   </CardContent>

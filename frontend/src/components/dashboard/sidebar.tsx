@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { 
   LayoutDashboard, 
   Plus,
@@ -85,7 +86,7 @@ export default function Sidebar({ isOpen = true, onToggle, className }: SidebarP
   return (
     <>
       {/* Mobile Overlay */}
-      {isMobile && isOpen && (
+      {onToggle && isMobile && isOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={onToggle}
@@ -108,7 +109,7 @@ export default function Sidebar({ isOpen = true, onToggle, className }: SidebarP
         className
       )}>
         {/* Mobile Close Button */}
-        {isMobile && (
+        {onToggle && isMobile && (
           <div className="lg:hidden p-4 border-b border-gray-200">
             <Button
               variant="ghost"
@@ -131,7 +132,13 @@ export default function Sidebar({ isOpen = true, onToggle, className }: SidebarP
             className="flex items-center gap-3 text-gray-900"
             onClick={handleLinkClick}
           >
-            <img src="/mse-logo.png" alt="MSE Logo" className="w-10 h-10 flex-shrink-0" />
+            <Image 
+              src="/mse-logo.png" 
+              alt="MSE Logo" 
+              width={60} 
+              height={40} 
+              className="flex-shrink-0" 
+            />
             {isOpen && (
               <div className="min-w-0">
                 <div className="text-xs text-gray-500 uppercase tracking-wide leading-tight">

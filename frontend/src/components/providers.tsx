@@ -24,7 +24,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
         if (response.ok) {
           const userData = await response.json()
           setUser(userData.user)
+        } else if (response.status === 401) {
+          // 401 is expected for unauthenticated users - don't log as error
+          setUser(null)
         } else {
+          // Log other errors
+          console.error('Auth check failed:', response.status, response.statusText)
           setUser(null)
         }
       } catch (error) {

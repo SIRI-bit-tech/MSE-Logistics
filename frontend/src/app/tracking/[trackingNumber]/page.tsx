@@ -209,7 +209,7 @@ export default function TrackingPage() {
             onMenuToggle={toggleSidebar}
             title="Track Shipment"
           />
-          <div className="flex-1 overflow-y-auto pt-20 lg:pt-0">
+          <div className="flex-1 overflow-y-auto">
             {content}
           </div>
         </div>

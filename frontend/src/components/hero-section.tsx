@@ -72,7 +72,7 @@ export default function HeroSection() {
               className="bg-[#FFD700] hover:bg-[#D4AF37] text-black font-bold px-8 py-3"
               asChild
             >
-              <Link href="/user/register">Get Started</Link>
+              <Link href="/user/register">Create Account</Link>
             </Button>
             <Button 
               size="lg" 

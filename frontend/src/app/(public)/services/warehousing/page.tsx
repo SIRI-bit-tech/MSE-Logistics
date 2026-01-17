@@ -336,7 +336,7 @@ export default function WarehousingPage() {
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Button asChild size="lg" className="bg-[#D4AF37] text-[#212529] hover:bg-[#B8860B] font-bold hover:scale-105 transition-all duration-300">
-                <Link href="/contact">Get Started</Link>
+                <Link href="/contact">Contact Us</Link>
               </Button>
             </div>
           </div>

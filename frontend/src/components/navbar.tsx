@@ -15,13 +15,20 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { useAuth } from "@/hooks/use-auth"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Menu } from "lucide-react"
 
 export default function Navbar() {
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated, isLoading, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Prevent hydration mismatch by only rendering auth-dependent content after mount
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // Public navigation for unauthenticated users
   const publicMenuItems = [
@@ -86,7 +93,7 @@ export default function Navbar() {
               <SheetContent side="left">
                 <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                 <div className="flex flex-col gap-4 mt-8">
-                  {menuItems.map((item) => (
+                  {isMounted && !isLoading && menuItems.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
@@ -96,7 +103,7 @@ export default function Navbar() {
                       {item.label}
                     </Link>
                   ))}
-                  {isAuthenticated && (
+                  {isMounted && !isLoading && isAuthenticated && (
                     <>
                       <DropdownMenuSeparator />
                       <Button variant="destructive" onClick={logout} className="w-full justify-start">
@@ -112,7 +119,14 @@ export default function Navbar() {
               href={isAuthenticated ? (user?.role === "DRIVER" ? "/dashboard" : "/shipments") : "/"}
               className="flex items-center"
             >
-              <img src="/mse-logo.png" alt="MSE Logo" className="h-10 w-10 drop-shadow-lg filter brightness-110 contrast-125" />
+              <Image 
+                src="/mse-logo.png" 
+                alt="MSE Logo" 
+                width={60} 
+                height={40} 
+                className="drop-shadow-lg filter brightness-110 contrast-125"
+                priority
+              />
             </Link>
           </div>
 
@@ -131,7 +145,13 @@ export default function Navbar() {
 
           {/* Auth Buttons */}
           <div className="flex items-center gap-2 md:gap-3">
-            {isAuthenticated && user ? (
+            {!isMounted || isLoading ? (
+              // Show consistent loading state during SSR and initial client render
+              <div className="flex gap-2">
+                <div className="w-16 h-8 bg-gray-200 rounded animate-pulse"></div>
+                <div className="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            ) : isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="bg-[#FFD700] text-[#003873] font-semibold text-xs md:text-sm border-[#FFD700] hover:bg-[#FFD700]/90 hover:text-[#003873]">
@@ -184,7 +204,7 @@ export default function Navbar() {
                   asChild
                   className="bg-[#FFD700] hover:bg-[#D4AF37] text-black text-xs md:text-sm font-semibold"
                 >
-                  <Link href="/auth/signup">Get Started</Link>
+                  <Link href="/auth/signup">Sign Up</Link>
                 </Button>
               </div>
             )}

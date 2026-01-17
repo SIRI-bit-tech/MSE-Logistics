@@ -21,6 +21,7 @@ export default function MobileHeader({ onMenuToggle, title }: MobileHeaderProps)
           size="sm"
           onClick={onMenuToggle}
           className="p-2"
+          aria-label="Open menu"
         >
           <Menu className="w-5 h-5" />
         </Button>
@@ -34,7 +35,7 @@ export default function MobileHeader({ onMenuToggle, title }: MobileHeaderProps)
 
       {/* Right side - User info and notifications */}
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" className="p-2">
+        <Button variant="ghost" size="sm" className="p-2" aria-label="Notifications">
           <Bell className="w-5 h-5" />
         </Button>
         

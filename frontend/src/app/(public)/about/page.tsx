@@ -384,7 +384,7 @@ export default function About() {
               </p>
               <div className="flex gap-4 justify-center flex-wrap">
                 <Button asChild size="lg" className="bg-[#D4AF37] text-[#212529] hover:bg-[#B8860B] font-bold">
-                  <Link href="/user/register">Get Started Today</Link>
+                  <Link href="/user/register">Join Today</Link>
                 </Button>
                 <Button asChild size="lg" className="bg-white/20 text-white border-2 border-white hover:bg-white hover:text-[#212529] font-bold backdrop-blur-sm">
                   <Link href="/contact">Contact Our Team</Link>

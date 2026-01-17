@@ -5,6 +5,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import Link from "next/link"
+import Image from "next/image"
 import { User, Mail, Phone, Globe, Lock, Eye, EyeOff } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import countryList from "react-select-country-list"
@@ -94,7 +95,13 @@ export default function SignupPage() {
       >
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <img src="/mse-logo.png" alt="MSE Logo" className="w-12 h-12 drop-shadow-lg filter brightness-110 contrast-125" />
+          <Image 
+            src="/mse-logo.png" 
+            alt="MSE Logo" 
+            width={72} 
+            height={48} 
+            className="drop-shadow-lg filter brightness-110 contrast-125" 
+          />
           <span className="text-2xl font-bold tracking-wide">MEDITERRANEAN SHIPPING EXPRESS</span>
         </div>
 
@@ -136,7 +143,13 @@ export default function SignupPage() {
         <div className="w-full max-w-xl mx-auto">
           {/* Mobile Logo - Only shown on mobile */}
           <div className="lg:hidden flex items-center justify-center mb-8">
-            <img src="/mse-logo.png" alt="MSE Logo" className="w-16 h-16 drop-shadow-lg filter brightness-110 contrast-125" />
+            <Image 
+              src="/mse-logo.png" 
+              alt="MSE Logo" 
+              width={96} 
+              height={64} 
+              className="drop-shadow-lg filter brightness-110 contrast-125" 
+            />
           </div>
 
           <div className="mb-6 lg:mb-10">
