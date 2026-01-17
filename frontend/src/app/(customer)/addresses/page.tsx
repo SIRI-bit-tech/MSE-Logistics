@@ -64,11 +64,13 @@ export default function AddressesPage() {
               </DialogHeader>
               <div className="space-y-4">
                 <Input
+                  aria-label="Address label"
                   placeholder="Enter address label (e.g., Home, Office)"
                   value={formData.label}
                   onChange={(e) => setFormData({ ...formData, label: e.target.value })}
                 />
                 <Input
+                  aria-label="Full address"
                   placeholder="Street, City, Country, ZIP"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
@@ -106,7 +108,7 @@ export default function AddressesPage() {
                       </div>
                       <p className="text-foreground-600">{addr.address}</p>
                     </div>
-                    <Button variant="outline" size="icon" onClick={() => handleDeleteAddress(addr.id)}>
+                    <Button variant="outline" size="icon" aria-label={`Delete ${addr.label} address`} onClick={() => handleDeleteAddress(addr.id)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
