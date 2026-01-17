@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getUserFromToken } from '@/lib/jwt-config'
+import { shouldSkipDatabaseOperations, buildTimeResponse } from '@/lib/build-utils'
 
 // GET /api/activities - Get user's recent activities
 export async function GET(request: NextRequest) {
   // Skip database operations during build
-  if (process.env.NODE_ENV !== 'production' && !process.env.DATABASE_URL?.includes('neon')) {
-    return NextResponse.json({ activities: [] })
+  if (shouldSkipDatabaseOperations()) {
+    return buildTimeResponse('Activities not available during build')
   }
 
   try {

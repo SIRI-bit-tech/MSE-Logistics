@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import Ably from 'ably'
+import { shouldSkipAblyOperations } from '@/lib/build-utils'
 
 // GET /api/ably/token - Generate Ably token for all users (authenticated or not)
 export async function GET(request: NextRequest) {
+  // Skip Ably operations during build
+  if (shouldSkipAblyOperations()) {
+    return NextResponse.json({ 
+      error: 'Build time - Ably not available',
+      message: 'This endpoint is only available at runtime'
+    }, { status: 503 })
+  }
+
   try {
     const ablyApiKey = process.env.ABLY_API_KEY
     
