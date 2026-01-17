@@ -1,18 +1,17 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import {
-  Button,
-  Card,
   Table,
   TableBody,
   TableCell,
-  TableColumn,
+  TableHead,
   TableHeader,
   TableRow,
-  Link,
-  Tabs,
-  Tab,
-} from "@heroui/react"
+} from "@/components/ui/table"
+import Link from "next/link"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CheckCircle, Clock, MapPin } from "lucide-react"
 import { useState } from "react"
 import { motion } from "framer-motion"
@@ -63,79 +62,94 @@ export default function DeliveriesPage() {
           Deliveries
         </motion.h1>
 
-        <Tabs selectedKey={activeTab} onSelectionChange={(key) => setActiveTab(key as string)} className="mb-8">
-          <Tab key="active" title="Active Deliveries" className="w-full">
-            <Card className="overflow-hidden mt-4">
-              <Table aria-label="Active deliveries table">
-                <TableHeader>
-                  <TableColumn>TRACKING</TableColumn>
-                  <TableColumn className="hidden sm:table-cell">RECIPIENT</TableColumn>
-                  <TableColumn className="hidden md:table-cell">ADDRESS</TableColumn>
-                  <TableColumn className="hidden lg:table-cell">PHONE</TableColumn>
-                  <TableColumn>ETA</TableColumn>
-                  <TableColumn>ACTION</TableColumn>
-                </TableHeader>
-                <TableBody>
-                  {deliveries.map((delivery) => (
-                    <TableRow key={delivery.id}>
-                      <TableCell className="font-mono text-sm">{delivery.trackingNumber}</TableCell>
-                      <TableCell className="hidden sm:table-cell">{delivery.recipientName}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4" />
-                          <span>{delivery.address}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        <a href={`tel:${delivery.phone}`} className="text-[#0066CC] hover:underline">
-                          {delivery.phone}
-                        </a>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          {delivery.estimatedTime}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Button as={Link} href={`/tracking/${delivery.trackingNumber}`} size="sm" variant="flat">
-                          Deliver
-                        </Button>
-                      </TableCell>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="active">Active Deliveries</TabsTrigger>
+            <TabsTrigger value="completed">Completed</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="active" className="mt-4">
+            <Card className="overflow-hidden">
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>TRACKING</TableHead>
+                      <TableHead className="hidden sm:table-cell">RECIPIENT</TableHead>
+                      <TableHead className="hidden md:table-cell">ADDRESS</TableHead>
+                      <TableHead className="hidden lg:table-cell">PHONE</TableHead>
+                      <TableHead>ETA</TableHead>
+                      <TableHead>ACTION</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {deliveries.map((delivery) => (
+                      <TableRow key={delivery.id}>
+                        <TableCell className="font-mono text-sm">{delivery.trackingNumber}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{delivery.recipientName}</TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-4 h-4" />
+                            <span>{delivery.address}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          <a href={`tel:${delivery.phone}`} className="text-[#0066CC] hover:underline">
+                            {delivery.phone}
+                          </a>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            {delivery.estimatedTime}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Button asChild size="sm" variant="outline">
+                            <Link href={`/tracking/${delivery.trackingNumber}`}>
+                              Deliver
+                            </Link>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
             </Card>
-          </Tab>
+          </TabsContent>
 
-          <Tab key="completed" title="Completed" className="w-full">
-            <Card className="overflow-hidden mt-4">
-              <Table aria-label="Completed deliveries table">
-                <TableHeader>
-                  <TableColumn>TRACKING</TableColumn>
-                  <TableColumn className="hidden sm:table-cell">RECIPIENT</TableColumn>
-                  <TableColumn className="hidden md:table-cell">ADDRESS</TableColumn>
-                  <TableColumn>COMPLETED</TableColumn>
-                </TableHeader>
-                <TableBody>
-                  {completed.map((delivery) => (
-                    <TableRow key={delivery.id}>
-                      <TableCell className="font-mono text-sm">{delivery.trackingNumber}</TableCell>
-                      <TableCell className="hidden sm:table-cell">{delivery.recipientName}</TableCell>
-                      <TableCell className="hidden md:table-cell">{delivery.address}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                          {delivery.completedTime}
-                        </div>
-                      </TableCell>
+          <TabsContent value="completed" className="mt-4">
+            <Card className="overflow-hidden">
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>TRACKING</TableHead>
+                      <TableHead className="hidden sm:table-cell">RECIPIENT</TableHead>
+                      <TableHead className="hidden md:table-cell">ADDRESS</TableHead>
+                      <TableHead>COMPLETED</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {completed.map((delivery) => (
+                      <TableRow key={delivery.id}>
+                        <TableCell className="font-mono text-sm">{delivery.trackingNumber}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{delivery.recipientName}</TableCell>
+                        <TableCell className="hidden md:table-cell">{delivery.address}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            {delivery.completedTime}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
             </Card>
-          </Tab>
+          </TabsContent>
         </Tabs>
       </div>
     </div>

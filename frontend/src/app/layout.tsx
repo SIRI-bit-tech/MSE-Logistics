@@ -1,5 +1,5 @@
 import type React from "react"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Providers } from "@/components/providers"
 import "../../globals.css"
 import LayoutWrapper from "@/components/layout-wrapper"
@@ -87,10 +87,15 @@ export const metadata: Metadata = {
   },
   manifest: '/favicons/site.webmanifest',
   other: {
-    'theme-color': '#003873',
-    'color-scheme': 'light',
     'format-detection': 'telephone=no',
   }
+}
+
+export const viewport: Viewport = {
+  colorScheme: 'light',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#003873' }
+  ]
 }
 
 export default function RootLayout({
