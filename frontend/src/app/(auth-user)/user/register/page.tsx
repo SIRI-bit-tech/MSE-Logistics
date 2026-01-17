@@ -60,20 +60,20 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white dark:from-slate-950 dark:to-slate-900 px-4">
-      <Card className="w-full max-w-md">
-        <CardContent className="p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Create Account</h1>
-            <p className="text-muted-foreground">Join Mediterranean Shipping Express today</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white dark:from-slate-950 dark:to-slate-900 px-4 py-8">
+      <Card className="w-full max-w-md mx-auto">
+        <CardContent className="p-6 sm:p-8">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Create Account</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Join Mediterranean Shipping Express today</p>
           </div>
 
           {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">{error}</div>}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="firstName" className="text-sm sm:text-base">First Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -81,12 +81,13 @@ export default function Register() {
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                     required
-                    className="pl-10"
+                    className="pl-10 text-sm sm:text-base"
+                    placeholder="Enter first name"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
+                <Label htmlFor="lastName" className="text-sm sm:text-base">Last Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -94,14 +95,15 @@ export default function Register() {
                     value={formData.lastName}
                     onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                     required
-                    className="pl-10"
+                    className="pl-10 text-sm sm:text-base"
+                    placeholder="Enter last name"
                   />
                 </div>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm sm:text-base">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -110,13 +112,14 @@ export default function Register() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  className="pl-10"
+                  className="pl-10 text-sm sm:text-base"
+                  placeholder="Enter your email"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm sm:text-base">Password</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -125,14 +128,15 @@ export default function Register() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
-                  className="pl-10"
+                  className="pl-10 text-sm sm:text-base"
+                  placeholder="Create a password"
                 />
               </div>
               <p className="text-xs text-muted-foreground">Must be at least 8 characters</p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-sm sm:text-base">Confirm Password</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -141,14 +145,15 @@ export default function Register() {
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                   required
-                  className="pl-10"
+                  className="pl-10 text-sm sm:text-base"
+                  placeholder="Confirm your password"
                 />
               </div>
             </div>
 
             <Button 
               type="submit" 
-              className="w-full bg-[#0066CC] hover:bg-[#0052A3]" 
+              className="w-full bg-[#0066CC] hover:bg-[#0052A3] text-sm sm:text-base" 
               size="lg" 
               disabled={loading}
             >
@@ -157,7 +162,7 @@ export default function Register() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground">
               Already have an account?{" "}
               <Link href="/user/login" className="text-[#0066CC] font-semibold hover:underline">
                 Sign in

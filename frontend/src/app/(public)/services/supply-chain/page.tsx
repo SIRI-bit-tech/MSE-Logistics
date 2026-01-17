@@ -11,7 +11,7 @@ export default function SupplyChainPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section with Image */}
-      <div className="relative h-[500px] w-full">
+      <div className="relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] w-full">
         <Image
           src="/supply-chain-hero.jpg"
           alt="Supply Chain Management"
@@ -20,18 +20,18 @@ export default function SupplyChainPage() {
           priority
         />
         <div className="absolute inset-0 bg-black/50" />
-        <div className="relative max-w-7xl mx-auto px-4 h-full flex items-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-white max-w-3xl"
+            className="text-white max-w-4xl"
           >
-            <div className="flex items-center gap-3 mb-6">
-              <Network className="w-14 h-14 text-[#D4AF37]" />
-              <h1 className="text-5xl md:text-6xl font-bold">Supply Chain Management</h1>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <Network className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 text-[#D4AF37] flex-shrink-0" />
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">Supply Chain Management</h1>
             </div>
-            <p className="text-xl md:text-2xl text-gray-100">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-100 max-w-3xl">
               End-to-end supply chain solutions designed to optimize operations and reduce costs
             </p>
           </motion.div>
@@ -39,7 +39,7 @@ export default function SupplyChainPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
         {/* Overview with Image */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -83,10 +83,10 @@ export default function SupplyChainPage() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="mb-16"
+          className="mb-12 sm:mb-16 lg:mb-20"
         >
-          <h2 className="text-4xl font-bold text-[#212529] mb-8 text-center">Supply Chain Advantages</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#212529] mb-6 sm:mb-8 text-center px-4">Supply Chain Advantages</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
               { icon: TrendingUp, title: "Cost Reduction", description: "Reduce operational costs by 15-25% through process optimization and efficiency gains" },
               { icon: Zap, title: "Faster Delivery", description: "Improve delivery times with optimized routing and streamlined processes" },
@@ -103,10 +103,10 @@ export default function SupplyChainPage() {
                   viewport={{ once: true }}
                 >
                   <Card className="border-[#DEE2E6] hover:shadow-lg hover:scale-105 transition-all duration-300 h-full group">
-                    <CardContent className="p-6">
-                      <Icon className="w-12 h-12 text-[#D4AF37] mb-4 group-hover:scale-110 transition-transform duration-300" />
-                      <h3 className="text-xl font-bold text-[#212529] mb-3 group-hover:text-[#D4AF37] transition-colors duration-300">{benefit.title}</h3>
-                      <p className="text-[#6C757D]">
+                    <CardContent className="p-4 sm:p-6">
+                      <Icon className="w-10 h-10 sm:w-12 sm:h-12 text-[#D4AF37] mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300" />
+                      <h3 className="text-lg sm:text-xl font-bold text-[#212529] mb-2 sm:mb-3 group-hover:text-[#D4AF37] transition-colors duration-300">{benefit.title}</h3>
+                      <p className="text-sm sm:text-base text-[#6C757D] leading-relaxed">
                         {benefit.description}
                       </p>
                     </CardContent>

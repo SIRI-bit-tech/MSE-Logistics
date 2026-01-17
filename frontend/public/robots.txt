@@ -1,0 +1,36 @@
+User-agent: *
+Allow: /
+
+# Allow all public pages
+Allow: /about
+Allow: /contact
+Allow: /track
+Allow: /services/
+Allow: /sustainability/
+Allow: /privacy
+Allow: /terms
+Allow: /faq
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /shipments/
+Disallow: /dashboard/
+Disallow: /profile/
+Disallow: /settings/
+Disallow: /notifications/
+Disallow: /addresses/
+Disallow: /deliveries/
+Disallow: /earnings/
+Disallow: /driver-profile/
+
+# Disallow auth pages (to prevent indexing of login/signup forms)
+Disallow: /auth/
+Disallow: /user/
+
+# Allow tracking pages but with rate limiting
+Allow: /tracking/
+Crawl-delay: 2
+
+# Sitemap location
+Sitemap: https://mediterraneanshippingexpress.com/sitemap.xml
