@@ -1,10 +1,15 @@
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { ensurePrisma } from '@/lib/prisma'
 import { getUserFromToken } from '@/lib/jwt-config'
 
 // GET /api/activities - Get user's recent activities
 export async function GET(request: NextRequest) {
   try {
+    const prisma = ensurePrisma()
     const userId = await getUserFromToken(request)
     if (!userId) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
