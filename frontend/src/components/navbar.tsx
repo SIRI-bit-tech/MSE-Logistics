@@ -33,7 +33,6 @@ export default function Navbar() {
   // Public navigation for unauthenticated users
   const publicMenuItems = [
     { label: "Home", href: "/" },
-    { label: "Features", href: "/features" },
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
     { label: "Track Shipment", href: "/track" },

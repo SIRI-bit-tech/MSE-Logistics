@@ -105,7 +105,7 @@ export default function TrackingPage() {
                   {selectedShipment.trackingNumber}
                 </h1>
               </div>
-              <div className="bg-yellow-100 text-yellow-800 px-3 sm:px-4 py-2 rounded-full font-semibold text-sm sm:text-base flex-shrink-0">
+              <div className="bg-yellow-100 text-yellow-800 px-3 sm:px-4 py-2 rounded-full font-semibold text-sm sm:text-base whitespace-nowrap">
                 {selectedShipment.status.replace(/_/g, ' ').split(' ').map(word => 
                   word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
                 ).join(' ')}
