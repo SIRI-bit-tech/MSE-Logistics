@@ -6,6 +6,8 @@ import LayoutWrapper from "@/components/layout-wrapper"
 import StructuredData from "@/components/structured-data"
 import PerformanceOptimizations from "@/components/performance-optimizations"
 import { organizationStructuredData, websiteStructuredData } from "@/lib/structured-data"
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
   title: "Mediterranean Shipping Express - Global Logistics Platform",
@@ -120,6 +122,8 @@ export default function RootLayout({
         <Providers>
           <LayoutWrapper>{children}</LayoutWrapper>
         </Providers>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
