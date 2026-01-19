@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           error: 'Validation failed',
-          details: validationResult.error.issues.map((err) => err.message)
+          details: validationResult.error.issues.map((err) => `${err.path.join('.')}: ${err.message}`)
         },
         { status: 400 }
       )
@@ -195,14 +195,26 @@ export async function POST(request: NextRequest) {
     const data = validationResult.data
 
     // Geocode addresses using postal codes to get coordinates
-    const coordinates = await geocodeShipmentAddresses({
-      senderPostalCode: data.senderPostalCode,
-      senderCity: data.senderCity,
-      senderCountry: data.senderCountry,
-      recipientPostalCode: data.recipientPostalCode,
-      recipientCity: data.recipientCity,
-      recipientCountry: data.recipientCountry,
-    })
+    let coordinates
+    try {
+      coordinates = await geocodeShipmentAddresses({
+        senderPostalCode: data.senderPostalCode,
+        senderCity: data.senderCity,
+        senderCountry: data.senderCountry,
+        recipientPostalCode: data.recipientPostalCode,
+        recipientCity: data.recipientCity,
+        recipientCountry: data.recipientCountry,
+      })
+    } catch (geocodingError) {
+      console.error('Geocoding failed:', geocodingError)
+      // Use default coordinates if geocoding fails
+      coordinates = {
+        senderLatitude: null,
+        senderLongitude: null,
+        recipientLatitude: null,
+        recipientLongitude: null,
+      }
+    }
 
     // Calculate costs using validated data (basic calculation - can be enhanced)
     const baseRate = data.weight * 5 // $5 per kg base rate

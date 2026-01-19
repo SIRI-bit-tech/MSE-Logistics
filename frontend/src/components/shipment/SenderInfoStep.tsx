@@ -4,6 +4,8 @@ import { ArrowRight, Mail, Phone, MapPin } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { validatePostalCode, formatPostalCode, getPostalCodePlaceholder } from "@/lib/postal-code-validation"
+import { useState, useEffect } from "react"
 
 interface SenderInfoStepProps {
   formData: {
@@ -20,6 +22,45 @@ interface SenderInfoStepProps {
 }
 
 export default function SenderInfoStep({ formData, onInputChange, onNext }: SenderInfoStepProps) {
+  const [postalCodeValidation, setPostalCodeValidation] = useState<{
+    isValid: boolean
+    message?: string
+    example?: string
+  }>({ isValid: true })
+
+  // Validate postal code when it or country changes
+  useEffect(() => {
+    if (formData.senderPostalCode && formData.senderCountry) {
+      const validation = validatePostalCode(formData.senderPostalCode, formData.senderCountry)
+      setPostalCodeValidation(validation)
+    } else {
+      setPostalCodeValidation({ isValid: true })
+    }
+  }, [formData.senderPostalCode, formData.senderCountry])
+
+  const handlePostalCodeChange = (value: string) => {
+    onInputChange('senderPostalCode', value)
+    
+    // Auto-format postal code if country is selected
+    if (formData.senderCountry && value.length > 3) {
+      const formatted = formatPostalCode(value, formData.senderCountry)
+      if (formatted !== value) {
+        onInputChange('senderPostalCode', formatted)
+      }
+    }
+  }
+
+  const getPostalCodeInputProps = () => {
+    const placeholder = formData.senderCountry 
+      ? getPostalCodePlaceholder(formData.senderCountry)
+      : "Enter postal code"
+    
+    return {
+      placeholder,
+      className: !postalCodeValidation.isValid ? 'border-red-300 focus:border-red-500' : ''
+    }
+  }
+
   return (
     <Card className="p-8">
       <div className="flex items-start justify-between mb-6">
@@ -99,10 +140,18 @@ export default function SenderInfoStep({ formData, onInputChange, onNext }: Send
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">POSTAL CODE</label>
             <Input
-              placeholder="10001"
+              {...getPostalCodeInputProps()}
               value={formData.senderPostalCode}
-              onChange={(e) => onInputChange('senderPostalCode', e.target.value)}
+              onChange={(e) => handlePostalCodeChange(e.target.value)}
             />
+            {!postalCodeValidation.isValid && (
+              <div className="mt-1">
+                <p className="text-red-500 text-xs">{postalCodeValidation.message}</p>
+                {postalCodeValidation.example && (
+                  <p className="text-gray-500 text-xs">{postalCodeValidation.example}</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

@@ -4,6 +4,8 @@ import { ArrowRight, ArrowLeft, Mail, Phone, MapPin } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { validatePostalCode, formatPostalCode, getPostalCodePlaceholder } from "@/lib/postal-code-validation"
+import { useState, useEffect } from "react"
 
 interface RecipientInfoStepProps {
   formData: {
@@ -21,6 +23,45 @@ interface RecipientInfoStepProps {
 }
 
 export default function RecipientInfoStep({ formData, onInputChange, onNext, onPrevious }: RecipientInfoStepProps) {
+  const [postalCodeValidation, setPostalCodeValidation] = useState<{
+    isValid: boolean
+    message?: string
+    example?: string
+  }>({ isValid: true })
+
+  // Validate postal code when it or country changes
+  useEffect(() => {
+    if (formData.recipientPostalCode && formData.recipientCountry) {
+      const validation = validatePostalCode(formData.recipientPostalCode, formData.recipientCountry)
+      setPostalCodeValidation(validation)
+    } else {
+      setPostalCodeValidation({ isValid: true })
+    }
+  }, [formData.recipientPostalCode, formData.recipientCountry])
+
+  const handlePostalCodeChange = (value: string) => {
+    onInputChange('recipientPostalCode', value)
+    
+    // Auto-format postal code if country is selected
+    if (formData.recipientCountry && value.length > 3) {
+      const formatted = formatPostalCode(value, formData.recipientCountry)
+      if (formatted !== value) {
+        onInputChange('recipientPostalCode', formatted)
+      }
+    }
+  }
+
+  const getPostalCodeInputProps = () => {
+    const placeholder = formData.recipientCountry 
+      ? getPostalCodePlaceholder(formData.recipientCountry)
+      : "Enter postal code"
+    
+    return {
+      placeholder,
+      className: !postalCodeValidation.isValid ? 'border-red-300 focus:border-red-500' : ''
+    }
+  }
+
   return (
     <Card className="p-8">
       <div className="flex items-start justify-between mb-6">
@@ -107,10 +148,18 @@ export default function RecipientInfoStep({ formData, onInputChange, onNext, onP
             <label htmlFor="recipientPostalCode" className="block text-sm font-medium text-gray-700 mb-2">POSTAL CODE</label>
             <Input
               id="recipientPostalCode"
-              placeholder="SW1A 1AA"
+              {...getPostalCodeInputProps()}
               value={formData.recipientPostalCode}
-              onChange={(e) => onInputChange('recipientPostalCode', e.target.value)}
+              onChange={(e) => handlePostalCodeChange(e.target.value)}
             />
+            {!postalCodeValidation.isValid && (
+              <div className="mt-1">
+                <p className="text-red-500 text-xs">{postalCodeValidation.message}</p>
+                {postalCodeValidation.example && (
+                  <p className="text-gray-500 text-xs">{postalCodeValidation.example}</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

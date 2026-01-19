@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/use-auth"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import AllShipmentsModal from "@/components/shipment/AllShipmentsModal"
+import ShipmentDetailsModal from "@/components/shipment/ShipmentDetailsModal"
 
 interface Shipment {
   id: string
@@ -15,6 +17,7 @@ interface Shipment {
   recipientCountry: string
   status: string
   estimatedDeliveryDate: string | null
+  totalCost: number
 }
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -40,6 +43,9 @@ const formatStatus = (status: string) => {
 export default function RecentShipmentsTable() {
   const [shipments, setShipments] = useState<Shipment[]>([])
   const [loading, setLoading] = useState(true)
+  const [allShipmentsModalOpen, setAllShipmentsModalOpen] = useState(false)
+  const [selectedShipment, setSelectedShipment] = useState<any>(null)
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false)
   const { user } = useAuth()
 
   useEffect(() => {
@@ -68,6 +74,21 @@ export default function RecentShipmentsTable() {
     fetchShipments()
   }, [user?.id])
 
+  const handleViewDetails = async (shipment: Shipment) => {
+    try {
+      const response = await fetch(`/api/shipments/${shipment.id}`, {
+        credentials: 'include'
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setSelectedShipment(data.shipment)
+        setDetailsModalOpen(true)
+      }
+    } catch (error) {
+      console.error('Error fetching shipment details:', error)
+    }
+  }
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'TBD'
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -78,100 +99,116 @@ export default function RecentShipmentsTable() {
   }
 
   return (
-    <Card className="bg-white">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between w-full">
-          <h3 className="text-xl font-bold text-gray-900">Recent Shipments</h3>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className="text-msc-yellow hover:text-msc-gold"
-            asChild
-          >
-            <Link href="/shipments" className="flex items-center gap-2">
-              View All
-              <ExternalLink className="w-4 h-4" />
-            </Link>
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="text-gray-500">Loading shipments...</div>
-          </div>
-        ) : shipments.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="text-gray-500 mb-2">No shipments found</div>
-            <Button className="bg-msc-yellow text-black hover:bg-msc-gold" asChild>
-              <Link href="/shipments/new">
-                Create Your First Shipment
-              </Link>
+    <>
+      <Card className="bg-white">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between w-full">
+            <h3 className="text-xl font-bold text-gray-900">Recent Shipments</h3>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-msc-yellow hover:text-msc-gold"
+              onClick={() => setAllShipmentsModalOpen(true)}
+            >
+              <span className="flex items-center gap-2">
+                View All
+                <ExternalLink className="w-4 h-4" />
+              </span>
             </Button>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-0 text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Tracking Number
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Destination
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Status
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Estimated Delivery
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {shipments.map((shipment) => (
-                  <tr key={shipment.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-4 px-0">
-                      <div className="font-medium text-gray-900">
-                        {shipment.trackingNumber}
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <MapPin className="w-4 h-4" />
-                        {shipment.recipientCity}, {shipment.recipientCountry}
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <Badge variant={getStatusVariant(shipment.status)}>
-                        {formatStatus(shipment.status)}
-                      </Badge>
-                    </td>
-                    <td className="py-4 px-4 text-gray-600">
-                      {formatDate(shipment.estimatedDeliveryDate)}
-                    </td>
-                    <td className="py-4 px-4">
-                      <Button 
-                        size="sm" 
-                        variant="ghost"
-                        className="text-msc-yellow hover:text-msc-gold"
-                        asChild
-                      >
-                        <Link href={`/track?number=${shipment.trackingNumber}`}>
-                          Details
-                        </Link>
-                      </Button>
-                    </td>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-gray-500">Loading shipments...</div>
+            </div>
+          ) : shipments.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <div className="text-gray-500 mb-2">No shipments found</div>
+              <Button className="bg-msc-yellow text-black hover:bg-msc-gold" asChild>
+                <Link href="/shipments/new">
+                  Create Your First Shipment
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-0 text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      Tracking Number
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      Destination
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      Status
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      Estimated Delivery
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+                </thead>
+                <tbody>
+                  {shipments.map((shipment) => (
+                    <tr key={shipment.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-4 px-0">
+                        <div className="font-medium text-gray-900">
+                          {shipment.trackingNumber}
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <MapPin className="w-4 h-4" />
+                          {shipment.recipientCity}, {shipment.recipientCountry}
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <Badge variant={getStatusVariant(shipment.status)}>
+                          {formatStatus(shipment.status)}
+                        </Badge>
+                      </td>
+                      <td className="py-4 px-4 text-gray-600">
+                        {formatDate(shipment.estimatedDeliveryDate)}
+                      </td>
+                      <td className="py-4 px-4">
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          className="text-msc-yellow hover:text-msc-gold"
+                          onClick={() => handleViewDetails(shipment)}
+                        >
+                          Details
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* All Shipments Modal */}
+      <AllShipmentsModal
+        isOpen={allShipmentsModalOpen}
+        onClose={() => setAllShipmentsModalOpen(false)}
+      />
+
+      {/* Shipment Details Modal */}
+      <ShipmentDetailsModal
+        shipment={selectedShipment}
+        isOpen={detailsModalOpen}
+        onClose={() => {
+          setDetailsModalOpen(false)
+          setSelectedShipment(null)
+        }}
+      />
+    </>
   )
 }

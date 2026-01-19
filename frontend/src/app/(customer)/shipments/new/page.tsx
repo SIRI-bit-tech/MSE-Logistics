@@ -105,6 +105,41 @@ export default function CreateShipmentPage() {
   }
 
   const handleSubmit = async () => {
+    // Validate required fields before submission
+    const requiredFields = [
+      { field: 'senderName', label: 'Sender Name' },
+      { field: 'senderEmail', label: 'Sender Email' },
+      { field: 'senderPhone', label: 'Sender Phone' },
+      { field: 'senderAddress', label: 'Sender Address' },
+      { field: 'senderCity', label: 'Sender City' },
+      { field: 'senderCountry', label: 'Sender Country' },
+      { field: 'senderPostalCode', label: 'Sender Postal Code' },
+      { field: 'recipientName', label: 'Recipient Name' },
+      { field: 'recipientEmail', label: 'Recipient Email' },
+      { field: 'recipientPhone', label: 'Recipient Phone' },
+      { field: 'recipientAddress', label: 'Recipient Address' },
+      { field: 'recipientCity', label: 'Recipient City' },
+      { field: 'recipientCountry', label: 'Recipient Country' },
+      { field: 'recipientPostalCode', label: 'Recipient Postal Code' },
+      { field: 'description', label: 'Package Description' },
+    ]
+
+    const missingFields = requiredFields.filter(({ field }) => {
+      const value = formData[field as keyof ShipmentFormData]
+      return !value || (typeof value === 'string' && value.trim() === '')
+    })
+
+    if (missingFields.length > 0) {
+      alert(`Please fill in the following required fields:\n${missingFields.map(f => f.label).join('\n')}`)
+      return
+    }
+
+    // Validate numeric fields
+    if (formData.weight <= 0) {
+      alert('Weight must be greater than 0')
+      return
+    }
+
     setIsLoading(true)
     try {
       // Map form fields to DB schema explicitly
@@ -124,15 +159,17 @@ export default function CreateShipmentPage() {
         recipientCountry: formData.recipientCountry,
         recipientPostalCode: formData.recipientPostalCode,
         packageType: formData.packageType,
-        weight: formData.weight,
-        length: formData.length,
-        width: formData.width,
-        height: formData.height,
+        weight: Number(formData.weight), // Ensure it's a number
+        length: Number(formData.length), // Ensure it's a number
+        width: Number(formData.width), // Ensure it's a number
+        height: Number(formData.height), // Ensure it's a number
         description: formData.description,
-        value: formData.value,
+        value: Number(formData.value), // Ensure it's a number
         currency: formData.currency,
         insuranceOptional: formData.insuranceOptional,
       }
+
+
 
       const response = await fetch('/api/shipments', {
         method: 'POST',
@@ -144,6 +181,11 @@ export default function CreateShipmentPage() {
       if (response.ok) {
         await response.json()
         router.push(`/shipments`)
+      } else {
+        // Log the error details for debugging
+        const errorData = await response.json()
+        console.error('Shipment creation failed:', errorData)
+        alert(`Error: ${errorData.error || 'Failed to create shipment'}`)
       }
     } catch (error) {
       console.error('Error creating shipment:', error)
