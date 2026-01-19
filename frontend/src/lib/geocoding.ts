@@ -12,8 +12,11 @@ export interface GeocodingResult {
  * @returns Normalized postal code
  */
 function normalizePostalCode(postalCode: string, country: string): string {
+  if (!postalCode) {
+    return ''
+  }
   const cleanCode = postalCode.trim().toUpperCase()
-  
+
   // Country-specific postal code formatting for ALL countries
   switch (country.toUpperCase()) {
     // North America
@@ -23,7 +26,7 @@ function normalizePostalCode(postalCode: string, country: string): string {
     case 'UNITED STATES':
     case 'USA':
     case 'US':
-      return cleanCode.replace(/^(\d{5})-?(\d{4})?$/, (match, zip, plus4) => 
+      return cleanCode.replace(/^(\d{5})-?(\d{4})?$/, (match, zip, plus4) =>
         plus4 ? `${zip}-${plus4}` : zip
       )
     case 'MEXICO':
@@ -47,7 +50,7 @@ function normalizePostalCode(postalCode: string, country: string): string {
     case 'PANAMA':
     case 'PA':
       return cleanCode.replace(/\D/g, '').substring(0, 4)
-    
+
     // Europe - ALL European countries
     case 'UNITED KINGDOM':
     case 'UK':
@@ -147,7 +150,7 @@ function normalizePostalCode(postalCode: string, country: string): string {
     case 'ICELAND':
     case 'IS':
       return cleanCode.replace(/\D/g, '').substring(0, 3)
-    
+
     // Asia - ALL Asian countries
     case 'CHINA':
     case 'CN':
@@ -203,7 +206,7 @@ function normalizePostalCode(postalCode: string, country: string): string {
       return cleanCode.replace(/^([A-Z]{2})(\d{4})$/, '$1$2')
     case 'TAIWAN':
     case 'TW':
-      return cleanCode.replace(/^(\d{3})\s*(\d{2})?$/, (match, first, second) => 
+      return cleanCode.replace(/^(\d{3})\s*(\d{2})?$/, (match, first, second) =>
         second ? `${first}-${second}` : first
       )
     case 'UZBEKISTAN':
@@ -217,11 +220,11 @@ function normalizePostalCode(postalCode: string, country: string): string {
     case 'TURKMENISTAN':
     case 'TM':
       return cleanCode.replace(/\D/g, '').substring(0, 6)
-    
+
     // Middle East - ALL Middle Eastern countries
     case 'SAUDI ARABIA':
     case 'SA':
-      return cleanCode.replace(/^(\d{5})\s*(\d{4})?$/, (match, first, second) => 
+      return cleanCode.replace(/^(\d{5})\s*(\d{4})?$/, (match, first, second) =>
         second ? `${first}-${second}` : first
       )
     case 'KUWAIT':
@@ -255,7 +258,7 @@ function normalizePostalCode(postalCode: string, country: string): string {
     case 'AZERBAIJAN':
     case 'AZ':
       return cleanCode.replace(/\D/g, '').substring(0, 4)
-    
+
     // Africa - ALL African countries
     case 'SOUTH AFRICA':
     case 'ZA':
@@ -309,7 +312,7 @@ function normalizePostalCode(postalCode: string, country: string): string {
     case 'SWAZILAND':
     case 'SZ':
       return cleanCode.replace(/^([A-Z])(\d{3})$/, '$1$2')
-    
+
     // South America - ALL South American countries
     case 'BRAZIL':
     case 'BR':
@@ -332,7 +335,7 @@ function normalizePostalCode(postalCode: string, country: string): string {
       return cleanCode.replace(/\D/g, '').substring(0, 5)
     case 'VENEZUELA':
     case 'VE':
-      return cleanCode.replace(/^(\d{4})\s*([A-Z])?$/, (match, num, letter) => 
+      return cleanCode.replace(/^(\d{4})\s*([A-Z])?$/, (match, num, letter) =>
         letter ? `${num}-${letter}` : num
       )
     case 'BOLIVIA':
@@ -343,7 +346,7 @@ function normalizePostalCode(postalCode: string, country: string): string {
     case 'FRENCH GUIANA':
     case 'GF':
       return cleanCode.replace(/\D/g, '').substring(0, 5)
-    
+
     // Oceania - ALL Oceanic countries
     case 'AUSTRALIA':
     case 'AU':
@@ -360,7 +363,7 @@ function normalizePostalCode(postalCode: string, country: string): string {
     case 'MICRONESIA':
     case 'FM':
       return cleanCode.replace(/\D/g, '').substring(0, 5)
-    
+
     // Caribbean - ALL Caribbean countries
     case 'CUBA':
     case 'CU':
@@ -372,13 +375,13 @@ function normalizePostalCode(postalCode: string, country: string): string {
       return cleanCode.replace(/\D/g, '').substring(0, 4)
     case 'PUERTO RICO':
     case 'PR':
-      return cleanCode.replace(/^(\d{5})\s*(\d{4})?$/, (match, zip, plus4) => 
+      return cleanCode.replace(/^(\d{5})\s*(\d{4})?$/, (match, zip, plus4) =>
         plus4 ? `${zip}-${plus4}` : zip
       )
     case 'BARBADOS':
     case 'BB':
       return cleanCode.replace(/^([A-Z]{2})(\d{5})$/, '$1$2')
-    
+
     default:
       return cleanCode
   }
@@ -397,7 +400,7 @@ function getCountryCode(country: string): string {
     'MEXICO': 'MX',
     'GUATEMALA': 'GT', 'BELIZE': 'BZ', 'EL SALVADOR': 'SV', 'HONDURAS': 'HN',
     'NICARAGUA': 'NI', 'COSTA RICA': 'CR', 'PANAMA': 'PA',
-    
+
     // Europe
     'UNITED KINGDOM': 'GB', 'UK': 'GB', 'ENGLAND': 'GB', 'SCOTLAND': 'GB', 'WALES': 'GB',
     'GERMANY': 'DE', 'FRANCE': 'FR', 'ITALY': 'IT', 'SPAIN': 'ES', 'NETHERLANDS': 'NL',
@@ -410,7 +413,7 @@ function getCountryCode(country: string): string {
     'SERBIA': 'RS', 'MONTENEGRO': 'ME', 'BOSNIA AND HERZEGOVINA': 'BA',
     'NORTH MACEDONIA': 'MK', 'ALBANIA': 'AL', 'MOLDOVA': 'MD', 'UKRAINE': 'UA',
     'BELARUS': 'BY', 'RUSSIA': 'RU', 'RUSSIAN FEDERATION': 'RU',
-    
+
     // Asia
     'CHINA': 'CN', 'JAPAN': 'JP', 'SOUTH KOREA': 'KR', 'KOREA': 'KR',
     'INDIA': 'IN', 'INDONESIA': 'ID', 'THAILAND': 'TH', 'VIETNAM': 'VN',
@@ -420,15 +423,15 @@ function getCountryCode(country: string): string {
     'BANGLADESH': 'BD', 'PAKISTAN': 'PK', 'SRI LANKA': 'LK', 'NEPAL': 'NP',
     'BHUTAN': 'BT', 'MALDIVES': 'MV', 'AFGHANISTAN': 'AF', 'UZBEKISTAN': 'UZ',
     'KAZAKHSTAN': 'KZ', 'KYRGYZSTAN': 'KG', 'TAJIKISTAN': 'TJ', 'TURKMENISTAN': 'TM',
-    
+
     // Middle East
     'SAUDI ARABIA': 'SA', 'UAE': 'AE', 'UNITED ARAB EMIRATES': 'AE',
     'QATAR': 'QA', 'KUWAIT': 'KW', 'BAHRAIN': 'BH', 'OMAN': 'OM',
     'YEMEN': 'YE', 'IRAQ': 'IQ', 'IRAN': 'IR', 'TURKEY': 'TR',
     'ISRAEL': 'IL', 'PALESTINE': 'PS', 'JORDAN': 'JO', 'LEBANON': 'LB',
-    'SYRIA': 'SY', 'CYPRUS': 'CY', 'GEORGIA': 'GE', 'ARMENIA': 'AM',
+    'SYRIA': 'SY', 'GEORGIA': 'GE', 'ARMENIA': 'AM',
     'AZERBAIJAN': 'AZ',
-    
+
     // Africa
     'SOUTH AFRICA': 'ZA', 'EGYPT': 'EG', 'NIGERIA': 'NG', 'KENYA': 'KE',
     'GHANA': 'GH', 'MOROCCO': 'MA', 'TUNISIA': 'TN', 'ALGERIA': 'DZ',
@@ -445,19 +448,19 @@ function getCountryCode(country: string): string {
     'BOTSWANA': 'BW', 'NAMIBIA': 'NA', 'LESOTHO': 'LS', 'SWAZILAND': 'SZ',
     'MALAWI': 'MW', 'ANGOLA': 'AO', 'COMOROS': 'KM', 'MAURITIUS': 'MU',
     'SEYCHELLES': 'SC',
-    
+
     // South America
     'BRAZIL': 'BR', 'ARGENTINA': 'AR', 'CHILE': 'CL', 'COLOMBIA': 'CO',
     'PERU': 'PE', 'VENEZUELA': 'VE', 'ECUADOR': 'EC', 'BOLIVIA': 'BO',
     'PARAGUAY': 'PY', 'URUGUAY': 'UY', 'GUYANA': 'GY', 'SURINAME': 'SR',
     'FRENCH GUIANA': 'GF',
-    
+
     // Oceania
     'AUSTRALIA': 'AU', 'NEW ZEALAND': 'NZ', 'FIJI': 'FJ', 'PAPUA NEW GUINEA': 'PG',
     'SOLOMON ISLANDS': 'SB', 'VANUATU': 'VU', 'SAMOA': 'WS', 'TONGA': 'TO',
     'KIRIBATI': 'KI', 'TUVALU': 'TV', 'NAURU': 'NR', 'PALAU': 'PW',
     'MARSHALL ISLANDS': 'MH', 'MICRONESIA': 'FM',
-    
+
     // Caribbean
     'JAMAICA': 'JM', 'CUBA': 'CU', 'HAITI': 'HT', 'DOMINICAN REPUBLIC': 'DO',
     'PUERTO RICO': 'PR', 'TRINIDAD AND TOBAGO': 'TT', 'BARBADOS': 'BB',
@@ -465,7 +468,7 @@ function getCountryCode(country: string): string {
     'GRENADA': 'GD', 'SAINT VINCENT AND THE GRENADINES': 'VC',
     'DOMINICA': 'DM', 'SAINT KITTS AND NEVIS': 'KN'
   }
-  
+
   return countryMap[country.toUpperCase()] || country.toUpperCase()
 }
 
@@ -489,13 +492,13 @@ export async function geocodeByPostalCode(
   try {
     const normalizedPostal = normalizePostalCode(postalCode, country)
     const countryCode = getCountryCode(country)
-    
+
     // Direct query with normalized postal code and country code
     const query = `${normalizedPostal}, ${city}, ${countryCode}`
     const url = `https://graphhopper.com/api/1/geocode?q=${encodeURIComponent(query)}&key=${GRAPHHOPPER_API_KEY}&limit=1`
-    
+
     const response = await fetch(url)
-    
+
     if (!response.ok) {
       console.warn(`Geocoding failed for "${query}":`, response.statusText)
       return null
@@ -505,7 +508,7 @@ export async function geocodeByPostalCode(
 
     if (data.hits && data.hits.length > 0) {
       const hit = data.hits[0]
-      
+
       return {
         latitude: hit.point.lat,
         longitude: hit.point.lng,

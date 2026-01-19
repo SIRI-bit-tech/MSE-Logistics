@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { ensurePrisma } from '@/lib/prisma'
 import { getUserFromToken } from '@/lib/jwt-config'
 
 // GET /api/shipments/[id] - Get specific shipment details
@@ -12,6 +12,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const prisma = ensurePrisma()
     const userId = await getUserFromToken(request)
     if (!userId) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
@@ -20,7 +21,7 @@ export async function GET(
     const { id: shipmentId } = await params
 
     const shipment = await prisma.shipment.findFirst({
-      where: { 
+      where: {
         id: shipmentId,
         userId // Ensure user can only access their own shipments
       },
@@ -61,6 +62,12 @@ export async function GET(
         // Additional info
         shippingCost: true,
         insuranceCost: true,
+        // Relations
+        trackingEvents: {
+          orderBy: {
+            createdAt: 'desc'
+          }
+        }
       }
     })
 

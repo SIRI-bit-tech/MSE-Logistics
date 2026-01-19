@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { ensurePrisma } from '@/lib/prisma'
 import { getUserFromToken } from '@/lib/jwt-config'
 import { z } from 'zod'
 import Ably from 'ably'
@@ -41,9 +41,10 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const prisma = ensurePrisma()
     const { id } = await params
     const userId = await getUserFromToken(request)
-    
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -72,10 +73,10 @@ export async function PATCH(
 
     // Prepare update data
     const updateData: any = {}
-    
+
     if (validatedData.status) {
       updateData.status = validatedData.status
-      
+
       // Update delivery date if status is DELIVERED
       if (validatedData.status === 'DELIVERED') {
         updateData.actualDeliveryDate = new Date()
@@ -98,7 +99,7 @@ export async function PATCH(
     if (validatedData.estimatedDeliveryDate) {
       const parsedDate = new Date(validatedData.estimatedDeliveryDate)
       if (isNaN(parsedDate.getTime())) {
-        return NextResponse.json({ 
+        return NextResponse.json({
           error: 'Validation error',
           message: 'Invalid date format for estimatedDeliveryDate'
         }, { status: 400 })
@@ -164,19 +165,19 @@ export async function PATCH(
       // Don't fail the request if Ably publish fails
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Shipment updated successfully',
-      shipment: updatedShipment 
+      shipment: updatedShipment
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ 
-        error: 'Validation error', 
+      return NextResponse.json({
+        error: 'Validation error',
         details: error.issues,
         message: error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ')
       }, { status: 400 })
     }
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Internal server error'
     }, { status: 500 })
   }
@@ -188,9 +189,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const prisma = ensurePrisma()
     const { id } = await params
     const userId = await getUserFromToken(request)
-    
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -239,9 +241,10 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const prisma = ensurePrisma()
     const { id } = await params
     const userId = await getUserFromToken(request)
-    
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -266,17 +269,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Shipment not found' }, { status: 404 })
     }
 
-    // Delete related tracking events first (due to foreign key constraints)
-    await prisma.trackingEvent.deleteMany({
-      where: { shipmentId: id }
-    })
-
     // Delete the shipment
     await prisma.shipment.delete({
       where: { id }
     })
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: `Shipment ${existingShipment.trackingNumber} deleted successfully`
     })
   } catch (error) {
