@@ -232,3 +232,55 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+// DELETE /api/admin/shipments/[id] - Delete shipment (admin only)
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const userId = await getUserFromToken(request)
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if user has admin role
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true }
+    })
+
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN')) {
+      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 })
+    }
+
+    // Check if shipment exists
+    const existingShipment = await prisma.shipment.findUnique({
+      where: { id },
+      select: { id: true, trackingNumber: true }
+    })
+
+    if (!existingShipment) {
+      return NextResponse.json({ error: 'Shipment not found' }, { status: 404 })
+    }
+
+    // Delete related tracking events first (due to foreign key constraints)
+    await prisma.trackingEvent.deleteMany({
+      where: { shipmentId: id }
+    })
+
+    // Delete the shipment
+    await prisma.shipment.delete({
+      where: { id }
+    })
+
+    return NextResponse.json({ 
+      message: `Shipment ${existingShipment.trackingNumber} deleted successfully`
+    })
+  } catch (error) {
+    console.error('Error deleting shipment:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

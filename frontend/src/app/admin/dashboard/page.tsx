@@ -11,9 +11,11 @@ import { Separator } from "@/components/ui/separator"
 import { Label } from "@/components/ui/label"
 import { useAuth } from "@/hooks/use-auth"
 import { toast } from "sonner"
-import { Package, CheckCircle, Truck, DollarSign } from "lucide-react"
+import { Package, CheckCircle, Truck, DollarSign, Printer, Trash2 } from "lucide-react"
 import AdminHeader from "@/components/admin/admin-header"
 import AdminStatsCard from "@/components/admin/admin-stats-card"
+import ShipmentReceipt from "@/components/admin/shipment-receipt"
+import type { ShipmentReceiptProps } from "@/components/admin/shipment-receipt"
 
 interface ShipmentForAdmin {
   id: string
@@ -21,17 +23,34 @@ interface ShipmentForAdmin {
   status: string
   recipientCity: string
   recipientCountry: string
-  recipientName?: string
-  recipientEmail?: string
-  recipientPhone?: string
-  recipientAddress?: string
+  recipientName: string
+  recipientEmail: string
+  recipientPhone: string
+  recipientAddress: string
   currentLatitude?: number
   currentLongitude?: number
   currentLocation?: string
   estimatedDeliveryDate?: string
   notes?: string
-  transportMode?: string
+  transportMode: string
   createdAt: string
+  totalCost: number
+  currency: string
+  senderName: string
+  senderEmail: string
+  senderPhone: string
+  senderAddress: string
+  senderCity: string
+  senderCountry: string
+  senderPostalCode: string
+  recipientPostalCode: string
+  packageType: string
+  weight: number
+  description: string
+  serviceType: string
+  shippingCost: number
+  insuranceCost?: number
+  value: number // Declared value entered by the user
 }
 
 interface FormData {
@@ -52,7 +71,9 @@ export default function AdminDashboardPage() {
   const { user, isAuthenticated } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false)
   const [editingShipment, setEditingShipment] = useState<ShipmentForAdmin | null>(null)
+  const [receiptShipment, setReceiptShipment] = useState<ShipmentForAdmin | null>(null)
   const [shipments, setShipments] = useState<ShipmentForAdmin[]>([])
   const [stats, setStats] = useState<DashboardStats>({
     totalShipments: 0,
@@ -197,6 +218,80 @@ export default function AdminDashboardPage() {
     }
   }
 
+  const handlePrintReceipt = async (shipment: ShipmentForAdmin) => {
+    try {
+      // Fetch full shipment details for receipt
+      const response = await fetch(`/api/admin/shipments/${shipment.id}`)
+      if (response.ok) {
+        const data = await response.json()
+        const fullShipment: ShipmentReceiptProps['shipment'] = {
+          id: shipment.id,
+          trackingNumber: shipment.trackingNumber,
+          status: shipment.status,
+          createdAt: shipment.createdAt,
+          totalCost: data.shipment.totalCost || 0,
+          currency: data.shipment.currency || 'USD',
+          senderName: data.shipment.senderName || '',
+          senderEmail: data.shipment.senderEmail || '',
+          senderPhone: data.shipment.senderPhone || '',
+          senderAddress: data.shipment.senderAddress || '',
+          senderCity: data.shipment.senderCity || '',
+          senderCountry: data.shipment.senderCountry || '',
+          senderPostalCode: data.shipment.senderPostalCode || '',
+          recipientName: data.shipment.recipientName || '',
+          recipientEmail: data.shipment.recipientEmail || '',
+          recipientPhone: data.shipment.recipientPhone || '',
+          recipientAddress: data.shipment.recipientAddress || '',
+          recipientCity: data.shipment.recipientCity || '',
+          recipientCountry: data.shipment.recipientCountry || '',
+          recipientPostalCode: data.shipment.recipientPostalCode || '',
+          packageType: data.shipment.packageType || 'PARCEL',
+          weight: data.shipment.weight || 0,
+          description: data.shipment.description || '',
+          serviceType: data.shipment.serviceType || 'STANDARD',
+          transportMode: data.shipment.transportMode || 'LAND',
+          shippingCost: data.shipment.shippingCost || 0,
+          insuranceCost: data.shipment.insuranceCost || 0,
+          estimatedDeliveryDate: data.shipment.estimatedDeliveryDate,
+          value: data.shipment.value || 0, // This is the declared value entered by the user
+        }
+        setReceiptShipment(fullShipment)
+        setIsReceiptOpen(true)
+      } else {
+        toast.error('Failed to load shipment details for receipt')
+      }
+    } catch (error) {
+      console.error('Error loading shipment for receipt:', error)
+      toast.error('An error occurred while loading shipment details')
+    }
+  }
+
+  const handleDeleteShipment = async (shipment: ShipmentForAdmin) => {
+    if (!confirm(`Are you sure you want to delete shipment ${shipment.trackingNumber}? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/shipments/${shipment.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        // Remove from local state
+        setShipments(prev => prev.filter(s => s.id !== shipment.id))
+        toast.success(`Shipment ${shipment.trackingNumber} deleted successfully`)
+        // Refresh stats
+        fetchDashboardData()
+      } else {
+        const errorData = await response.json()
+        toast.error(errorData.error || 'Failed to delete shipment')
+      }
+    } catch (error) {
+      console.error('Error deleting shipment:', error)
+      toast.error('An error occurred while deleting shipment')
+    }
+  }
+
   const handleEditClick = async (shipment: ShipmentForAdmin) => {
     // Fetch full shipment details
     try {
@@ -272,8 +367,6 @@ export default function AdminDashboardPage() {
       })
 
       if (response.ok) {
-        const data = await response.json()
-        
         setShipments(prev => 
           prev.map(s => s.id === editingShipment.id ? editingShipment : s)
         )
@@ -456,13 +549,33 @@ export default function AdminDashboardPage() {
                       </TableCell>
                       <TableCell>{shipment.createdAt}</TableCell>
                       <TableCell>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleEditClick(shipment)}
-                        >
-                          Edit
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleEditClick(shipment)}
+                          >
+                            Edit
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handlePrintReceipt(shipment)}
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            <Printer className="w-4 h-4 mr-1" />
+                            Receipt
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleDeleteShipment(shipment)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            Delete
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -649,6 +762,18 @@ export default function AdminDashboardPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Receipt Dialog */}
+      {receiptShipment && (
+        <ShipmentReceipt
+          shipment={receiptShipment}
+          isOpen={isReceiptOpen}
+          onClose={() => {
+            setIsReceiptOpen(false)
+            setReceiptShipment(null)
+          }}
+        />
+      )}
 
     </div>
   )

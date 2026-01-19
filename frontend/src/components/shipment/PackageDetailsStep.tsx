@@ -113,13 +113,19 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">PACKAGE DESCRIPTION</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            PACKAGE DESCRIPTION <span className="text-red-500">*</span>
+          </label>
           <Textarea
-            placeholder="Describe the contents of your package"
+            placeholder="Describe the contents of your package (required)"
             value={formData.description}
             onChange={(e) => onInputChange('description', e.target.value)}
             rows={3}
+            className={!formData.description.trim() ? 'border-red-300 focus:border-red-500' : ''}
           />
+          {!formData.description.trim() && (
+            <p className="text-red-500 text-xs mt-1">Package description is required</p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -180,6 +186,7 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
             size="lg"
             className="bg-black text-white hover:bg-gray-800 px-8"
             onClick={onNext}
+            disabled={!formData.description.trim() || formData.weight <= 0}
           >
             Next: Service & Review
             <ArrowRight className="w-5 h-5 ml-2" />
