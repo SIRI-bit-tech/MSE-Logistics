@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getUserFromToken } from '@/lib/jwt-config'
+import { getCache, setCache } from '@/lib/redis'
 
 // GET /api/tracking/[trackingNumber] - Get shipment by tracking number (public endpoint with limited PII)
 export async function GET(
@@ -14,15 +15,23 @@ export async function GET(
     const userId = await getUserFromToken(request).catch(() => null)
     const isAuthenticated = !!userId
 
+    // Try to get from cache first (only for public view to maximize performance)
+    const cacheKey = `tracking:${trackingNumber}:${isAuthenticated ? 'auth' : 'public'}`
+    const cachedData = await getCache<{ shipment: any }>(cacheKey)
+    if (cachedData) {
+      return NextResponse.json(cachedData)
+    }
+
     const shipment = await prisma.shipment.findUnique({
       where: { trackingNumber },
+      cacheStrategy: { ttl: 60 }, // Built-in Prisma Accelerate caching
       select: {
         id: true,
         trackingNumber: true,
         status: true,
         estimatedDeliveryDate: true,
         actualDeliveryDate: true,
-        
+
         // Sender info (limited for public, full for authenticated)
         senderName: true,
         senderEmail: isAuthenticated,
@@ -33,7 +42,7 @@ export async function GET(
         senderPostalCode: true,
         senderLatitude: true,
         senderLongitude: true,
-        
+
         // Recipient info (limited for public, full for authenticated)
         recipientName: true,
         recipientEmail: isAuthenticated,
@@ -44,7 +53,7 @@ export async function GET(
         recipientPostalCode: true,
         recipientLatitude: true,
         recipientLongitude: true,
-        
+
         // Package info
         packageType: true,
         weight: true,
@@ -54,25 +63,25 @@ export async function GET(
         description: true,
         value: isAuthenticated, // Hide value from public
         currency: true,
-        
+
         // Service info
         serviceType: true,
         transportMode: true,
-        
+
         // Costs (hide from public)
         shippingCost: isAuthenticated,
         insuranceCost: isAuthenticated,
         totalCost: isAuthenticated,
-        
+
         // Current location
         currentLatitude: true,
         currentLongitude: true,
         currentLocation: true,
         lastLocationUpdate: true,
-        
+
         createdAt: true,
         updatedAt: true,
-        
+
         trackingEvents: {
           select: {
             id: true,
@@ -97,7 +106,12 @@ export async function GET(
       )
     }
 
-    return NextResponse.json({ shipment })
+    const responseData = { shipment }
+
+    // Save to Redis cache for ultra-low latency (60 seconds)
+    await setCache(cacheKey, responseData, 60)
+
+    return NextResponse.json(responseData)
   } catch (error) {
     console.error('Error fetching shipment:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
