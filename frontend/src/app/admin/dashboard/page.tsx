@@ -34,7 +34,7 @@ interface ShipmentForAdmin {
   notes?: string
   transportMode: string
   createdAt: string
-  totalCost: number
+  totalCost?: number
   currency: string
   senderName: string
   senderEmail: string
@@ -757,12 +757,12 @@ export default function AdminDashboardPage() {
                     step="0.01"
                     className="pl-10"
                     placeholder="0.00"
-                    value={editingShipment.totalCost}
+                    value={editingShipment.totalCost ?? ''}
                     onChange={(e) => {
                       const val = e.target.value
                       setEditingShipment({
                         ...editingShipment,
-                        totalCost: val === '' ? '' : parseFloat(val) as any
+                        totalCost: val === '' ? undefined : parseFloat(val)
                       })
                     }}
                   />

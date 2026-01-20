@@ -17,7 +17,7 @@ export interface ShipmentReceiptProps {
     trackingNumber: string
     status: string
     createdAt: string
-    totalCost: number
+    totalCost?: number
     currency: string
     senderName: string
     senderEmail: string
@@ -388,7 +388,7 @@ export default function ShipmentReceipt({ shipment, isOpen, onClose }: ShipmentR
               <div className="flex justify-between items-baseline">
                 <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Total Amount</span>
                 <span className="text-xl font-black text-neutral-900">
-                  {formatCurrency(shipment.totalCost, shipment.currency)}
+                  {formatCurrency(shipment.totalCost || 0, shipment.currency)}
                 </span>
               </div>
             </div>
