@@ -13,19 +13,81 @@ export default function TrackingMap({ shipment }: TrackingMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<maplibregl.Map | null>(null)
   const [routeError, setRouteError] = useState<string | null>(null)
+  const [style, setStyle] = useState<'streets' | 'satellite' | 'hybrid'>('streets')
+
+  // Map styles configuration
+  const mapStyles = {
+    streets: {
+      version: 8,
+      sources: {
+        osm: {
+          type: 'raster',
+          tiles: [
+            'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png'
+          ],
+          tileSize: 256,
+          attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }
+      },
+      layers: [
+        {
+          id: 'osm',
+          type: 'raster',
+          source: 'osm',
+          minzoom: 0,
+          maxzoom: 19
+        }
+      ]
+    },
+    satellite: {
+      version: 8,
+      sources: {
+        satellite: {
+          type: 'raster',
+          tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+          tileSize: 256,
+          attribution: '© Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        }
+      },
+      layers: [{ id: 'satellite', type: 'raster', source: 'satellite' }]
+    },
+    hybrid: {
+      version: 8,
+      sources: {
+        satellite: {
+          type: 'raster',
+          tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+          tileSize: 256,
+          attribution: '© Esri'
+        },
+        boundaries: {
+          type: 'raster',
+          tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'],
+          tileSize: 256,
+          attribution: '© Esri'
+        }
+      },
+      layers: [
+        { id: 'satellite', type: 'raster', source: 'satellite' },
+        { id: 'boundaries', type: 'raster', source: 'boundaries' }
+      ]
+    }
+  }
 
   // Check if coordinates are available
-  const hasValidCoordinates = 
-    shipment.senderLatitude != null && 
-    shipment.senderLongitude != null && 
-    shipment.recipientLatitude != null && 
+  const hasValidCoordinates =
+    shipment.senderLatitude != null &&
+    shipment.senderLongitude != null &&
+    shipment.recipientLatitude != null &&
     shipment.recipientLongitude != null &&
     !isNaN(shipment.senderLatitude) &&
     !isNaN(shipment.senderLongitude) &&
     !isNaN(shipment.recipientLatitude) &&
     !isNaN(shipment.recipientLongitude)
 
-  const hasCurrentLocation = 
+  const hasCurrentLocation =
     shipment.currentLatitude != null &&
     shipment.currentLongitude != null &&
     !isNaN(shipment.currentLatitude) &&
@@ -37,41 +99,19 @@ export default function TrackingMap({ shipment }: TrackingMapProps) {
     // Initialize MapLibre GL JS with OpenStreetMap tiles
     map.current = new maplibregl.Map({
       container: mapContainer.current,
-      style: {
-        version: 8,
-        sources: {
-          osm: {
-            type: 'raster',
-            tiles: [
-              'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png'
-            ],
-            tileSize: 256,
-            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          }
-        },
-        layers: [
-          {
-            id: 'osm',
-            type: 'raster',
-            source: 'osm',
-            minzoom: 0,
-            maxzoom: 19
-          }
-        ]
-      },
-      center: hasCurrentLocation 
+      style: mapStyles[style] as any,
+      center: hasCurrentLocation
         ? [shipment.currentLongitude!, shipment.currentLatitude!]
         : [shipment.senderLongitude, shipment.senderLatitude],
       zoom: 4,
+      renderWorldCopies: false,
     })
 
     // Add navigation controls
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right')
 
     // Check if current location is at origin
-    const isAtOrigin = hasCurrentLocation && 
+    const isAtOrigin = hasCurrentLocation &&
       Math.abs(shipment.currentLatitude! - shipment.senderLatitude) < 0.01 &&
       Math.abs(shipment.currentLongitude! - shipment.senderLongitude) < 0.01
 
@@ -91,7 +131,7 @@ export default function TrackingMap({ shipment }: TrackingMapProps) {
     }
 
     // Add sender marker (origin) - Green
-    new maplibregl.Marker({ 
+    new maplibregl.Marker({
       element: createMarkerElement('#10B981'),
       anchor: 'bottom'
     })
@@ -105,7 +145,7 @@ export default function TrackingMap({ shipment }: TrackingMapProps) {
       .addTo(map.current)
 
     // Add recipient marker (destination) - Gold
-    new maplibregl.Marker({ 
+    new maplibregl.Marker({
       element: createMarkerElement('#D4AF37'),
       anchor: 'bottom'
     })
@@ -170,48 +210,59 @@ export default function TrackingMap({ shipment }: TrackingMapProps) {
         // Build waypoints for GraphHopper
         const waypoints = hasCurrentLocation && !isAtOrigin
           ? [
-              [shipment.senderLongitude, shipment.senderLatitude],
-              [shipment.currentLongitude!, shipment.currentLatitude!],
-              [shipment.recipientLongitude, shipment.recipientLatitude]
-            ]
+            [shipment.senderLongitude, shipment.senderLatitude],
+            [shipment.currentLongitude!, shipment.currentLatitude!],
+            [shipment.recipientLongitude, shipment.recipientLatitude]
+          ]
           : [
-              [shipment.senderLongitude, shipment.senderLatitude],
-              [shipment.recipientLongitude, shipment.recipientLatitude]
-            ]
+            [shipment.senderLongitude, shipment.senderLatitude],
+            [shipment.recipientLongitude, shipment.recipientLatitude]
+          ]
 
         // Fetch route from GraphHopper
         const pointsParam = waypoints.map(w => `point=${w[1]},${w[0]}`).join('&')
         const apiKey = process.env.NEXT_PUBLIC_GRAPHHOPPER_API_KEY
-        
+
         if (!apiKey) {
           console.warn('GraphHopper API key not found. Please add NEXT_PUBLIC_GRAPHHOPPER_API_KEY to your .env.local file')
         }
-        
+
         const graphhopperUrl = `https://graphhopper.com/api/1/route?${pointsParam}&profile=${profile}&points_encoded=false&key=${apiKey}`
-        
+
         let routeCoordinates: number[][] = []
-        
+
         // For AIR and WATER transport, use straight lines (more appropriate than road routing)
         if (shipment.transportMode === 'AIR' || shipment.transportMode === 'WATER') {
           routeCoordinates = waypoints
         } else {
           // For LAND and MULTIMODAL, fetch route from GraphHopper
           try {
-            const response = await fetch(graphhopperUrl)
-            if (response.ok) {
-              const data = await response.json()
-              if (data.paths && data.paths[0] && data.paths[0].points) {
-                routeCoordinates = data.paths[0].points.coordinates
+            // Check if distance is likely too large for a car (very rough check for intercontinental)
+            // Average distance across which road routing might fail is ~10,000km
+            const latDiff = Math.abs(shipment.senderLatitude - shipment.recipientLatitude)
+            const lngDiff = Math.abs(shipment.senderLongitude - shipment.recipientLongitude)
+
+            if (latDiff > 50 || lngDiff > 80) {
+              // Likely crossing major oceans or continents where road routing fails
+              routeCoordinates = waypoints
+            } else {
+              const response = await fetch(graphhopperUrl)
+              if (response.ok) {
+                const data = await response.json()
+                if (data.paths && data.paths[0] && data.paths[0].points) {
+                  routeCoordinates = data.paths[0].points.coordinates
+                } else {
+                  routeCoordinates = waypoints
+                }
               } else {
-                // Fallback to straight lines if no route found
+                // Only log if it's not a 400 (route not found is common for long distances)
+                if (response.status !== 400) {
+                  console.warn('GraphHopper API error:', response.status)
+                }
                 routeCoordinates = waypoints
               }
-            } else {
-              console.error('GraphHopper API error:', response.status)
-              routeCoordinates = waypoints
             }
           } catch (error) {
-            console.error('Error fetching route from GraphHopper:', error)
             routeCoordinates = waypoints
           }
         }
@@ -279,7 +330,7 @@ export default function TrackingMap({ shipment }: TrackingMapProps) {
     return () => {
       map.current?.remove()
     }
-  }, [shipment, hasValidCoordinates, hasCurrentLocation])
+  }, [shipment, hasValidCoordinates, hasCurrentLocation, style])
 
   if (!hasValidCoordinates) {
     return (
@@ -298,13 +349,66 @@ export default function TrackingMap({ shipment }: TrackingMapProps) {
   }
 
   return (
-    <div className="relative">
-      <div ref={mapContainer} className="h-96 rounded-lg overflow-hidden shadow" />
+    <div className="relative group">
+      <div ref={mapContainer} className="h-96 rounded-lg overflow-hidden shadow border border-gray-200" />
+
+      {/* Style Switcher UI */}
+      <div className="absolute top-4 right-12 flex flex-col gap-2 z-10 transition-opacity duration-300">
+        <div className="bg-white/90 backdrop-blur-sm p-1 rounded-lg shadow-lg border border-gray-200 flex flex-col gap-1">
+          <button
+            onClick={() => setStyle('streets')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${style === 'streets'
+              ? 'bg-[#D4AF37] text-white shadow-sm'
+              : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            Streets
+          </button>
+          <button
+            onClick={() => setStyle('satellite')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${style === 'satellite'
+              ? 'bg-[#D4AF37] text-white shadow-sm'
+              : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            Satellite
+          </button>
+          <button
+            onClick={() => setStyle('hybrid')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${style === 'hybrid'
+              ? 'bg-[#D4AF37] text-white shadow-sm'
+              : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            Hybrid
+          </button>
+        </div>
+      </div>
+
       {routeError && (
-        <div className="absolute top-4 left-4 bg-yellow-100 border border-yellow-400 text-yellow-800 px-3 py-2 rounded text-sm">
+        <div className="absolute top-4 left-4 bg-yellow-100/90 backdrop-blur-sm border border-yellow-400 text-yellow-800 px-3 py-2 rounded-lg text-sm shadow-md z-10">
+          <span className="mr-2">⚠️</span>
           {routeError}
         </div>
       )}
+
+      {/* Map Legend/Info Overlay */}
+      <div className="absolute bottom-4 left-4 z-10">
+        <div className="bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg border border-gray-200 shadow-sm flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-[#10B981]"></div>
+            <span className="text-[10px] font-medium text-gray-600 uppercase tracking-wider">Origin</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-[#D4AF37]"></div>
+            <span className="text-[10px] font-medium text-gray-600 uppercase tracking-wider">Dest</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-[#3B82F6]"></div>
+            <span className="text-[10px] font-medium text-gray-600 uppercase tracking-wider">Live</span>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

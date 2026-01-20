@@ -14,22 +14,21 @@ datasource db {
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
+  password     String?
   firstName    String
   lastName     String
   phone        String?
   profileImage String?
   role         Role     @default(CUSTOMER)
-  password     String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  // Relations
-  shipments     Shipment[]
-  addresses     Address[]
-  paymentMethods PaymentMethod[]
-  notifications Notification[]
-  sessions      Session[]
-  accounts      Account[]
+  shipments        Shipment[]
+  notifications    Notification[]
+  accounts         Account[]
+  sessions         Session[]
+  addresses        Address[]
+  paymentMethods   PaymentMethod[]
 
   @@map("users")
 }
@@ -188,8 +187,6 @@ model TrackingEvent {
   facility      String?
   description   String
   transportMode TransportMode?
-  notes         String?
-  updatedBy     String
   createdAt     DateTime       @default(now())
 
   shipment Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)

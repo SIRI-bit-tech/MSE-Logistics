@@ -10,24 +10,23 @@ import Ably from 'ably'
 export async function GET(request: NextRequest) {
   try {
     const ablyApiKey = process.env.ABLY_API_KEY
-    
+
     if (!ablyApiKey) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         error: 'Ably not configured',
         message: 'Set ABLY_API_KEY environment variable'
       }, { status: 503 })
     }
 
     const ably = new Ably.Rest({ key: ablyApiKey })
-    
+
     // Check if user is authenticated
     const session = await auth.api.getSession({
       headers: request.headers,
     })
 
     // Generate token with appropriate permissions
-    const tokenRequest = await ably.auth.createTokenRequest({
-      clientId: session?.user?.id || `guest-${Date.now()}`,
+    const tokenParams: any = {
       capability: {
         // Allow subscribing to any tracking channel (public tracking)
         'tracking:*': ['subscribe'],
@@ -37,7 +36,14 @@ export async function GET(request: NextRequest) {
         }),
       },
       ttl: 60 * 60 * 1000, // 1 hour
-    })
+    }
+
+    // Only set clientId if authenticated
+    if (session?.user?.id) {
+      tokenParams.clientId = session.user.id
+    }
+
+    const tokenRequest = await ably.auth.createTokenRequest(tokenParams)
 
     return NextResponse.json(tokenRequest)
   } catch (error) {
