@@ -84,7 +84,7 @@ export default function ShipmentDetailsModal({ shipment, isOpen, onClose }: Ship
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-600">Status</label>
               <Badge className={`${getStatusColor(shipment.status)} border-0`}>
-                {shipment.status.replace('_', ' ')}
+                {shipment.status.replace(/_/g, ' ')}
               </Badge>
             </div>
             <div className="space-y-2">
@@ -243,7 +243,7 @@ export default function ShipmentDetailsModal({ shipment, isOpen, onClose }: Ship
                 )}
               </div>
             </div>
-            
+
             {shipment.description && (
               <div className="mt-4">
                 <span className="text-sm text-gray-600">Description:</span>

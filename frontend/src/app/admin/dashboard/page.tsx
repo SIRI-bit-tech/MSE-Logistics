@@ -89,20 +89,20 @@ export default function AdminDashboardPage() {
     recipientAddress: "",
     status: "PENDING",
   })
-  
+
   useEffect(() => {
     if (isAuthenticated && (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN")) {
       fetchDashboardData()
     }
   }, [isAuthenticated, user])
-  
+
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true)
-      
+
       // Fetch shipments
       const shipmentsResponse = await fetch('/api/admin/shipments?limit=50')
-      
+
       if (shipmentsResponse.ok) {
         const shipmentsData = await shipmentsResponse.json()
         const formattedShipments = shipmentsData.shipments.map((s: any) => ({
@@ -114,11 +114,11 @@ export default function AdminDashboardPage() {
           createdAt: new Date(s.createdAt).toLocaleDateString(),
         }))
         setShipments(formattedShipments)
-        
+
         // Calculate stats from real data
         const today = new Date()
         today.setHours(0, 0, 0, 0)
-        
+
         const totalShipments = shipmentsData.pagination?.total || shipmentsData.shipments.length
         const deliveredToday = shipmentsData.shipments.filter((s: any) => {
           if (s.status === 'DELIVERED' && s.actualDeliveryDate) {
@@ -128,11 +128,11 @@ export default function AdminDashboardPage() {
           }
           return false
         }).length
-        
-        const inTransit = shipmentsData.shipments.filter((s: any) => 
+
+        const inTransit = shipmentsData.shipments.filter((s: any) =>
           s.status === 'IN_TRANSIT' || s.status === 'OUT_FOR_DELIVERY'
         ).length
-        
+
         // Calculate revenue from today's delivered shipments
         const revenueToday = shipmentsData.shipments
           .filter((s: any) => {
@@ -144,7 +144,7 @@ export default function AdminDashboardPage() {
             return false
           })
           .reduce((sum: number, s: any) => sum + (s.totalCost || 0), 0)
-        
+
         setStats({
           totalShipments,
           deliveredToday,
@@ -164,20 +164,20 @@ export default function AdminDashboardPage() {
 
   const handleCreateShipment = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!formData.trackingNumber || !formData.recipientName || !formData.recipientAddress) {
       toast.error('Please fill in all required fields')
       return
     }
 
     setIsSubmitting(true)
-    
+
     try {
       // Note: This is a simplified version. In production, you'd need a proper admin endpoint
       // that accepts minimal data or use the full shipment creation endpoint
       toast.info('Admin shipment creation not yet implemented')
       setIsOpen(false)
-      
+
       // Reset form
       setFormData({
         trackingNumber: "",
@@ -205,7 +205,7 @@ export default function AdminDashboardPage() {
 
       if (response.ok) {
         // Update local state
-        setShipments(prev => 
+        setShipments(prev =>
           prev.map(s => s.id === shipmentId ? { ...s, status: newStatus } : s)
         )
         toast.success('Status updated successfully')
@@ -228,7 +228,7 @@ export default function AdminDashboardPage() {
           id: shipment.id,
           trackingNumber: shipment.trackingNumber,
           status: shipment.status,
-          createdAt: shipment.createdAt,
+          createdAt: data.shipment.createdAt,
           totalCost: data.shipment.totalCost || 0,
           currency: data.shipment.currency || 'USD',
           senderName: data.shipment.senderName || '',
@@ -329,27 +329,27 @@ export default function AdminDashboardPage() {
     try {
       // Prepare payload - only send fields that have values
       const payload: any = {}
-      
+
       if (editingShipment.status) {
         payload.status = editingShipment.status
       }
-      
+
       if (editingShipment.currentLocation) {
         payload.currentLocation = editingShipment.currentLocation
       }
-      
+
       if (editingShipment.currentLatitude !== undefined && editingShipment.currentLatitude !== null) {
         payload.currentLatitude = Number(editingShipment.currentLatitude)
       }
-      
+
       if (editingShipment.currentLongitude !== undefined && editingShipment.currentLongitude !== null) {
         payload.currentLongitude = Number(editingShipment.currentLongitude)
       }
-      
+
       if (editingShipment.estimatedDeliveryDate) {
         payload.estimatedDeliveryDate = editingShipment.estimatedDeliveryDate
       }
-      
+
       if (editingShipment.notes) {
         payload.notes = editingShipment.notes
       }
@@ -367,7 +367,7 @@ export default function AdminDashboardPage() {
       })
 
       if (response.ok) {
-        setShipments(prev => 
+        setShipments(prev =>
           prev.map(s => s.id === editingShipment.id ? editingShipment : s)
         )
         toast.success('Shipment updated successfully')
@@ -402,25 +402,25 @@ export default function AdminDashboardPage() {
       <AdminHeader />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <AdminStatsCard 
-          title="Total Shipments" 
-          value={stats.totalShipments} 
-          icon={Package} 
+        <AdminStatsCard
+          title="Total Shipments"
+          value={stats.totalShipments}
+          icon={Package}
         />
-        <AdminStatsCard 
-          title="Delivered Today" 
-          value={stats.deliveredToday} 
-          icon={CheckCircle} 
+        <AdminStatsCard
+          title="Delivered Today"
+          value={stats.deliveredToday}
+          icon={CheckCircle}
         />
-        <AdminStatsCard 
-          title="In Transit" 
-          value={stats.inTransit} 
-          icon={Truck} 
+        <AdminStatsCard
+          title="In Transit"
+          value={stats.inTransit}
+          icon={Truck}
         />
-        <AdminStatsCard 
-          title="Revenue Today" 
-          value={`$${stats.revenueToday.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} 
-          icon={DollarSign} 
+        <AdminStatsCard
+          title="Revenue Today"
+          value={`$${stats.revenueToday.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          icon={DollarSign}
         />
       </div>
 
@@ -438,8 +438,8 @@ export default function AdminDashboardPage() {
               <form onSubmit={handleCreateShipment} className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label htmlFor="tracking">Tracking Number</Label>
-                  <Input 
-                    id="tracking" 
+                  <Input
+                    id="tracking"
                     placeholder="Enter tracking number"
                     value={formData.trackingNumber}
                     onChange={(e) => setFormData({ ...formData, trackingNumber: e.target.value })}
@@ -448,8 +448,8 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="recipient">Recipient Name</Label>
-                  <Input 
-                    id="recipient" 
+                  <Input
+                    id="recipient"
                     placeholder="Enter recipient name"
                     value={formData.recipientName}
                     onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
@@ -458,8 +458,8 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="address">Recipient Address</Label>
-                  <Input 
-                    id="address" 
+                  <Input
+                    id="address"
                     placeholder="Enter address"
                     value={formData.recipientAddress}
                     onChange={(e) => setFormData({ ...formData, recipientAddress: e.target.value })}
@@ -468,7 +468,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
-                  <Select 
+                  <Select
                     value={formData.status}
                     onValueChange={(value) => setFormData({ ...formData, status: value })}
                   >
@@ -482,8 +482,8 @@ export default function AdminDashboardPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full"
                   disabled={isSubmitting}
                 >
@@ -523,7 +523,7 @@ export default function AdminDashboardPage() {
                         {shipment.recipientCity}, {shipment.recipientCountry}
                       </TableCell>
                       <TableCell>
-                        <Select 
+                        <Select
                           value={shipment.status}
                           onValueChange={(value) => handleStatusChange(shipment.id, value)}
                         >
@@ -550,15 +550,15 @@ export default function AdminDashboardPage() {
                       <TableCell>{shipment.createdAt}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button 
-                            variant="ghost" 
+                          <Button
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleEditClick(shipment)}
                           >
                             Edit
                           </Button>
-                          <Button 
-                            variant="ghost" 
+                          <Button
+                            variant="ghost"
                             size="sm"
                             onClick={() => handlePrintReceipt(shipment)}
                             className="text-blue-600 hover:text-blue-800"
@@ -566,8 +566,8 @@ export default function AdminDashboardPage() {
                             <Printer className="w-4 h-4 mr-1" />
                             Receipt
                           </Button>
-                          <Button 
-                            variant="ghost" 
+                          <Button
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleDeleteShipment(shipment)}
                             className="text-red-600 hover:text-red-800"
@@ -626,7 +626,7 @@ export default function AdminDashboardPage() {
               {/* Status */}
               <div className="space-y-2">
                 <Label htmlFor="edit-status">Shipment Status *</Label>
-                <Select 
+                <Select
                   value={editingShipment.status}
                   onValueChange={(value) => setEditingShipment({ ...editingShipment, status: value })}
                 >
@@ -654,7 +654,7 @@ export default function AdminDashboardPage() {
               {/* Current Location */}
               <div className="space-y-2">
                 <Label htmlFor="edit-location">Current Location</Label>
-                <Input 
+                <Input
                   id="edit-location"
                   placeholder="e.g., Distribution Center, Miami, FL"
                   value={editingShipment.currentLocation || ''}
@@ -666,29 +666,29 @@ export default function AdminDashboardPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="edit-lat">Latitude</Label>
-                  <Input 
+                  <Input
                     id="edit-lat"
                     type="number"
                     step="any"
                     placeholder="e.g., 25.7617"
                     value={editingShipment.currentLatitude || ''}
-                    onChange={(e) => setEditingShipment({ 
-                      ...editingShipment, 
-                      currentLatitude: e.target.value ? parseFloat(e.target.value) : undefined 
+                    onChange={(e) => setEditingShipment({
+                      ...editingShipment,
+                      currentLatitude: e.target.value ? parseFloat(e.target.value) : undefined
                     })}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="edit-lng">Longitude</Label>
-                  <Input 
+                  <Input
                     id="edit-lng"
                     type="number"
                     step="any"
                     placeholder="e.g., -80.1918"
                     value={editingShipment.currentLongitude || ''}
-                    onChange={(e) => setEditingShipment({ 
-                      ...editingShipment, 
-                      currentLongitude: e.target.value ? parseFloat(e.target.value) : undefined 
+                    onChange={(e) => setEditingShipment({
+                      ...editingShipment,
+                      currentLongitude: e.target.value ? parseFloat(e.target.value) : undefined
                     })}
                   />
                 </div>
@@ -697,14 +697,14 @@ export default function AdminDashboardPage() {
               {/* Estimated Delivery Date */}
               <div className="space-y-2">
                 <Label htmlFor="edit-delivery">Estimated Delivery Date</Label>
-                <Input 
+                <Input
                   id="edit-delivery"
                   type="date"
-                  value={editingShipment.estimatedDeliveryDate ? 
+                  value={editingShipment.estimatedDeliveryDate ?
                     new Date(editingShipment.estimatedDeliveryDate).toISOString().split('T')[0] : ''}
-                  onChange={(e) => setEditingShipment({ 
-                    ...editingShipment, 
-                    estimatedDeliveryDate: e.target.value 
+                  onChange={(e) => setEditingShipment({
+                    ...editingShipment,
+                    estimatedDeliveryDate: e.target.value
                   })}
                 />
               </div>
@@ -712,7 +712,7 @@ export default function AdminDashboardPage() {
               {/* Notes */}
               <div className="space-y-2">
                 <Label htmlFor="edit-notes">Internal Notes</Label>
-                <Input 
+                <Input
                   id="edit-notes"
                   placeholder="Add any internal notes..."
                   value={editingShipment.notes || ''}
@@ -723,7 +723,7 @@ export default function AdminDashboardPage() {
               {/* Transport Mode */}
               <div className="space-y-2">
                 <Label htmlFor="edit-transport">Transport Mode</Label>
-                <Select 
+                <Select
                   value={editingShipment.transportMode || 'LAND'}
                   onValueChange={(value) => setEditingShipment({ ...editingShipment, transportMode: value })}
                 >
@@ -742,15 +742,15 @@ export default function AdminDashboardPage() {
               <Separator />
 
               <div className="flex gap-2">
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="flex-1"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </Button>
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   variant="outline"
                   onClick={() => setIsEditOpen(false)}
                   disabled={isSubmitting}

@@ -388,7 +388,7 @@ export default function ShipmentReceipt({ shipment, isOpen, onClose }: ShipmentR
               <div className="flex justify-between items-baseline">
                 <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Total Amount</span>
                 <span className="text-xl font-black text-neutral-900">
-                  {formatCurrency(shipment.value, shipment.currency)}
+                  {formatCurrency(shipment.totalCost, shipment.currency)}
                 </span>
               </div>
             </div>

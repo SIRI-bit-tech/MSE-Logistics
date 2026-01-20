@@ -183,9 +183,21 @@ export default function CreateShipmentPage() {
         router.push(`/shipments`)
       } else {
         // Log the error details for debugging
-        const errorData = await response.json()
+        let errorData
+        let errorMessage
+
+        try {
+          errorData = await response.json()
+          errorMessage = errorData.error || 'Failed to create shipment'
+        } catch (e) {
+          // Fallback if response is not JSON (e.g., 500 error page)
+          const text = await response.text()
+          errorData = { raw: text }
+          errorMessage = text || 'Failed to create shipment (Unknown Error)'
+        }
+
         console.error('Shipment creation failed:', errorData)
-        alert(`Error: ${errorData.error || 'Failed to create shipment'}`)
+        alert(`Error: ${errorMessage}`)
       }
     } catch (error) {
       console.error('Error creating shipment:', error)
@@ -196,200 +208,196 @@ export default function CreateShipmentPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar 
-        isOpen={sidebarOpen} 
+      <Sidebar
+        isOpen={sidebarOpen}
         onToggle={toggleSidebar}
       />
-      
+
       <div className="flex-1 flex flex-col min-w-0">
-        <MobileHeader 
+        <MobileHeader
           onMenuToggle={toggleSidebar}
           title="Create Shipment"
         />
-        
+
         <div className="flex-1 p-4 sm:p-6 lg:p-8 pt-20 lg:pt-4">
           <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Shipment</h1>
-            <p className="text-gray-600">Complete the details below to initiate your Mediterranean cargo request.</p>
-          </div>
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Shipment</h1>
+              <p className="text-gray-600">Complete the details below to initiate your Mediterranean cargo request.</p>
+            </div>
 
-          {/* Step Indicator */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between max-w-4xl">
-              {/* Step 1 */}
-              <div className="flex items-center flex-1">
-                <div className="flex flex-col items-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
-                    currentStep === 1 ? 'bg-[#FFD700] text-black' : currentStep > 1 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
-                  }`}>
-                    {currentStep > 1 ? '✓' : '1'}
-                  </div>
-                  <div className="mt-2 text-center">
-                    <div className={`text-xs font-medium ${currentStep === 1 ? 'text-[#FFD700]' : 'text-gray-500'}`}>
-                      {currentStep === 1 ? 'CURRENT STEP' : 'STEP 1'}
+            {/* Step Indicator */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between max-w-4xl">
+                {/* Step 1 */}
+                <div className="flex items-center flex-1">
+                  <div className="flex flex-col items-center">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${currentStep === 1 ? 'bg-[#FFD700] text-black' : currentStep > 1 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                      }`}>
+                      {currentStep > 1 ? '✓' : '1'}
                     </div>
-                    <div className="text-sm font-semibold text-gray-900">Sender Info</div>
+                    <div className="mt-2 text-center">
+                      <div className={`text-xs font-medium ${currentStep === 1 ? 'text-[#FFD700]' : 'text-gray-500'}`}>
+                        {currentStep === 1 ? 'CURRENT STEP' : 'STEP 1'}
+                      </div>
+                      <div className="text-sm font-semibold text-gray-900">Sender Info</div>
+                    </div>
                   </div>
+                  <div className={`flex-1 h-0.5 mx-4 ${currentStep > 1 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
                 </div>
-                <div className={`flex-1 h-0.5 mx-4 ${currentStep > 1 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
-              </div>
 
-              {/* Step 2 */}
-              <div className="flex items-center flex-1">
-                <div className="flex flex-col items-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
-                    currentStep === 2 ? 'bg-[#FFD700] text-black' : currentStep > 2 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
-                  }`}>
-                    {currentStep > 2 ? '✓' : '2'}
-                  </div>
-                  <div className="mt-2 text-center">
-                    <div className={`text-xs font-medium ${currentStep === 2 ? 'text-[#FFD700]' : 'text-gray-500'}`}>
-                      {currentStep === 2 ? 'CURRENT STEP' : 'STEP 2'}
+                {/* Step 2 */}
+                <div className="flex items-center flex-1">
+                  <div className="flex flex-col items-center">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${currentStep === 2 ? 'bg-[#FFD700] text-black' : currentStep > 2 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                      }`}>
+                      {currentStep > 2 ? '✓' : '2'}
                     </div>
-                    <div className="text-sm font-semibold text-gray-900">Recipient Info</div>
+                    <div className="mt-2 text-center">
+                      <div className={`text-xs font-medium ${currentStep === 2 ? 'text-[#FFD700]' : 'text-gray-500'}`}>
+                        {currentStep === 2 ? 'CURRENT STEP' : 'STEP 2'}
+                      </div>
+                      <div className="text-sm font-semibold text-gray-900">Recipient Info</div>
+                    </div>
                   </div>
+                  <div className={`flex-1 h-0.5 mx-4 ${currentStep > 2 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
                 </div>
-                <div className={`flex-1 h-0.5 mx-4 ${currentStep > 2 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
-              </div>
 
-              {/* Step 3 */}
-              <div className="flex items-center flex-1">
-                <div className="flex flex-col items-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
-                    currentStep === 3 ? 'bg-[#FFD700] text-black' : currentStep > 3 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
-                  }`}>
-                    {currentStep > 3 ? '✓' : '3'}
-                  </div>
-                  <div className="mt-2 text-center">
-                    <div className={`text-xs font-medium ${currentStep === 3 ? 'text-[#FFD700]' : 'text-gray-500'}`}>
-                      {currentStep === 3 ? 'CURRENT STEP' : 'STEP 3'}
+                {/* Step 3 */}
+                <div className="flex items-center flex-1">
+                  <div className="flex flex-col items-center">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${currentStep === 3 ? 'bg-[#FFD700] text-black' : currentStep > 3 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                      }`}>
+                      {currentStep > 3 ? '✓' : '3'}
                     </div>
-                    <div className="text-sm font-semibold text-gray-900">Package Details</div>
+                    <div className="mt-2 text-center">
+                      <div className={`text-xs font-medium ${currentStep === 3 ? 'text-[#FFD700]' : 'text-gray-500'}`}>
+                        {currentStep === 3 ? 'CURRENT STEP' : 'STEP 3'}
+                      </div>
+                      <div className="text-sm font-semibold text-gray-900">Package Details</div>
+                    </div>
                   </div>
+                  <div className={`flex-1 h-0.5 mx-4 ${currentStep > 3 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
                 </div>
-                <div className={`flex-1 h-0.5 mx-4 ${currentStep > 3 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
-              </div>
 
-              {/* Step 4 */}
-              <div className="flex items-center">
-                <div className="flex flex-col items-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
-                    currentStep === 4 ? 'bg-[#FFD700] text-black' : 'bg-gray-200 text-gray-600'
-                  }`}>
-                    4
-                  </div>
-                  <div className="mt-2 text-center">
-                    <div className={`text-xs font-medium ${currentStep === 4 ? 'text-[#FFD700]' : 'text-gray-500'}`}>
-                      {currentStep === 4 ? 'CURRENT STEP' : 'STEP 4'}
+                {/* Step 4 */}
+                <div className="flex items-center">
+                  <div className="flex flex-col items-center">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${currentStep === 4 ? 'bg-[#FFD700] text-black' : 'bg-gray-200 text-gray-600'
+                      }`}>
+                      4
                     </div>
-                    <div className="text-sm font-semibold text-gray-900">Service & Review</div>
+                    <div className="mt-2 text-center">
+                      <div className={`text-xs font-medium ${currentStep === 4 ? 'text-[#FFD700]' : 'text-gray-500'}`}>
+                        {currentStep === 4 ? 'CURRENT STEP' : 'STEP 4'}
+                      </div>
+                      <div className="text-sm font-semibold text-gray-900">Service & Review</div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Form */}
-            <div className="lg:col-span-2">
-              {currentStep === 1 && (
-                <SenderInfoStep
-                  formData={formData}
-                  onInputChange={handleInputChange}
-                  onNext={handleNext}
-                />
-              )}
-              {currentStep === 2 && (
-                <RecipientInfoStep
-                  formData={formData}
-                  onInputChange={handleInputChange}
-                  onNext={handleNext}
-                  onPrevious={handlePrevious}
-                />
-              )}
-              {currentStep === 3 && (
-                <PackageDetailsStep
-                  formData={formData}
-                  onInputChange={handleInputChange}
-                  onNext={handleNext}
-                  onPrevious={handlePrevious}
-                />
-              )}
-              {currentStep === 4 && (
-                <ServiceReviewStep
-                  formData={formData}
-                  onPrevious={handlePrevious}
-                  onSubmit={handleSubmit}
-                  isLoading={isLoading}
-                />
-              )}
-            </div>
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column - Form */}
+              <div className="lg:col-span-2">
+                {currentStep === 1 && (
+                  <SenderInfoStep
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                    onNext={handleNext}
+                  />
+                )}
+                {currentStep === 2 && (
+                  <RecipientInfoStep
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                    onNext={handleNext}
+                    onPrevious={handlePrevious}
+                  />
+                )}
+                {currentStep === 3 && (
+                  <PackageDetailsStep
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                    onNext={handleNext}
+                    onPrevious={handlePrevious}
+                  />
+                )}
+                {currentStep === 4 && (
+                  <ServiceReviewStep
+                    formData={formData}
+                    onPrevious={handlePrevious}
+                    onSubmit={handleSubmit}
+                    isLoading={isLoading}
+                  />
+                )}
+              </div>
 
-            {/* Right Column - Summary */}
-            <div className="space-y-6">
-              {/* Shipment Summary Card */}
-              <Card className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-6 h-6 bg-[#FFD700] rounded flex items-center justify-center">
-                    <span className="text-xs font-bold text-black">📦</span>
-                  </div>
-                  <h3 className="font-semibold text-gray-900">SHIPMENT SUMMARY</h3>
-                </div>
-
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Estimated Weight</span>
-                    <span className="font-medium text-gray-900">
-                      {formData.weight > 0 ? `${formData.weight} kg` : '-- kg'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Route Type</span>
-                    <span className="font-medium text-gray-900">
-                      {formData.senderCountry && formData.recipientCountry 
-                        ? `${formData.senderCountry} → ${formData.recipientCountry}`
-                        : 'Not Selected'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Insurance</span>
-                    <span className="font-medium text-gray-900">
-                      {formData.insuranceOptional ? 'Yes' : 'No'}
-                    </span>
-                  </div>
-
-                  <div className="border-t pt-3 mt-3">
-                    <div className="text-xs text-muted-foreground mb-1">TOTAL QUOTE</div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-[#FFD700]">$0.00</span>
-                      <span className="text-sm text-muted-foreground">USD</span>
+              {/* Right Column - Summary */}
+              <div className="space-y-6">
+                {/* Shipment Summary Card */}
+                <Card className="p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-6 h-6 bg-[#FFD700] rounded flex items-center justify-center">
+                      <span className="text-xs font-bold text-black">📦</span>
                     </div>
+                    <h3 className="font-semibold text-gray-900">SHIPMENT SUMMARY</h3>
                   </div>
 
-                  <p className="text-xs text-muted-foreground italic pt-2">
-                    Quotes are finalized in Step 4 after service selection and dimensions verification.
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Estimated Weight</span>
+                      <span className="font-medium text-gray-900">
+                        {formData.weight > 0 ? `${formData.weight} kg` : '-- kg'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Route Type</span>
+                      <span className="font-medium text-gray-900">
+                        {formData.senderCountry && formData.recipientCountry
+                          ? `${formData.senderCountry} → ${formData.recipientCountry}`
+                          : 'Not Selected'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Insurance</span>
+                      <span className="font-medium text-gray-900">
+                        {formData.insuranceOptional ? 'Yes' : 'No'}
+                      </span>
+                    </div>
+
+                    <div className="border-t pt-3 mt-3">
+                      <div className="text-xs text-muted-foreground mb-1">TOTAL QUOTE</div>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-bold text-[#FFD700]">$0.00</span>
+                        <span className="text-sm text-muted-foreground">USD</span>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground italic pt-2">
+                      Quotes are finalized in Step 4 after service selection and dimensions verification.
+                    </p>
+                  </div>
+                </Card>
+
+                {/* Service Coverage Card */}
+                <Card className="p-6 bg-gradient-to-br from-gray-800 to-gray-900 text-white">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <div className="text-xs text-gray-400 mb-1">SERVICE COVERAGE</div>
+                      <h3 className="text-lg font-semibold">Global Sea-Port Network</h3>
+                    </div>
+                    <Globe className="w-8 h-8 text-[#FFD700]" />
+                  </div>
+                  <p className="text-sm text-gray-300">
+                    Access to 500+ ports worldwide with reliable Mediterranean shipping routes.
                   </p>
-                </div>
-              </Card>
-
-              {/* Service Coverage Card */}
-              <Card className="p-6 bg-gradient-to-br from-gray-800 to-gray-900 text-white">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <div className="text-xs text-gray-400 mb-1">SERVICE COVERAGE</div>
-                    <h3 className="text-lg font-semibold">Global Sea-Port Network</h3>
-                  </div>
-                  <Globe className="w-8 h-8 text-[#FFD700]" />
-                </div>
-                <p className="text-sm text-gray-300">
-                  Access to 500+ ports worldwide with reliable Mediterranean shipping routes.
-                </p>
-              </Card>
+                </Card>
+              </div>
             </div>
-          </div>
           </div>
         </div>
       </div>

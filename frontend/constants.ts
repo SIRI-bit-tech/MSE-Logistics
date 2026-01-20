@@ -2,6 +2,8 @@ export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000
 
 export const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
 
+// NOTE: This key is exposed to the client. Ensure domain restrictions and rate limits are configured in the GraphHopper dashboard.
+// See README.md for security checklist.
 export const GRAPHHOPPER_API_KEY = process.env.NEXT_PUBLIC_GRAPHHOPPER_API_KEY
 
 // MSC Brand Colors - Exact match to MSC website
@@ -9,23 +11,23 @@ export const MSC_COLORS = {
   // Primary MSC Colors (only yellow/gold and neutrals)
   YELLOW: "#D4AF37", // MSC's signature golden yellow
   GOLD: "#B8860B",   // Darker gold variant
-  
+
   // Neutral Colors (MSC uses clean whites and grays)
   WHITE: "#FFFFFF",
   LIGHT_GRAY: "#F8F9FA",
   MEDIUM_GRAY: "#6C757D",
   DARK_GRAY: "#343A40",
   BLACK: "#000000",
-  
+
   // Text Colors
   TEXT_PRIMARY: "#212529",
   TEXT_SECONDARY: "#6C757D",
   TEXT_MUTED: "#ADB5BD",
-  
+
   // Background Colors
   BG_PRIMARY: "#FFFFFF",
   BG_SECONDARY: "#F8F9FA",
-  
+
   // Border Colors
   BORDER_LIGHT: "#DEE2E6",
   BORDER_MEDIUM: "#CED4DA",

@@ -78,6 +78,7 @@ export default function AllShipmentsModal({ isOpen, onClose }: AllShipmentsModal
     setLoading(true)
     try {
       const response = await fetch('/api/shipments?take=100', {
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -226,6 +227,7 @@ export default function AllShipmentsModal({ isOpen, onClose }: AllShipmentsModal
                         variant="ghost"
                         onClick={() => handleViewDetails(shipment)}
                         className="h-8 w-8 p-0"
+                        aria-label="View shipment details"
                       >
                         <Eye className="w-4 h-4" />
                       </Button>

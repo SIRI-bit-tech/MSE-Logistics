@@ -113,18 +113,26 @@ export default function PackageDetailsStep({ formData, onInputChange, onNext, on
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="package-description"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             PACKAGE DESCRIPTION <span className="text-red-500">*</span>
           </label>
           <Textarea
+            id="package-description"
             placeholder="Describe the contents of your package (required)"
             value={formData.description}
             onChange={(e) => onInputChange('description', e.target.value)}
             rows={3}
+            required
+            aria-required="true"
+            aria-invalid={!formData.description.trim()}
+            aria-describedby={!formData.description.trim() ? "package-description-error" : undefined}
             className={!formData.description.trim() ? 'border-red-300 focus:border-red-500' : ''}
           />
           {!formData.description.trim() && (
-            <p className="text-red-500 text-xs mt-1">Package description is required</p>
+            <p id="package-description-error" className="text-red-500 text-xs mt-1">Package description is required</p>
           )}
         </div>
 
