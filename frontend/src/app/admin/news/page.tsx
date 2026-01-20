@@ -14,6 +14,9 @@ import { useAuth } from "@/hooks/use-auth"
 import { toast } from "sonner"
 import { Newspaper, Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
+import { UploadButton } from "@uploadthing/react"
+import "@uploadthing/react/styles.css"
+import type { OurFileRouter } from "@/app/api/uploadthing/core"
 
 interface News {
     id: string
@@ -326,8 +329,50 @@ export default function NewsManagementPage() {
                                 </SelectContent>
                             </Select>
                         </div>
+                        <div className="space-y-4">
+                            <Label>Article Image</Label>
+                            <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-lg p-6 bg-gray-50">
+                                {formData.imageUrl ? (
+                                    <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-4">
+                                        <img
+                                            src={formData.imageUrl}
+                                            alt="Preview"
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            className="absolute top-2 right-2"
+                                            onClick={() => setFormData({ ...formData, imageUrl: "" })}
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <UploadButton<OurFileRouter, "newsImageUploader">
+                                        endpoint="newsImageUploader"
+                                        onClientUploadComplete={(res) => {
+                                            if (res?.[0]) {
+                                                setFormData({ ...formData, imageUrl: res[0].url })
+                                                toast.success("Image uploaded successfully")
+                                            }
+                                        }}
+                                        onUploadError={(error: Error) => {
+                                            toast.error(`Upload error: ${error.message}`)
+                                        }}
+                                        appearance={{
+                                            button: "bg-msc-yellow text-black hover:bg-msc-yellow/80",
+                                            allowedContent: "text-gray-500"
+                                        }}
+                                    />
+                                )}
+                            </div>
+                            <div className="mt-2 text-xs text-gray-500 text-center">
+                                Max size: 4MB. Recommended aspect ratio: 16:9
+                            </div>
+                        </div>
                         <div>
-                            <Label htmlFor="imageUrl">Image URL (optional)</Label>
+                            <Label htmlFor="imageUrl">Or Image URL</Label>
                             <Input
                                 id="imageUrl"
                                 value={formData.imageUrl}
@@ -409,8 +454,50 @@ export default function NewsManagementPage() {
                                 </SelectContent>
                             </Select>
                         </div>
+                        <div className="space-y-4">
+                            <Label>Article Image</Label>
+                            <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-lg p-6 bg-gray-50">
+                                {formData.imageUrl ? (
+                                    <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-4">
+                                        <img
+                                            src={formData.imageUrl}
+                                            alt="Preview"
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            className="absolute top-2 right-2"
+                                            onClick={() => setFormData({ ...formData, imageUrl: "" })}
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <UploadButton<OurFileRouter, "newsImageUploader">
+                                        endpoint="newsImageUploader"
+                                        onClientUploadComplete={(res) => {
+                                            if (res?.[0]) {
+                                                setFormData({ ...formData, imageUrl: res[0].url })
+                                                toast.success("Image uploaded successfully")
+                                            }
+                                        }}
+                                        onUploadError={(error: Error) => {
+                                            toast.error(`Upload error: ${error.message}`)
+                                        }}
+                                        appearance={{
+                                            button: "bg-msc-yellow text-black hover:bg-msc-yellow/80",
+                                            allowedContent: "text-gray-500"
+                                        }}
+                                    />
+                                )}
+                            </div>
+                            <div className="mt-2 text-xs text-gray-500 text-center">
+                                Max size: 4MB. Recommended aspect ratio: 16:9
+                            </div>
+                        </div>
                         <div>
-                            <Label htmlFor="edit-imageUrl">Image URL (optional)</Label>
+                            <Label htmlFor="edit-imageUrl">Or Image URL</Label>
                             <Input
                                 id="edit-imageUrl"
                                 value={formData.imageUrl}
