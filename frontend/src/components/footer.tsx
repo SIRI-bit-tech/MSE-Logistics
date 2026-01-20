@@ -8,21 +8,21 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           <div className="md:col-span-2">
             <div className="flex items-center mb-6">
-              <Image 
-                src="/mse-logo.png" 
-                alt="MSE Logo" 
-                width={60} 
-                height={40} 
-                className="mr-3" 
+              <Image
+                src="/mse-logo.png"
+                alt="MSE Logo"
+                width={60}
+                height={40}
+                className="mr-3"
               />
               <h4 className="font-bold text-xl">Mediterranean Shipping Express</h4>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed max-w-md">
-              A global leader in shipping and logistics, connecting businesses worldwide with reliable, 
+              A global leader in shipping and logistics, connecting businesses worldwide with reliable,
               efficient, and sustainable transportation solutions across ocean, land, and air.
             </p>
           </div>
-          
+
           <div>
             <h5 className="font-semibold mb-6 text-lg text-msc-yellow">Services</h5>
             <ul className="space-y-3 text-sm text-gray-300">
@@ -48,7 +48,7 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h5 className="font-semibold mb-6 text-lg text-msc-yellow">Company</h5>
             <ul className="space-y-3 text-sm text-gray-300">
@@ -68,14 +68,14 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="hover:text-msc-yellow transition-colors">
+                <Link href="/contact" className="hover:text-msc-yellow transition-colors">
                   Get Quote
                 </Link>
               </li>
             </ul>
           </div>
         </div>
-        
+
         <div className="border-t border-gray-700 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm mb-4 md:mb-0">

@@ -187,6 +187,7 @@ model TrackingEvent {
   facility      String?
   description   String
   transportMode TransportMode?
+  notes         String?
   createdAt     DateTime       @default(now())
 
   shipment Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)

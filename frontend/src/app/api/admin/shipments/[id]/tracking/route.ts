@@ -6,8 +6,8 @@ import { emitTrackingUpdate, emitShipmentUpdate } from '@/app/api/socket/route'
 
 const updateTrackingSchema = z.object({
   status: z.enum([
-    'PENDING', 'PROCESSING', 'ON_HOLD', 'PICKED_UP', 'IN_TRANSIT', 
-    'IN_CUSTOMS', 'CUSTOMS_CLEARED', 'ARRIVED_AT_FACILITY', 
+    'PENDING', 'PROCESSING', 'ON_HOLD', 'PICKED_UP', 'IN_TRANSIT',
+    'IN_CUSTOMS', 'CUSTOMS_CLEARED', 'ARRIVED_AT_FACILITY',
     'OUT_FOR_DELIVERY', 'DELIVERY_ATTEMPTED', 'DELIVERED', 'RETURNED', 'CANCELLED'
   ]),
   location: z.string().min(1),
@@ -73,14 +73,13 @@ export async function POST(
         description: validatedData.description,
         transportMode: validatedData.transportMode,
         notes: validatedData.notes,
-        updatedBy: userId,
         createdAt: new Date(), // Current timestamp
       },
     })
 
     // Update shipment with new status and delivery dates
-    const updateData: any = { 
-      status: validatedData.status 
+    const updateData: any = {
+      status: validatedData.status
     }
 
     // Update estimated delivery date if provided
@@ -90,7 +89,7 @@ export async function POST(
 
     // Update actual delivery date if status is DELIVERED
     if (validatedData.status === 'DELIVERED') {
-      updateData.actualDeliveryDate = validatedData.actualDeliveryDate 
+      updateData.actualDeliveryDate = validatedData.actualDeliveryDate
         ? new Date(validatedData.actualDeliveryDate)
         : new Date()
     }
@@ -203,6 +202,6 @@ function getNotificationMessage(status: string, trackingNumber: string, location
     'RETURNED': `Your shipment ${trackingNumber} is being returned from ${location}`,
     'CANCELLED': `Your shipment ${trackingNumber} has been cancelled`,
   }
-  
+
   return statusMessages[status] || `Your shipment ${trackingNumber} status updated to ${status.toLowerCase().replace('_', ' ')}`
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ensurePrisma } from '@/lib/prisma'
 import { getUserFromToken } from '@/lib/jwt-config'
+import { delCache } from '@/lib/redis'
 import { z } from 'zod'
 import Ably from 'ably'
 
@@ -151,9 +152,16 @@ export async function PATCH(
           latitude: validatedData.currentLatitude || existingShipment.currentLatitude,
           longitude: validatedData.currentLongitude || existingShipment.currentLongitude,
           description: `Status updated to ${validatedData.status}`,
-          updatedBy: user.email,
         },
       })
+    }
+
+    // Invalidate Redis cache for both public and authenticated views
+    try {
+      await delCache(`tracking:${existingShipment.trackingNumber}:public`)
+      await delCache(`tracking:${existingShipment.trackingNumber}:auth`)
+    } catch (cacheError) {
+      console.error('Failed to invalidate cache:', cacheError)
     }
 
     // Publish update to Ably for real-time tracking
