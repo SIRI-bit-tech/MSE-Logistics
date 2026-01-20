@@ -115,14 +115,18 @@ export default function Navbar() {
             </Sheet>
 
             <Link
-              href={isAuthenticated ? (user?.role === "DRIVER" ? "/dashboard" : "/shipments") : "/"}
+              href={isAuthenticated ? (
+                user?.role === "ADMIN" || user?.role === "SUPER_ADMIN"
+                  ? "/admin/dashboard"
+                  : (user?.role === "DRIVER" ? "/dashboard" : "/shipments")
+              ) : "/"}
               className="flex items-center"
             >
-              <Image 
-                src="/mse-logo.png" 
-                alt="MSE Logo" 
-                width={60} 
-                height={40} 
+              <Image
+                src="/mse-logo.png"
+                alt="MSE Logo"
+                width={60}
+                height={40}
                 className="drop-shadow-lg filter brightness-110 contrast-125"
                 priority
               />

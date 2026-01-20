@@ -152,7 +152,7 @@ export default function TrackingPage() {
                 </div>
               </div>
 
-              <div className="pb-8 sm:pb-0 border-b sm:border-none border-gray-100">
+              <div className="pb-8 sm:pb-0 border-b lg:border-none border-gray-100">
                 <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-3">Est. Delivery</p>
                 <p className="font-bold text-gray-900 text-lg">
                   {selectedShipment.estimatedDeliveryDate
@@ -161,9 +161,40 @@ export default function TrackingPage() {
                 </p>
               </div>
 
-              <div>
-                <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-3">Weight</p>
+              <div className="pb-8 sm:pb-0 border-b lg:border-none border-gray-100">
+                <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-3">Package Weight</p>
                 <p className="font-bold text-gray-900 text-lg">{selectedShipment.weight.toLocaleString()} kg</p>
+              </div>
+            </div>
+
+            {/* Financial Details */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-8 text-sm mt-8 border-t border-gray-100 pt-8">
+              <div className="pb-8 sm:pb-0 border-b sm:border-none border-gray-100">
+                <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-3">Declared Value</p>
+                <p className="font-bold text-gray-900 text-lg">
+                  {selectedShipment.value ? `${selectedShipment.currency} ${selectedShipment.value.toLocaleString()}` : 'N/A'}
+                </p>
+              </div>
+
+              <div className="pb-8 sm:pb-0 border-b sm:border-none border-gray-100">
+                <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-3">Shipping Cost</p>
+                <p className="font-bold text-gray-900 text-lg">
+                  {selectedShipment.shippingCost ? `${selectedShipment.currency} ${selectedShipment.shippingCost.toLocaleString()}` : 'N/A'}
+                </p>
+              </div>
+
+              <div className="pb-8 sm:pb-0 border-b sm:border-none border-gray-100">
+                <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-3">Insurance</p>
+                <p className="font-bold text-gray-900 text-lg">
+                  {selectedShipment.insuranceCost ? `${selectedShipment.currency} ${selectedShipment.insuranceCost.toLocaleString()}` : 'N/A'}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-3">Total Amount</p>
+                <p className="font-bold text-msc-yellow text-xl">
+                  {selectedShipment.totalCost ? `${selectedShipment.currency} ${selectedShipment.totalCost.toLocaleString()}` : 'N/A'}
+                </p>
               </div>
             </div>
 

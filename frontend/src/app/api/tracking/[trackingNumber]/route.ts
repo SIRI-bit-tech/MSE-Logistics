@@ -32,10 +32,10 @@ export async function GET(
         estimatedDeliveryDate: true,
         actualDeliveryDate: true,
 
-        // Sender info (limited for public, full for authenticated)
+        // Sender info (full for everyone)
         senderName: true,
-        senderEmail: isAuthenticated,
-        senderPhone: isAuthenticated,
+        senderEmail: true,
+        senderPhone: true,
         senderAddress: true,
         senderCity: true,
         senderCountry: true,
@@ -43,10 +43,10 @@ export async function GET(
         senderLatitude: true,
         senderLongitude: true,
 
-        // Recipient info (limited for public, full for authenticated)
+        // Recipient info (full for everyone)
         recipientName: true,
-        recipientEmail: isAuthenticated,
-        recipientPhone: isAuthenticated,
+        recipientEmail: true,
+        recipientPhone: true,
         recipientAddress: true,
         recipientCity: true,
         recipientCountry: true,
@@ -61,17 +61,17 @@ export async function GET(
         width: true,
         height: true,
         description: true,
-        value: isAuthenticated, // Hide value from public
+        value: true,
         currency: true,
 
         // Service info
         serviceType: true,
         transportMode: true,
 
-        // Costs (hide from public)
-        shippingCost: isAuthenticated,
-        insuranceCost: isAuthenticated,
-        totalCost: isAuthenticated,
+        // Costs (show for everyone)
+        shippingCost: true,
+        insuranceCost: true,
+        totalCost: true,
 
         // Current location
         currentLatitude: true,
