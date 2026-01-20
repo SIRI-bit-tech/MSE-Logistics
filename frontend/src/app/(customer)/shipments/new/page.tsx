@@ -186,12 +186,12 @@ export default function CreateShipmentPage() {
         let errorData
         let errorMessage
 
+        const text = await response.text()
         try {
-          errorData = await response.json()
+          errorData = JSON.parse(text)
           errorMessage = errorData.error || 'Failed to create shipment'
         } catch (e) {
-          // Fallback if response is not JSON (e.g., 500 error page)
-          const text = await response.text()
+          // Fallback if response is not valid JSON
           errorData = { raw: text }
           errorMessage = text || 'Failed to create shipment (Unknown Error)'
         }

@@ -33,6 +33,7 @@ const updateShipmentSchema = z.object({
   ).optional(),
   notes: z.string().optional(),
   transportMode: z.enum(['AIR', 'LAND', 'WATER', 'MULTIMODAL']).optional(),
+  totalCost: z.number().optional(),
 })
 
 // PATCH /api/admin/shipments/[id] - Update shipment (admin only)
@@ -115,6 +116,10 @@ export async function PATCH(
       updateData.transportMode = validatedData.transportMode
     }
 
+    if (validatedData.totalCost !== undefined) {
+      updateData.totalCost = validatedData.totalCost
+    }
+
     // Update shipment
     const updatedShipment = await prisma.shipment.update({
       where: { id },
@@ -130,6 +135,7 @@ export async function PATCH(
         estimatedDeliveryDate: true,
         notes: true,
         transportMode: true,
+        totalCost: true,
       },
     })
 
