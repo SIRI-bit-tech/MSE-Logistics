@@ -112,6 +112,7 @@ export default function AdminDashboardPage() {
           recipientCity: s.recipientCity,
           recipientCountry: s.recipientCountry,
           createdAt: new Date(s.createdAt).toLocaleDateString(),
+          totalCost: s.totalCost,
         }))
         setShipments(formattedShipments)
 
@@ -310,6 +311,7 @@ export default function AdminDashboardPage() {
           estimatedDeliveryDate: data.shipment.estimatedDeliveryDate,
           notes: data.shipment.notes,
           transportMode: data.shipment.transportMode,
+          totalCost: data.shipment.totalCost,
         })
         setIsEditOpen(true)
       } else {
@@ -356,6 +358,10 @@ export default function AdminDashboardPage() {
 
       if (editingShipment.transportMode) {
         payload.transportMode = editingShipment.transportMode
+      }
+
+      if (editingShipment.totalCost !== undefined) {
+        payload.totalCost = editingShipment.totalCost
       }
 
       const response = await fetch(`/api/admin/shipments/${editingShipment.id}`, {
@@ -737,6 +743,30 @@ export default function AdminDashboardPage() {
                     <SelectItem value="MULTIMODAL">Multimodal</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Total Cost */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-cost">Total Shipping Cost</Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                  <Input
+                    id="edit-cost"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="pl-10"
+                    placeholder="0.00"
+                    value={editingShipment.totalCost}
+                    onChange={(e) => {
+                      const val = e.target.value
+                      setEditingShipment({
+                        ...editingShipment,
+                        totalCost: val === '' ? '' : parseFloat(val) as any
+                      })
+                    }}
+                  />
+                </div>
               </div>
 
               <Separator />
