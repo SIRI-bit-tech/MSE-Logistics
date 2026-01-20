@@ -25,7 +25,7 @@ export default function SignupPage() {
   const router = useRouter()
   const { registerWithCredentials } = useAuth()
   const countries = countryList()
-  
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -69,10 +69,10 @@ export default function SignupPage() {
         formData.firstName,
         formData.lastName
       )
-      
+
       if (result.success) {
-        toast.success("Account created successfully!")
-        router.push("/shipments")
+        toast.success("Account created successfully! Please log in.")
+        router.push("/auth/login")
       } else {
         toast.error(result.error || "Registration failed. Please try again.")
       }
@@ -87,7 +87,7 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Ocean Background with Container Ship - Hidden on mobile */}
-      <div 
+      <div
         className="hidden lg:flex flex-1 relative bg-cover bg-center bg-no-repeat flex-col justify-between p-12 text-white"
         style={{
           backgroundImage: `url('/signup-image.png')`
@@ -95,12 +95,12 @@ export default function SignupPage() {
       >
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <Image 
-            src="/mse-logo.png" 
-            alt="MSE Logo" 
-            width={72} 
-            height={48} 
-            className="drop-shadow-lg filter brightness-110 contrast-125" 
+          <Image
+            src="/mse-logo.png"
+            alt="MSE Logo"
+            width={72}
+            height={48}
+            className="drop-shadow-lg filter brightness-110 contrast-125"
           />
           <span className="text-2xl font-bold tracking-wide">MEDITERRANEAN SHIPPING EXPRESS</span>
         </div>
@@ -114,7 +114,7 @@ export default function SignupPage() {
           <p className="text-xl mb-8 opacity-90 leading-relaxed">
             Join our global network today. Experience seamless shipping solutions tailored for your business needs across the seven seas.
           </p>
-          
+
           {/* Features */}
           <div className="flex flex-wrap gap-6 text-base">
             <div className="flex items-center gap-2">
@@ -143,12 +143,12 @@ export default function SignupPage() {
         <div className="w-full max-w-xl mx-auto">
           {/* Mobile Logo - Only shown on mobile */}
           <div className="lg:hidden flex items-center justify-center mb-8">
-            <Image 
-              src="/mse-logo.png" 
-              alt="MSE Logo" 
-              width={96} 
-              height={64} 
-              className="drop-shadow-lg filter brightness-110 contrast-125" 
+            <Image
+              src="/mse-logo.png"
+              alt="MSE Logo"
+              width={96}
+              height={64}
+              className="drop-shadow-lg filter brightness-110 contrast-125"
             />
           </div>
 
@@ -244,9 +244,9 @@ export default function SignupPage() {
                     {countries.getData().map((country) => (
                       <SelectItem key={country.value} value={country.value}>
                         <div className="flex items-center gap-2">
-                          <ReactCountryFlag 
-                            countryCode={country.value} 
-                            svg 
+                          <ReactCountryFlag
+                            countryCode={country.value}
+                            svg
                             style={{
                               width: '1.2em',
                               height: '1.2em',
@@ -342,8 +342,8 @@ export default function SignupPage() {
 
             <div className="text-center pt-4 sm:pt-6">
               <span className="text-gray-500 text-sm sm:text-base">Already have an account? </span>
-              <Link 
-                href="/auth/login" 
+              <Link
+                href="/auth/login"
                 className="text-msc-yellow hover:text-msc-gold font-semibold text-sm sm:text-base transition-colors"
               >
                 Log In
