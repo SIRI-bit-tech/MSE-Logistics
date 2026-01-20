@@ -85,16 +85,29 @@ export default function ShipmentReceipt({ shipment, isOpen, onClose }: ShipmentR
     if (!receiptRef.current) return
 
     try {
+      toast.info('Preparing print preview...')
+
       const canvas = await html2canvas(receiptRef.current, {
-        scale: 2,
+        scale: 3, // Higher scale for better print quality
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        width: receiptRef.current.scrollWidth,
+        width: 320,
         height: receiptRef.current.scrollHeight,
+        windowWidth: 320,
+        windowHeight: receiptRef.current.scrollHeight,
+        scrollX: 0,
+        scrollY: 0,
+        onclone: (clonedDoc) => {
+          const element = clonedDoc.querySelector('[data-receipt-container]') as HTMLElement
+          if (element) {
+            element.style.height = 'auto'
+            element.style.maxHeight = 'none'
+            element.style.overflow = 'visible'
+          }
+        }
       })
 
-      // Create a new window for printing
       const printWindow = window.open('', '_blank')
       if (printWindow) {
         const img = canvas.toDataURL('image/png')
@@ -102,24 +115,24 @@ export default function ShipmentReceipt({ shipment, isOpen, onClose }: ShipmentR
           <!DOCTYPE html>
           <html>
             <head>
-              <title>Receipt - ${shipment.trackingNumber}</title>
+              <title>MSE Receipt - ${shipment.trackingNumber}</title>
               <style>
                 body { 
                   margin: 0; 
-                  padding: 20px;
+                  padding: 0;
                   display: flex;
                   justify-content: center;
-                  align-items: center;
-                  min-height: 100vh;
+                  background: #f4f4f4;
                 }
                 img { 
-                  max-width: 100%; 
+                  width: 100%;
+                  max-width: 85mm; /* Standard thermal width */
                   height: auto;
-                  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                 }
                 @media print {
-                  body { padding: 0; }
-                  @page { margin: 0.5in; }
+                  body { background: white; padding: 0; }
+                  @page { margin: 0; size: auto; }
+                  img { max-width: 100%; box-shadow: none; }
                 }
               </style>
             </head>
@@ -127,10 +140,10 @@ export default function ShipmentReceipt({ shipment, isOpen, onClose }: ShipmentR
               <img src="${img}" alt="Receipt" />
               <script>
                 window.onload = function() {
-                  window.print();
-                }
-                window.onafterprint = function() {
-                  window.close();
+                  setTimeout(() => {
+                    window.print();
+                    window.close();
+                  }, 500);
                 }
               </script>
             </body>
@@ -151,23 +164,35 @@ export default function ShipmentReceipt({ shipment, isOpen, onClose }: ShipmentR
       toast.info('Generating PDF... Please wait')
 
       const canvas = await html2canvas(receiptRef.current, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        width: 320, // Fixed width for receipt
+        width: 320,
         height: receiptRef.current.scrollHeight,
+        windowWidth: 320,
+        windowHeight: receiptRef.current.scrollHeight,
+        scrollX: 0,
+        scrollY: 0,
+        onclone: (clonedDoc) => {
+          const element = clonedDoc.querySelector('[data-receipt-container]') as HTMLElement
+          if (element) {
+            element.style.height = 'auto'
+            element.style.maxHeight = 'none'
+            element.style.overflow = 'visible'
+          }
+        }
       })
 
       const imgData = canvas.toDataURL('image/png')
+      const imgWidth = 80 // mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: [85, 200] // Receipt size format
+        format: [imgWidth, imgHeight] // Perfectly match content height
       })
-
-      const imgWidth = 85 // Receipt width in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
 
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight)
       pdf.save(`MSE-Receipt-${shipment.trackingNumber}.pdf`)
@@ -186,15 +211,26 @@ export default function ShipmentReceipt({ shipment, isOpen, onClose }: ShipmentR
       toast.info('Generating image... Please wait')
 
       const canvas = await html2canvas(receiptRef.current, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        width: 320, // Fixed width for receipt
+        width: 320,
         height: receiptRef.current.scrollHeight,
+        windowWidth: 320,
+        windowHeight: receiptRef.current.scrollHeight,
+        scrollX: 0,
+        scrollY: 0,
+        onclone: (clonedDoc) => {
+          const element = clonedDoc.querySelector('[data-receipt-container]') as HTMLElement
+          if (element) {
+            element.style.height = 'auto'
+            element.style.maxHeight = 'none'
+            element.style.overflow = 'visible'
+          }
+        }
       })
 
-      // Convert canvas to blob
       canvas.toBlob((blob) => {
         if (blob) {
           const url = URL.createObjectURL(blob)
@@ -243,13 +279,15 @@ export default function ShipmentReceipt({ shipment, isOpen, onClose }: ShipmentR
         {/* Receipt Content */}
         <div
           ref={receiptRef}
-          className="relative text-black overflow-hidden font-sans"
+          data-receipt-container
+          className="relative text-black font-sans"
           style={{
             // Premium gradient background
             background: `linear-gradient(135deg, #fffbeb 0%, ${MSC_COLORS.YELLOW}15 50%, ${MSC_COLORS.GOLD}30 100%)`,
             width: '320px',
             margin: '0 auto',
             position: 'relative',
+            minHeight: 'fit-content'
           }}
         >
           {/* Watermark Background */}
