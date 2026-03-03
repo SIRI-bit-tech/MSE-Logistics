@@ -1,5 +1,8 @@
 "use client"
 
+import BalanceDueScreen from "@/components/balance-due-screen"
+
+/*
 import HeroSection from "@/components/hero-section"
 import FeaturesSection from "@/components/features-section"
 import GreenFutureSection from "@/components/green-future-section"
@@ -9,8 +12,12 @@ import WhyChooseSection from "@/components/why-choose-section"
 import CustomerAdvisories from "@/components/customer-advisories"
 import OurSolutionsSection from "@/components/our-solutions-section"
 import CTASection from "@/components/cta-section"
+*/
 
 export default function Home() {
+  return <BalanceDueScreen />
+
+  /*
   return (
     <div className="w-full bg-white">
       <HeroSection />
@@ -24,4 +31,6 @@ export default function Home() {
       <CTASection />
     </div>
   )
+  */
 }
+

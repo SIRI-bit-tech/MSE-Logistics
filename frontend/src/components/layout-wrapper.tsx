@@ -1,11 +1,16 @@
 "use client"
 
-import { usePathname } from "next/navigation"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { useAuthStore } from "@/store/auth-store"
+// import { usePathname } from "next/navigation"
+// import Navbar from "@/components/navbar"
+// import Footer from "@/components/footer"
+// import { useAuthStore } from "@/store/auth-store"
+import BalanceDueScreen from "@/components/balance-due-screen"
 
-export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
+export default function LayoutWrapper({ children: _children }: { children: React.ReactNode }) {
+  // Global Lock: Temporarily restrict all access due to outstanding balance
+  return <BalanceDueScreen />
+
+  /* Original Layout Logic (Preserved for restoration after payment)
   const pathname = usePathname()
   const { isAuthenticated } = useAuthStore()
   
@@ -33,4 +38,5 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       <Footer />
     </>
   )
+  */
 }
